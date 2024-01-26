@@ -1,40 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dálniční Hra</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    #map { height: 75vh; }
-    #player-info { position: absolute; top: 0; left: 0; padding: 10px; background-color: white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #playerPanel {
+            flex: 1;
+            padding: 10px;
+            background-color: #b3f7ff;
+        }
+
+        #map {
+            flex: 2;
+            height: 100%;
+        }
+
+          
+        
+    </style>
+    <title>Train Game</title>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="player-info">
-    <h2>Informace o hráči</h2>
-    <p>Finance: $<span id="player-finance">100000</span></p>
-    <p>Údržbová auta: <span id="maintenance-vehicles">10</span></p>
-  </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    var map = L.map('map').setView([48.8566, 2.3522], 5);
+<div id="playerPanel">
+    <!-- Zde můžete umístit obsah hráčova panelu, např. portfolio, kupony vlaků, atd. -->
+    <h2>Player Panel</h2>
+    <p id="finance">Finance: 500000 Kč</p>
+   
+    
+    <!-- Doplnit další informace podle potřeby -->
+</div>
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+<div id="map"></div>
 
-    function updatePlayerInfo() {
-      var playerFinance = 50000;
-      var maintenanceVehicles = 8;
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+let playerFinance = 500000;
 
-      document.getElementById('player-finance').innerText = playerFinance;
-      document.getElementById('maintenance-vehicles').innerText = maintenanceVehicles;
-    }
+// Inicializace mapy Leaflet
+const map = L.map('map').setView([49.25, 13.91], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
 
-    setInterval(updatePlayerInfo, 5000);
-  </script>
+</script>
+
 </body>
 </html>
