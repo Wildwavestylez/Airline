@@ -23,21 +23,17 @@
             flex: 2;
             height: 100%;
         }
-
-          
-        
     </style>
-    <title>Train Game</title>
+    <title>Highway Game</title>
 </head>
 <body>
 
 <div id="playerPanel">
-    <!-- Zde můžete umístit obsah hráčova panelu, např. portfolio, kupony vlaků, atd. -->
     <h2>Player Panel</h2>
     <p id="finance">Finance: 500000 Kč</p>
-   
-    
-    <!-- Doplnit další informace podle potřeby -->
+    <p id="currentSection">Aktuální dálniční úsek: D1 Praha-Chodov až Praha-Opatov</p>
+    <button onclick="collectToll()">Vybírat Mýtné</button>
+    <div id="messages"></div>
 </div>
 
 <div id="map"></div>
@@ -45,12 +41,36 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 let playerFinance = 500000;
+let tollRate = 10; // Mýtné za každý kamion
+let trucksPerMinute = 10; // Kamiony za minutu
+let currentSection = "D1 Praha-Chodov až Praha-Opatov";
 
-// Inicializace mapy Leaflet
-const map = L.map('map').setView([49.25, 13.91], 11);
+const map = L.map('map').setView([50.03, 14.50], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
+
+function updateFinance() {
+    document.getElementById('finance').innerText = `Finance: ${playerFinance} Kč`;
+}
+
+function updateCurrentSection() {
+    document.getElementById('currentSection').innerText = `Aktuální dálniční úsek: ${currentSection}`;
+}
+
+function showMessage(message) {
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML = `<p>${message}</p>`;
+}
+
+function collectToll() {
+    setInterval(function() {
+        playerFinance += tollRate;
+        updateFinance();
+    }, 6000); // Každých 6 sekund (pro účely simulace)
+
+    showMessage(`Probíhá výběr mýtného na úseku ${currentSection}.`);
+}
 
 </script>
 
