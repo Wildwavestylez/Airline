@@ -97,6 +97,10 @@ let regularMaintenanceVehicleCost = 10000;
 let winterMaintenanceVehicleCost = 15000;
 let regularMaintenanceVehicleAvailable = false;
 let winterMaintenanceVehicleAvailable = false;
+let regularMaintenanceVehicle = null;
+let regularMaintenanceVehicleSpeed = 60; // Rychlost vozidla v km/h
+let regularMaintenanceVehicleUpdateInterval= null;
+
 
 
     
@@ -416,30 +420,6 @@ function buildServiceCenter(event) {
     buildingInProgress = false;
 }
 
-// Objekt vozidla běžné údržby
-const regularMaintenanceVehicle = {
-    icon: regularMaintenanceVehicleIcon,
-    speed: 60, // Rychlost v km/h
-    position: null, // Aktuální poloha vozidla
-    routeIndex: 0, // Index aktuálního úseku na trase
-    intervalId: null, // ID intervalu pro periodické updaty
-};
-
-function updateRegularMaintenanceVehiclePosition() {
-    if (regularMaintenanceVehicle.position !== null) {
-        regularMaintenanceVehicle.position.remove(); // Odstraní předchozí značku vozidla
-    }
-
-    const currentRoute = highways[0].route; // Získáme trasu první dálnice (D1) - můžete přizpůsobit podle vašich požadavků
-
-    // Přidáme 1 k indexu a zkontrolujeme, jestli jsme na konci trasy
-    regularMaintenanceVehicle.routeIndex = (regularMaintenanceVehicle.routeIndex + 1) % currentRoute.length;
-
-    const currentPoint = currentRoute[regularMaintenanceVehicle.routeIndex];
-
-    regularMaintenanceVehicle.position = L.marker(currentPoint.location, { icon: regularMaintenanceVehicle.icon }).addTo(map);
-}
-
 function buyRegularMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
     if (buyConfirmation) {
@@ -447,14 +427,54 @@ function buyRegularMaintenanceVehicle() {
             playerFinance -= regularMaintenanceVehicleCost;
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
-            
-            // Spustíme periodické aktualizace polohy vozidla
-            regularMaintenanceVehicle.intervalId = setInterval(updateRegularMaintenanceVehiclePosition, 1000);
+
+            // Vytvoření vozidla běžné údržby a spuštění pohybu
+            regularMaintenanceVehicle = L.marker(stServiceCenterLocation, { icon: regularMaintenanceVehicleIcon }).addTo(map);
+            regularMaintenanceVehicle.bindPopup('Vozidlo běžné údržby').openPopup();
+            regularMaintenanceVehicleUpdateInterval = setInterval(moveRegularMaintenanceVehicle, 1000);
+
+            // TODO: Přidat další funkcionalitu, pokud je potřeba
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
     }
 }
+
+function moveRegularMaintenanceVehicle() {
+    if (regularMaintenanceVehicle) {
+        const currentPosition = regularMaintenanceVehicle.getLatLng();
+        const nextPosition = getNextPosition(currentPosition);
+        regularMaintenanceVehicle.setLatLng(nextPosition);
+        map.panTo(nextPosition);
+    }
+}
+
+function getNextPosition(currentPosition) {
+    // TODO: Implementovat logiku pro pohyb vozidla mezi zakoupenými úseky dálnic
+    // Prozatím se vozidlo bude pohybovat lineárně po údržených úsecích
+
+    const routePoints = getAvailableRoutePoints(); // Funkce, která vrátí pole dostupných bodů
+    const currentIndex = routePoints.findIndex(point => point.equals(currentPosition));
+    
+    if (currentIndex !== -1 && currentIndex < routePoints.length - 1) {
+        return routePoints[currentIndex + 1];
+    } else {
+        return currentPosition;
+    }
+}
+
+function getAvailableRoutePoints() {
+    // TODO: Implementovat logiku pro získání dostupných bodů dálnic
+    // Prozatím se budou používat všechny body na všech dálnicích
+
+    const allRoutePoints = [];
+    highways.forEach(highway => {
+        allRoutePoints.push(...highway.route.map(point => L.latLng(point.location)));
+    });
+
+    return allRoutePoints;
+}
+
 
 function buyWinterMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo zimní údržby za ${winterMaintenanceVehicleCost} Kč?`);
