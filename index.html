@@ -34,7 +34,7 @@
 
 <div id="playerPanel">
     <h2>Player Panel</h2>
-    <p id="finance">Finance: 1000 Kč</p>
+    <p id="finance">Finance: 500000 Kč</p>
     <button onclick="collectToll()">Vybírat Mýtné</button>
     <button id="unlockButton" onclick="showUnlockDialog()">Odemknout</button>
     <div id="messages"></div>
@@ -46,15 +46,15 @@
 <script>
 const exitIcon = L.icon({
     iconUrl: 'https://i.imgur.com/iOwi5DR.png',
-    iconSize: [64, 64],
-    iconAnchor: [32, 64],
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
     popupAnchor: [0, -32]
 });
 
 const serviceIcon = L.icon({
     iconUrl: 'https://i.imgur.com/xnqmp70.png',
-    iconSize: [64, 64],
-    iconAnchor: [32, 64],
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
     popupAnchor: [0, -32]
 });
 
@@ -65,7 +65,7 @@ const crossingIcon = L.icon({
     popupAnchor: [0, -32]
 });
 
-let playerFinance = 1000;
+let playerFinance = 500000;
 let tollRate = 10;
 
 // Seznam dálnic
@@ -74,7 +74,17 @@ var highways = [
         name: "D1",
         color: "blue",
         route: [
-                       { exit: "Praha Chodov", location: [50.0343592, 14.4919775], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+
+
+        { crossing: "Praha-Pankrác", location: [50.0522672, 14.4432236], crossing: "PP1", cost: 10000, earnings: 0 },
+        { Service: "OMV Nuselský most", location: [50.0511397, 14.4463297], unlocked: false, cost: 5000 },
+        { exit: "Praha - Vyskočilova", location: [50.0477250, 14.4523647], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { Waypoint: "ABM", location: [50.0286622, 14.4953736] },  
+        { crossing: "Praha-Kačerov", location: [50.0420419, 14.4650519], crossing: "Jižní spojka", cost: 10000, earnings: 0 },
+        { Waypoint: "ABN", location: [50.0397900, 14.4758431] },
+        { exit: "Praha Türkova", location: [50.0402728, 14.4823356], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { Waypoint: "ABO", location: [50.0395119, 14.4863147] },  
+        { exit: "Praha Chodov", location: [50.0343592, 14.4919775], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { Waypoint: "AA", location: [50.0286622, 14.4953736] },
         { exit: "Praha Opatov", location: [50.0224761, 14.5087214], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { Service: "Odpočívka Újezd, 4.5 km (P)", location: [50.0092897, 14.5430764], unlocked: false, cost: 5000 },
@@ -103,19 +113,104 @@ var highways = [
         { Waypoint: "AL", location: [49.8686931, 14.7796706] },
         { exit: "Hvězdonice", location: [49.8652547, 14.7847261], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { Service: "Odpočívka Naháč, 29.9 km (L)", location: [49.8616800, 14.7905947], unlocked: false, cost: 5000 },
-        ]
+        ],
+        hidden: false,
     },
     {
         name: "D0",
         color: "red",
         route: [
-            { crossing: "Říčany crossing", location: [49.9809969, 14.6058394], crossing: "D0", cost: 10000, earnings: 0 },
-            { Service: "Odpočívka Modřanská rokle", location: [50.025915, 14.573986], unlocked: false, cost: 5000 },
-            { exit: "Modřany", location: [50.026806, 14.585010], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { crossing: "Říčany crossing", location: [49.9809969, 14.6058394], crossing: "D1", cost: 10000, earnings: 0 },
+            { Waypoint: "AAA", location: [49.9715131, 14.5707814] },
+            { Waypoint: "AAB", location: [49.9673836, 14.5587650] },
+            { Waypoint: "AAC", location: [49.9639164, 14.5500275] },
+            { Waypoint: "AAD", location: [49.9626175, 14.5443325] },
+            { Waypoint: "AAE", location: [49.9626975, 14.5330031] },
+            { exit: "Jesenice u Prahy", location: [49.9626975, 14.5330031], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "AAF", location: [49.9606019, 14.5111783] },
+            { Waypoint: "AAG", location: [49.9609733, 14.5061808] },
+            { Waypoint: "AAH", location: [49.9627403, 14.5006747] },
+            { Waypoint: "AAI", location: [49.9673697, 14.4946881] },
+            { Waypoint: "AAJ", location: [49.9745656, 14.4904439] },
+            { Waypoint: "AAK", location: [49.9751867, 14.4897572] },
+            { Waypoint: "AAL", location: [49.9771406, 14.4870450] },
+            { exit: "Vestec u Prahy", location: [49.9795389, 14.4803631], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "AAM", location: [49.9800508, 14.4752003] },
+            { exit: "Dolní Břežany", location: [49.9796478, 14.4654403], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "AAN", location: [49.9798267, 14.4533208] },
+            { exit: "Praha - Cholupice", location: [49.9812697, 14.4406267], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "AAO", location: [49.9822275, 14.4291081] },
+            { Waypoint: "AAP", location: [49.9812008, 14.4164394] },
+            { Waypoint: "AAQ", location: [49.9823517, 14.4045478] },
+            { crossing: "Radotínský most D0xD4", location: [49.9855231, 14.3956844], crossing: "D4", cost: 10000, earnings: 0 },
+            { Waypoint: "ABH", location: [49.9942464, 14.3751417] },
             // Další body D0
-        ]
+        ],
+        hidden: true,
     },
-    // Další dálnice
+    {
+        name: "D4",
+        color: "green",
+        route: [
+            { crossing: "Barrandovský most Jižní spojkaxD4", location: [49.9855231, 14.3956844], crossing: "Jižní Spojka", cost: 10000, earnings: 0 },
+            { Waypoint: "AAR", location: [50.0270778, 14.3958669], },
+            { Service: "Robin Oil Strakonická", location: [50.0256744, 14.3950206], unlocked: false, cost: 5000 },
+            { Waypoint: "AAS", location: [50.0241106, 14.3944744], },
+            { Service: "OMV Strakonická", location: [50.0223858, 14.3941911], unlocked: false, cost: 5000 },
+            { exit: "Praha - Velká Chuchle", location: [50.0181656, 14.3940625], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "AAT", location: [50.0139714, 14.3940506] },
+            { exit: "Praha - Malá Chuchle", location: [50.0122325, 14.3943081], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "AAU", location: [50.0101242, 14.3946386] },
+            { Waypoint: "AAV", location: [50.0026806, 14.3952253] },
+            { exit: "Praha - Lahovičky", location: [49.9957356, 14.3969936], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "AAW", location: [49.9925161, 14.3988528] },
+            { Waypoint: "AAX", location: [49.9914539, 14.3991050] },
+            { Waypoint: "AAY", location: [49.9903908, 14.3990503] },
+            { Waypoint: "AAZ", location: [49.9883883, 14.3983903] },
+            { crossing: "Radotínský most D0xD4", location: [49.9855231, 14.3956844], crossing: "D4", cost: 10000, earnings: 0 },
+            { exit: "Praha - Zbraslav", location: [49.9747242, 14.3792817], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "ABA", location: [49.9720492, 14.3771292] },
+            { Waypoint: "ABB", location: [49.9692639, 14.3761936] },
+            { exit: "Praha - Zbraslav, K výtopně", location: [49.9674725, 14.3759853], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "ABC", location: [49.9644594, 14.3766333] },
+            { exit: "Praha - Zbraslav, Na Baních", location: [49.9622136, 14.3779939], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+              ],
+        hidden: true,
+    },
+     {
+        name: "Jižní spojka",
+        color: "#00FFFF",
+        route: [
+            { crossing: "Barrandovský most Jižní spojkaxD4", location: [49.9855231, 14.3956844], crossing: "D4", cost: 10000, earnings: 0 },
+            { exit: "Praha - Modřanská1", location: [50.0375753, 14.4081311], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "ABD", location: [50.0347806, 14.4082453] },
+            { Waypoint: "ABE", location: [50.0347806, 14.4082453] },
+            { Waypoint: "ABF", location: [50.0327572, 14.4100436] },
+            { Waypoint: "ABG", location: [50.0318250, 14.4124597] },
+            { exit: "Praha - Modřanská2", location: [50.0318267, 14.4162592], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Service: "Orlen Jižní spojka", location: [50.0330169, 14.4240533], unlocked: false, cost: 5000 },
+             { crossing: "Praha-Kačerov", location: [50.0420419, 14.4650519], crossing: "D1", cost: 10000, earnings: 0 },
+              ],
+        hidden: true,
+    },
+    {
+        name: "PP1",
+        color: "#00FFFF",
+        route: [
+            { crossing: "Praha-Pankrác", location: [50.0522672, 14.4432236], crossing: "D1", cost: 10000, earnings: 0 },
+            { exit: "Praha - Na Pankráci", location: [50.0529903, 14.4412292], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { exit: "Praha - Náměstí hrdinů", location: [50.0566022, 14.4365975], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "ABI", location: [50.0575908, 14.4358172] },
+            { exit: "Praha - Lounských", location: [50.0596747, 14.4331953], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { exit: "Praha - Kongresová", location: [50.0616131, 14.4309192], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "ABJ", location: [50.0622778, 14.4305881] },
+            { Waypoint: "ABK", location: [50.0682056, 14.4303817] },
+            { Waypoint: "ABL", location: [50.0693997, 14.4308731] },
+            { exit: "Praha - Fügnerovo náměstí", location: [50.0719250, 14.4305908], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Service: "Orlen Jižní spojka", location: [50.0330169, 14.4240533], unlocked: false, cost: 5000 },
+              ],
+        hidden: true,
+    },
 ];
 
 const map = L.map('map').setView([50.03, 14.50], 13);
@@ -124,34 +219,40 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Vykreslení dálnic na mapu
-highways.forEach(highway => {
-    const routePolyline = L.polyline(highway.route.map(point => point.location), { color: highway.color }).addTo(map);
+function showHighways() {
+    highways.forEach(highway => {
+        if (!highway.hidden) {
+            const routePolyline = L.polyline(highway.route.map(point => point.location), { color: highway.color }).addTo(map);
 
-    highway.route.forEach(point => {
-        if (point.exit) {
-            const marker = L.marker(point.location, { icon: exitIcon }).addTo(map);
-            marker.on('click', () => {
-                if (!point.unlocked) {
-                    showUnlockDialog(point);
-                }
-            });
-        } else if (point.Service) {
-            const marker = L.marker(point.location, { icon: serviceIcon }).addTo(map);
-            marker.on('click', () => {
-                if (!point.unlocked) {
-                    showUnlockDialog(point);
-                }
-            });
-        } else if (point.crossing) {
-            const marker = L.marker(point.location, { icon: crossingIcon }).addTo(map);
-            marker.on('click', () => {
-                if (!point.unlocked) {
-                    showUnlockDialog(point);
+            highway.route.forEach(point => {
+                if (point.exit) {
+                    const marker = L.marker(point.location, { icon: exitIcon }).addTo(map);
+                    marker.on('click', () => {
+                        if (!point.unlocked) {
+                            showUnlockDialog(point);
+                        }
+                    });
+                } else if (point.Service) {
+                    const marker = L.marker(point.location, { icon: serviceIcon }).addTo(map);
+                    marker.on('click', () => {
+                        if (!point.unlocked) {
+                            showUnlockDialog(point);
+                        }
+                    });
+                } else if (point.crossing) {
+                    const marker = L.marker(point.location, { icon: crossingIcon }).addTo(map);
+                    marker.on('click', () => {
+                        if (!point.unlocked) {
+                            showUnlockDialog(point);
+                        }
+                    });
                 }
             });
         }
     });
-});
+}
+
+showHighways();
 
 function updateFinance() {
     document.getElementById('finance').innerText = `Finance: ${playerFinance} Kč`;
@@ -205,6 +306,15 @@ function showUnlockDialog(point) {
             updateFinance();
             showMessage(`Úsek ${point.exit || 'benzínka'} odemknut.`);
             document.getElementById('unlockButton').style.display = 'none';
+
+            if (point.crossing) {
+                // Pokud je to křížení, odemkne přidruženou dálnici
+                const connectedHighway = highways.find(highway => highway.name === point.crossing);
+                if (connectedHighway) {
+                    connectedHighway.hidden = false;
+                    showHighways();
+                }
+            }
         } else {
             showMessage('Nemáte dostatek financí k odemknutí.');
         }
