@@ -420,6 +420,8 @@ function buildServiceCenter(event) {
 
 let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla běžné údržby
 
+let regularMaintenanceVehicleMarker;  // Marker vozidla běžné údržby
+
 function moveRegularMaintenanceVehicle() {
     setInterval(function () {
         if (regularMaintenanceVehicleLocation) {
@@ -434,6 +436,8 @@ function moveRegularMaintenanceVehicle() {
         }
     }, 1000);
 }
+
+
 
 function findCurrentHighway(location) {
     for (const highway of highways) {
@@ -492,6 +496,8 @@ function updateMaintenanceVehicleMarker(location) {
     }
 }
 
+let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
+
 function buyRegularMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
     if (buyConfirmation) {
@@ -500,6 +506,7 @@ function buyRegularMaintenanceVehicle() {
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
             regularMaintenanceVehicleLocation = findStartingPoint().location;
+            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);  // Inicializace markeru
             moveRegularMaintenanceVehicle();
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
