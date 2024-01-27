@@ -97,9 +97,7 @@ let regularMaintenanceVehicleCost = 10000;
 let winterMaintenanceVehicleCost = 15000;
 let regularMaintenanceVehicleAvailable = false;
 let winterMaintenanceVehicleAvailable = false;
-let regularMaintenanceVehicle = null;
-let regularMaintenanceVehicleSpeed = 60; // Rychlost vozidla v km/h
-let regularMaintenanceVehicleUpdateInterval= null;
+
 
 
 
@@ -420,6 +418,80 @@ function buildServiceCenter(event) {
     buildingInProgress = false;
 }
 
+let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla běžné údržby
+
+function moveRegularMaintenanceVehicle() {
+    setInterval(function () {
+        if (regularMaintenanceVehicleLocation) {
+            const currentHighway = findCurrentHighway(regularMaintenanceVehicleLocation);
+            if (currentHighway) {
+                const nextPoint = findNextPoint(currentHighway, regularMaintenanceVehicleLocation);
+                if (nextPoint) {
+                    regularMaintenanceVehicleLocation = calculateNextLocation(regularMaintenanceVehicleLocation, nextPoint.location, 60);
+                    updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
+                }
+            }
+        }
+    }, 1000);
+}
+
+function findCurrentHighway(location) {
+    for (const highway of highways) {
+        for (const point of highway.route) {
+            if (point.exit && point.unlocked && point.location[0] === location[0] && point.location[1] === location[1]) {
+                return highway;
+            }
+        }
+    }
+    return null;
+}
+
+function findNextPoint(highway, location) {
+    const currentIndex = highway.route.findIndex(point => point.location[0] === location[0] && point.location[1] === location[1]);
+    if (currentIndex !== -1 && currentIndex < highway.route.length - 1) {
+        return highway.route[currentIndex + 1];
+    }
+    return null;
+}
+
+function calculateNextLocation(currentLocation, targetLocation, speed) {
+    const distance = calculateDistance(currentLocation, targetLocation);
+    const time = distance / speed;  // Čas v hodinách
+    const ratio = 1 / time;
+    return [
+        currentLocation[0] + (ratio * (targetLocation[0] - currentLocation[0])),
+        currentLocation[1] + (ratio * (targetLocation[1] - currentLocation[1]))
+    ];
+}
+
+function calculateDistance(location1, location2) {
+    const lat1 = location1[0];
+    const lon1 = location1[1];
+    const lat2 = location2[0];
+    const lon2 = location2[1];
+    const R = 6371;  // Poloměr Země v kilometrech
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;  // Vzdálenost v kilometrech
+    return distance;
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+}
+
+function updateMaintenanceVehicleMarker(location) {
+    if (regularMaintenanceVehicleMarker) {
+        regularMaintenanceVehicleMarker.setLatLng(location);
+    } else {
+        regularMaintenanceVehicleMarker = L.marker(location, { icon: regularMaintenanceVehicleIcon }).addTo(map);
+    }
+}
+
 function buyRegularMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
     if (buyConfirmation) {
@@ -427,52 +499,12 @@ function buyRegularMaintenanceVehicle() {
             playerFinance -= regularMaintenanceVehicleCost;
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
-
-            // Vytvoření vozidla běžné údržby a spuštění pohybu
-            regularMaintenanceVehicle = L.marker(stServiceCenterLocation, { icon: regularMaintenanceVehicleIcon }).addTo(map);
-            regularMaintenanceVehicle.bindPopup('Vozidlo běžné údržby').openPopup();
-            regularMaintenanceVehicleUpdateInterval = setInterval(moveRegularMaintenanceVehicle, 1000);
-
-            // TODO: Přidat další funkcionalitu, pokud je potřeba
+            regularMaintenanceVehicleLocation = findStartingPoint().location;
+            moveRegularMaintenanceVehicle();
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
     }
-}
-
-function moveRegularMaintenanceVehicle() {
-    if (regularMaintenanceVehicle) {
-        const currentPosition = regularMaintenanceVehicle.getLatLng();
-        const nextPosition = getNextPosition(currentPosition);
-        regularMaintenanceVehicle.setLatLng(nextPosition);
-        map.panTo(nextPosition);
-    }
-}
-
-function getNextPosition(currentPosition) {
-    // TODO: Implementovat logiku pro pohyb vozidla mezi zakoupenými úseky dálnic
-    // Prozatím se vozidlo bude pohybovat lineárně po údržených úsecích
-
-    const routePoints = getAvailableRoutePoints(); // Funkce, která vrátí pole dostupných bodů
-    const currentIndex = routePoints.findIndex(point => point.equals(currentPosition));
-    
-    if (currentIndex !== -1 && currentIndex < routePoints.length - 1) {
-        return routePoints[currentIndex + 1];
-    } else {
-        return currentPosition;
-    }
-}
-
-function getAvailableRoutePoints() {
-    // TODO: Implementovat logiku pro získání dostupných bodů dálnic
-    // Prozatím se budou používat všechny body na všech dálnicích
-
-    const allRoutePoints = [];
-    highways.forEach(highway => {
-        allRoutePoints.push(...highway.route.map(point => L.latLng(point.location)));
-    });
-
-    return allRoutePoints;
 }
 
 
