@@ -408,6 +408,30 @@ function buildServiceCenter(event) {
     buildingInProgress = false;
 }
 
+// Objekt vozidla běžné údržby
+const regularMaintenanceVehicle = {
+    icon: regularMaintenanceVehicleIcon,
+    speed: 60, // Rychlost v km/h
+    position: null, // Aktuální poloha vozidla
+    routeIndex: 0, // Index aktuálního úseku na trase
+    intervalId: null, // ID intervalu pro periodické updaty
+};
+
+function updateRegularMaintenanceVehiclePosition() {
+    if (regularMaintenanceVehicle.position !== null) {
+        regularMaintenanceVehicle.position.remove(); // Odstraní předchozí značku vozidla
+    }
+
+    const currentRoute = highways[0].route; // Získáme trasu první dálnice (D1) - můžete přizpůsobit podle vašich požadavků
+
+    // Přidáme 1 k indexu a zkontrolujeme, jestli jsme na konci trasy
+    regularMaintenanceVehicle.routeIndex = (regularMaintenanceVehicle.routeIndex + 1) % currentRoute.length;
+
+    const currentPoint = currentRoute[regularMaintenanceVehicle.routeIndex];
+
+    regularMaintenanceVehicle.position = L.marker(currentPoint.location, { icon: regularMaintenanceVehicle.icon }).addTo(map);
+}
+
 function buyRegularMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
     if (buyConfirmation) {
@@ -415,7 +439,9 @@ function buyRegularMaintenanceVehicle() {
             playerFinance -= regularMaintenanceVehicleCost;
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
-            // TODO: Přidat funkcionalitu pro použití vozidla běžné údržby
+            
+            // Spustíme periodické aktualizace polohy vozidla
+            regularMaintenanceVehicle.intervalId = setInterval(updateRegularMaintenanceVehiclePosition, 1000);
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
