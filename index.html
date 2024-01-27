@@ -447,8 +447,18 @@ function moveRegularMaintenanceVehicle() {
             }
         }
     }, 1000);
+    
+function findStartingPoint() {
+    // Najde první odemčený exit jako počáteční bod pro vozidlo běžné údržby
+    for (const highway of highways) {
+        for (const point of highway.route) {
+            if (point.exit && point.unlocked) {
+                return point;
+            }
+        }
+    }
+    return null;
 }
-
 
 
 function findCurrentHighway(location) {
@@ -518,7 +528,7 @@ function buyRegularMaintenanceVehicle() {
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
             regularMaintenanceVehicleLocation = findStartingPoint().location;
-            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);  // Přidáme tuto řádku pro okamžité zobrazení vozidla
+            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
             moveRegularMaintenanceVehicle();
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
