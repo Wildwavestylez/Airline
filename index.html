@@ -23,6 +23,10 @@
             flex: 2;
             height: 100%;
         }
+
+        #unlockButton {
+            display: none;
+        }
     </style>
     <title>Highway Game</title>
 </head>
@@ -33,6 +37,7 @@
     <p id="finance">Finance: 500000 Kč</p>
     <p id="currentSection">Aktuální dálniční úsek: D1 Praha-Chodov až Praha-Opatov</p>
     <button onclick="collectToll()">Vybírat Mýtné</button>
+    <button id="unlockButton" onclick="showUnlockDialog()">Odemknout</button>
     <div id="messages"></div>
 </div>
 
@@ -40,22 +45,73 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+const exitIcon = L.icon({
+    iconUrl: 'https://i.imgur.com/iOwi5DR.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+});
+
+const serviceIcon = L.icon({
+    iconUrl: 'https://i.imgur.com/xnqmp70.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+});
+
 let playerFinance = 500000;
-let tollRate = 10; // Mýtné za každý kamion
-let trucksPerMinute = 10; // Kamiony za minutu
-let currentSection = "D1 Praha-Chodov až Praha-Opatov";
+let tollRate = 10;
+let currentSection = {
+    name: "D1",
+    color: "blue",
+    route: [
+        { exit: "Praha Chodov", location: [50.0343592, 14.4919775], unlocked: true, cost: 0, earnings: 0 },
+        { Waypoint: "AA", location: [50.0286622, 14.4953736] },
+        { exit: "Praha Opatov", location: [50.0224761, 14.5087214], unlocked: true, cost: 0, earnings: 0 },
+        { Service: "Odpočívka Újezd, 4.5 km (P)", location: [50.0092897, 14.5430764], unlocked: false, cost: 5000 },
+        { Service: "Parkoviště tenisová hala", location: [50.0081131, 14.5555222], unlocked: false, cost: 5000 },
+        { Service: "Pumpa Průhonice", location: [50.0053483, 14.5630342], unlocked: false, cost: 5000 },
+        { exit: "Průhonice", location: [50.0053483, 14.5630342], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { Service: "MOL Čestlice", location: [50.0036939, 14.5701253], unlocked: false, cost: 5000 },
+        { exit: "Čestlice", location: [49.9941367, 14.5857936], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { Service: " Shell Nupaky", location: [49.9840953, 14.6031647], unlocked: false, cost: 5000 },
+        { crossing: "Říčany crossing", location: [49.9809969, 14.6058394], crossing: "D0", cost: 10000, earnings: 0 },
+        { exit: "Modletice", location: [49.9731681, 14.6153656], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { exit: "Všechromy", location: [49.9452194, 14.6538714], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+    ]
+};
 
 const map = L.map('map').setView([50.03, 14.50], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
+const routePolyline = L.polyline(currentSection.route.map(point => point.location), { color: currentSection.color }).addTo(map);
+
+currentSection.route.forEach(point => {
+    if (point.exit) {
+        const marker = L.marker(point.location, { icon: exitIcon }).addTo(map);
+        marker.on('click', () => {
+            if (!point.unlocked) {
+                showUnlockDialog(point);
+            }
+        });
+    } else if (point.Service) {
+        const marker = L.marker(point.location, { icon: serviceIcon }).addTo(map);
+        marker.on('click', () => {
+            if (!point.unlocked) {
+                showUnlockDialog(point);
+            }
+        });
+    }
+});
+
 function updateFinance() {
     document.getElementById('finance').innerText = `Finance: ${playerFinance} Kč`;
 }
 
 function updateCurrentSection() {
-    document.getElementById('currentSection').innerText = `Aktuální dálniční úsek: ${currentSection}`;
+    document.getElementById('currentSection').innerText = `Aktuální dálniční úsek: ${currentSection.name}`;
 }
 
 function showMessage(message) {
@@ -66,10 +122,46 @@ function showMessage(message) {
 function collectToll() {
     setInterval(function() {
         playerFinance += tollRate;
+        currentSection.route.forEach(point => {
+            if (point.exit && point.unlocked) {
+                const earnings = generateRandomEarnings(5, 10);
+                playerFinance += earnings;
+                point.earnings += earnings;
+            } else if (point.Service && point.unlocked) {
+                const earnings = generateRandomEarnings(10, 20);
+                playerFinance += earnings;
+                point.earnings += earnings;
+            }
+        });
         updateFinance();
-    }, 6000); // Každých 6 sekund (pro účely simulace)
+        updateCurrentSection();
+    }, 6000);
 
-    showMessage(`Probíhá výběr mýtného na úseku ${currentSection}.`);
+    showMessage(`Probíhá výběr mýtného na úseku ${currentSection.name}.`);
+}
+
+function generateRandomCost() {
+    return Math.floor(Math.random() * (1000 - 700 + 1)) + 700;
+}
+
+function generateRandomEarnings(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function showUnlockDialog(point) {
+    const confirmUnlock = confirm(`Odemknout ${point.exit || 'benzínku'} za ${point.cost} Kč?`);
+    if (confirmUnlock) {
+        if (playerFinance >= point.cost) {
+            point.unlocked = true;
+            playerFinance -= point.cost;
+            updateFinance();
+            updateCurrentSection();
+            showMessage(`Úsek ${point.exit || 'benzínka'} odemknut.`);
+            document.getElementById('unlockButton').style.display = 'none';
+        } else {
+            showMessage('Nemáte dostatek financí k odemknutí.');
+        }
+    }
 }
 
 </script>
