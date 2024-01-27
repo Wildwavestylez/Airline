@@ -420,7 +420,7 @@ function buildServiceCenter(event) {
 
 let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla běžné údržby
 
-
+let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
 
 function moveRegularMaintenanceVehicle() {
     setInterval(function () {
@@ -496,7 +496,7 @@ function updateMaintenanceVehicleMarker(location) {
     }
 }
 
-let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
+
 
 function buyRegularMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
