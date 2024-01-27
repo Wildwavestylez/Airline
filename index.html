@@ -38,6 +38,8 @@
     <button onclick="collectToll()">Vybírat Mýtné</button>
     <button id="unlockButton" onclick="showUnlockDialog()">Odemknout</button>
     <button id="buildButton" onclick="startBuilding()">Postavit servisní středisko</button>
+    <button id="buyRegularMaintenanceVehicleButton" onclick="buyRegularMaintenanceVehicle()" style="display: none;">Koupit vozidlo běžné údržby</button>
+    <button id="buyWinterMaintenanceVehicleButton" onclick="buyWinterMaintenanceVehicle()" style="display: none;">Koupit vozidlo zimní údržby</button>
     <div id="messages"></div>
 </div>
 
@@ -73,10 +75,29 @@ const crossingIcon = L.icon({
     popupAnchor: [0, -32]
 });
 
+    const regularMaintenanceVehicleIcon = L.icon({
+    iconUrl: 'https://i.imgur.com/o1G2CHB.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+});
+
+const winterMaintenanceVehicleIcon = L.icon({
+    iconUrl: 'https://i.imgur.com/forz6PA.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+});
+
 let playerFinance = 1000;
 let tollRate = 10;
 let buildingCost = 10000;
 let buildingInProgress = false;
+let regularMaintenanceVehicleCost = 10000;
+let winterMaintenanceVehicleCost = 15000;
+let regularMaintenanceVehicleAvailable = false;
+let winterMaintenanceVehicleAvailable = false;
+
 
     
 // Seznam dálnic
@@ -372,6 +393,12 @@ function buildServiceCenter(event) {
 
             showMessage('Servisní středisko postaveno.');
             document.getElementById('buildButton').style.display = 'none';
+            
+            // Středisko údržby postaveno, umožnění zakoupení údržbářských vozidel
+            regularMaintenanceVehicleAvailable = true;
+            winterMaintenanceVehicleAvailable = true;
+            document.getElementById('buyRegularMaintenanceVehicleButton').style.display = 'inline-block';
+            document.getElementById('buyWinterMaintenanceVehicleButton').style.display = 'inline-block';
         } else {
             showMessage('Nemáte dostatek financí na stavbu servisního střediska.');
         }
@@ -380,6 +407,35 @@ function buildServiceCenter(event) {
     map.off('click', buildServiceCenter);
     buildingInProgress = false;
 }
+
+function buyRegularMaintenanceVehicle() {
+    const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
+    if (buyConfirmation) {
+        if (playerFinance >= regularMaintenanceVehicleCost) {
+            playerFinance -= regularMaintenanceVehicleCost;
+            updateFinance();
+            showMessage('Vozidlo běžné údržby zakoupeno.');
+            // TODO: Přidat funkcionalitu pro použití vozidla běžné údržby
+        } else {
+            showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
+        }
+    }
+}
+
+function buyWinterMaintenanceVehicle() {
+    const buyConfirmation = confirm(`Zakoupit vozidlo zimní údržby za ${winterMaintenanceVehicleCost} Kč?`);
+    if (buyConfirmation) {
+        if (playerFinance >= winterMaintenanceVehicleCost) {
+            playerFinance -= winterMaintenanceVehicleCost;
+            updateFinance();
+            showMessage('Vozidlo zimní údržby zakoupeno.');
+            // TODO: Přidat funkcionalitu pro použití vozidla zimní údržby
+        } else {
+            showMessage('Nemáte dostatek financí na zakoupení vozidla zimní údržby.');
+        }
+    }
+}
+
     
 </script>
 </body>
