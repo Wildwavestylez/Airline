@@ -343,30 +343,7 @@ function showUnlockDialog(point) {
         }
     }
 }
-    function startBuilding() {
-    showMessage('Klikněte na mapu, kde chcete postavit servisní středisko.');
-    map.on('click', buildServiceCenter);
-}
 
-function buildServiceCenter(event) {
-    if (buildingInProgress) return;
-
-    const buildConfirmation = confirm(`Postavit servisní středisko za ${buildingCost} Kč?`);
-    if (buildConfirmation) {
-        if (playerFinance >= buildingCost) {
-            buildingInProgress = true;
-            playerFinance -= buildingCost;
-            updateFinance();
-
-            const buildMarker = L.marker(event.latlng, { icon: buildIcon }).addTo(map);
-            buildMarker.bindPopup('Servisní středisko').openPopup();
-
-            showMessage('Servisní středisko postaveno.');
-            document.getElementById('buildButton').style.display = 'none';
-        } else {
-            showMessage('Nemáte dostatek financí na stavbu servisního střediska.');
-        }
-    }
 function startBuilding() {
     showMessage('Klikněte na mapu, kde chcete postavit servisní středisko.');
     map.on('click', buildServiceCenter);
