@@ -46,16 +46,16 @@
 <script>
 const exitIcon = L.icon({
     iconUrl: 'https://i.imgur.com/iOwi5DR.png',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
+    iconSize: [56, 56],
+    iconAnchor: [28, 56],
+    popupAnchor: [0, -56]
 });
 
 const serviceIcon = L.icon({
     iconUrl: 'https://i.imgur.com/xnqmp70.png',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
+    iconSize: [56, 56],
+    iconAnchor: [28, 56],
+    popupAnchor: [0, -56]
 });
 
 const crossingIcon = L.icon({
@@ -84,8 +84,11 @@ var highways = [
         { Waypoint: "ABN", location: [50.0397900, 14.4758431] },
         { exit: "Praha Türkova", location: [50.0402728, 14.4823356], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { Waypoint: "ABO", location: [50.0395119, 14.4863147] },  
+        { Service: "OMV Roztyly D1", location: [50.0373511, 14.4901208], unlocked: false, cost: 5000 },    
         { exit: "Praha Chodov", location: [50.0343592, 14.4919775], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { Waypoint: "ABP", location: [50.0312233, 14.4934017] },
         { Waypoint: "AA", location: [50.0286622, 14.4953736] },
+        { Waypoint: "ABQ", location: [50.0281258, 14.4961708] },
         { exit: "Praha Opatov", location: [50.0224761, 14.5087214], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { Service: "Odpočívka Újezd, 4.5 km (P)", location: [50.0092897, 14.5430764], unlocked: false, cost: 5000 },
         { Service: "Parkoviště tenisová hala", location: [50.0081131, 14.5555222], unlocked: false, cost: 5000 },
