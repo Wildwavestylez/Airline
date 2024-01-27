@@ -34,8 +34,7 @@
 
 <div id="playerPanel">
     <h2>Player Panel</h2>
-    <p id="finance">Finance: 500000 Kč</p>
-    <p id="currentSection">Aktuální dálniční úsek: D1 Praha-Chodov až Praha-Opatov</p>
+    <p id="finance">Finance: 1000 Kč</p>
     <button onclick="collectToll()">Vybírat Mýtné</button>
     <button id="unlockButton" onclick="showUnlockDialog()">Odemknout</button>
     <div id="messages"></div>
@@ -47,27 +46,37 @@
 <script>
 const exitIcon = L.icon({
     iconUrl: 'https://i.imgur.com/iOwi5DR.png',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
+    iconSize: [64, 64],
+    iconAnchor: [32, 64],
     popupAnchor: [0, -32]
 });
 
 const serviceIcon = L.icon({
     iconUrl: 'https://i.imgur.com/xnqmp70.png',
+    iconSize: [64, 64],
+    iconAnchor: [32, 64],
+    popupAnchor: [0, -32]
+});
+
+const crossingIcon = L.icon({
+    iconUrl: 'https://i.imgur.com/sp4K7j5.png',
     iconSize: [32, 32],
     iconAnchor: [16, 32],
     popupAnchor: [0, -32]
 });
 
-let playerFinance = 500000;
+let playerFinance = 1000;
 let tollRate = 10;
-let currentSection = {
-    name: "D1",
-    color: "blue",
-    route: [
-        { exit: "Praha Chodov", location: [50.0343592, 14.4919775], unlocked: true, cost: 0, earnings: 0 },
+
+// Seznam dálnic
+var highways = [
+    {
+        name: "D1",
+        color: "blue",
+        route: [
+                       { exit: "Praha Chodov", location: [50.0343592, 14.4919775], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { Waypoint: "AA", location: [50.0286622, 14.4953736] },
-        { exit: "Praha Opatov", location: [50.0224761, 14.5087214], unlocked: true, cost: 0, earnings: 0 },
+        { exit: "Praha Opatov", location: [50.0224761, 14.5087214], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { Service: "Odpočívka Újezd, 4.5 km (P)", location: [50.0092897, 14.5430764], unlocked: false, cost: 5000 },
         { Service: "Parkoviště tenisová hala", location: [50.0081131, 14.5555222], unlocked: false, cost: 5000 },
         { Service: "Pumpa Průhonice", location: [50.0053483, 14.5630342], unlocked: false, cost: 5000 },
@@ -78,40 +87,74 @@ let currentSection = {
         { crossing: "Říčany crossing", location: [49.9809969, 14.6058394], crossing: "D0", cost: 10000, earnings: 0 },
         { exit: "Modletice", location: [49.9731681, 14.6153656], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { exit: "Všechromy", location: [49.9452194, 14.6538714], unlocked: false, cost: generateRandomCost(), earnings: 0 },
-    ]
-};
+        { Waypoint: "AB", location: [49.9362239, 14.6854269] },
+        { Service: "Odpočívka Božkov, 18.9 km (L)", location: [49.9317572, 14.6936453], unlocked: false, cost: 5000 },
+        { exit: "Mirošovice", location: [49.9140350, 14.7121278], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { Waypoint: "AC", location: [49.9140350, 14.7121278] },
+        { Waypoint: "AD", location: [49.9081981, 14.7304850] },
+        { Waypoint: "AE", location: [49.9058678, 14.7339203] },
+        { Waypoint: "AF", location: [49.8939164, 14.7468867] },
+        { Waypoint: "AG", location: [49.8884892, 14.7541586] },
+        { Waypoint: "AH", location: [49.8859564, 14.7558086] },
+        { Service: "Odpočívka Poddubí, 26.5 km (P)", location: [49.8784044, 14.7578356], unlocked: false, cost: 5000 },
+        { Waypoint: "AI", location: [49.8749050, 14.7613867] },
+        { Waypoint: "AJ", location: [49.8717617, 14.7676008] },
+        { Waypoint: "AK", location: [49.8703961, 14.7726239] },
+        { Waypoint: "AL", location: [49.8686931, 14.7796706] },
+        { exit: "Hvězdonice", location: [49.8652547, 14.7847261], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { Service: "Odpočívka Naháč, 29.9 km (L)", location: [49.8616800, 14.7905947], unlocked: false, cost: 5000 },
+        ]
+    },
+    {
+        name: "D0",
+        color: "red",
+        route: [
+            { crossing: "Říčany crossing", location: [49.9809969, 14.6058394], crossing: "D0", cost: 10000, earnings: 0 },
+            { Service: "Odpočívka Modřanská rokle", location: [50.025915, 14.573986], unlocked: false, cost: 5000 },
+            { exit: "Modřany", location: [50.026806, 14.585010], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            // Další body D0
+        ]
+    },
+    // Další dálnice
+];
 
 const map = L.map('map').setView([50.03, 14.50], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-const routePolyline = L.polyline(currentSection.route.map(point => point.location), { color: currentSection.color }).addTo(map);
+// Vykreslení dálnic na mapu
+highways.forEach(highway => {
+    const routePolyline = L.polyline(highway.route.map(point => point.location), { color: highway.color }).addTo(map);
 
-currentSection.route.forEach(point => {
-    if (point.exit) {
-        const marker = L.marker(point.location, { icon: exitIcon }).addTo(map);
-        marker.on('click', () => {
-            if (!point.unlocked) {
-                showUnlockDialog(point);
-            }
-        });
-    } else if (point.Service) {
-        const marker = L.marker(point.location, { icon: serviceIcon }).addTo(map);
-        marker.on('click', () => {
-            if (!point.unlocked) {
-                showUnlockDialog(point);
-            }
-        });
-    }
+    highway.route.forEach(point => {
+        if (point.exit) {
+            const marker = L.marker(point.location, { icon: exitIcon }).addTo(map);
+            marker.on('click', () => {
+                if (!point.unlocked) {
+                    showUnlockDialog(point);
+                }
+            });
+        } else if (point.Service) {
+            const marker = L.marker(point.location, { icon: serviceIcon }).addTo(map);
+            marker.on('click', () => {
+                if (!point.unlocked) {
+                    showUnlockDialog(point);
+                }
+            });
+        } else if (point.crossing) {
+            const marker = L.marker(point.location, { icon: crossingIcon }).addTo(map);
+            marker.on('click', () => {
+                if (!point.unlocked) {
+                    showUnlockDialog(point);
+                }
+            });
+        }
+    });
 });
 
 function updateFinance() {
     document.getElementById('finance').innerText = `Finance: ${playerFinance} Kč`;
-}
-
-function updateCurrentSection() {
-    document.getElementById('currentSection').innerText = `Aktuální dálniční úsek: ${currentSection.name}`;
 }
 
 function showMessage(message) {
@@ -122,22 +165,27 @@ function showMessage(message) {
 function collectToll() {
     setInterval(function() {
         playerFinance += tollRate;
-        currentSection.route.forEach(point => {
-            if (point.exit && point.unlocked) {
-                const earnings = generateRandomEarnings(5, 10);
-                playerFinance += earnings;
-                point.earnings += earnings;
-            } else if (point.Service && point.unlocked) {
-                const earnings = generateRandomEarnings(10, 20);
-                playerFinance += earnings;
-                point.earnings += earnings;
-            }
+        highways.forEach(highway => {
+            highway.route.forEach(point => {
+                if (point.exit && point.unlocked) {
+                    const earnings = generateRandomEarnings(5, 10);
+                    playerFinance += earnings;
+                    point.earnings += earnings;
+                } else if (point.Service && point.unlocked) {
+                    const earnings = generateRandomEarnings(10, 20);
+                    playerFinance += earnings;
+                    point.earnings += earnings;
+                } else if (point.crossing && point.unlocked) {
+                    const earnings = generateRandomEarnings(5, 10);
+                    playerFinance += earnings;
+                    point.earnings += earnings;
+                }
+            });
         });
         updateFinance();
-        updateCurrentSection();
     }, 6000);
 
-    showMessage(`Probíhá výběr mýtného na úseku ${currentSection.name}.`);
+    showMessage(`Probíhá výběr mýtného na dálnicích.`);
 }
 
 function generateRandomCost() {
@@ -155,7 +203,6 @@ function showUnlockDialog(point) {
             point.unlocked = true;
             playerFinance -= point.cost;
             updateFinance();
-            updateCurrentSection();
             showMessage(`Úsek ${point.exit || 'benzínka'} odemknut.`);
             document.getElementById('unlockButton').style.display = 'none';
         } else {
@@ -163,8 +210,6 @@ function showUnlockDialog(point) {
         }
     }
 }
-
 </script>
-
 </body>
 </html>
