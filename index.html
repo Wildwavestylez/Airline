@@ -252,6 +252,12 @@ var highways = [
             { Waypoint: "ACA", location: [50.0456650, 14.4710525] },
             { Waypoint: "ACB", location: [50.0496058, 14.4765714] },
             { exit: "Praha - Spořilov", location: [50.0505842, 14.4782086], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+            { Waypoint: "ACK", location: [50.0524917, 14.4794689] },
+            { Waypoint: "ACL", location: [50.0540525, 14.4795869] },
+            { Waypoint: "ACM", location: [50.0565092, 14.4793789] },
+            { Waypoint: "ACN", location: [50.0483125, 14.4736922] },
+            { Waypoint: "ACO", location: [50.0589517, 14.4820089] },
+            { Service: "Shell/Orlen Jižní spojka", location: [50.0591264, 14.4841922], unlocked: false, cost: 5000 },
               ],
         hidden: true,
     },
@@ -506,14 +512,13 @@ function buyRegularMaintenanceVehicle() {
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
             regularMaintenanceVehicleLocation = findStartingPoint().location;
-            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);  // Inicializace markeru
+            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);  // Přidáme tuto řádku pro okamžité zobrazení vozidla
             moveRegularMaintenanceVehicle();
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
     }
 }
-
 
 function buyWinterMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo zimní údržby za ${winterMaintenanceVehicleCost} Kč?`);
