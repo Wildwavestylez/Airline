@@ -707,7 +707,7 @@ let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla b�
 
 let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
 
-function moveRegularMaintenanceVehicle() {
+ function moveRegularMaintenanceVehicle() {
     setInterval(function () {
         if (regularMaintenanceVehicleLocation) {
             const currentHighway = findCurrentHighway(regularMaintenanceVehicleLocation);
@@ -720,7 +720,7 @@ function moveRegularMaintenanceVehicle() {
             }
         }
     }, 1000);
-    }
+}
     
 function findStartingPoint() {
     // Najde první odemčený exit jako počáteční bod pro vozidlo běžné údržby
@@ -801,14 +801,16 @@ function buyRegularMaintenanceVehicle() {
             playerFinance -= regularMaintenanceVehicleCost;
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
-            regularMaintenanceVehicleLocation = findStartingPoint().location;
-            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
-            moveRegularMaintenanceVehicle();
+         regularMaintenanceVehicleLocation = findStartingPoint().location;
+        updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
+        moveRegularMaintenanceVehicle();
+
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
     }
 }
+   
 
 function buyWinterMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo zimní údržby za ${winterMaintenanceVehicleCost} Kč?`);
