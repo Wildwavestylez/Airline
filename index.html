@@ -150,6 +150,20 @@ var highways = [
         { Waypoint: "AL", location: [49.8686931, 14.7796706] },
         { exit: "Hvězdonice", location: [49.8652547, 14.7847261], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         { Service: "Odpočívka Naháč, 29.9 km (L)", location: [49.8616800, 14.7905947], unlocked: false, cost: 5000 },
+        { Waypoint: "AM", location: [49.8581781, 14.7947217] },
+        { Waypoint: "AN", location: [49.8550681, 14.7966958] },
+        { Waypoint: "AO", location: [49.8481864, 14.7968975] },
+        { Waypoint: "AP", location: [49.8451533, 14.7987300] },
+        { Waypoint: "AQ", location: [49.8427264, 14.8028456] },
+        { Waypoint: "AR", location: [49.8415392, 14.8084417] },
+        { Service: "MOL Ostředek", location: [49.8410408, 14.8133350], unlocked: false, cost: 5000 },
+        { exit: "Ostředek", location: [49.8406750, 14.8127442], unlocked: false, cost: generateRandomCost(), earnings: 0 },
+        { Waypoint: "AS", location: [49.8336828, 14.8529031] },
+        { Waypoint: "AT", location: [49.8314131, 14.8594950] },
+        { Waypoint: "AU", location: [49.8280494, 14.8650997] },
+        { Waypoint: "AV", location: [49.8143744, 14.8794547] },
+        { Waypoint: "AW", location: [49.8112119, 14.8841539] },
+        { exit: "Šternov", location: [49.8021108, 14.9065344], unlocked: false, cost: generateRandomCost(), earnings: 0 },
         ],
         hidden: true,
     },
@@ -490,7 +504,7 @@ function collectToll() {
             });
         });
         updateFinance();
-    }, 6000);
+    }, 2000);
 
     showMessage(`Probíhá výběr mýtného na dálnicích.`);
 }
