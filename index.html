@@ -815,10 +815,13 @@ function buyRegularMaintenanceVehicle() {
             playerFinance -= regularMaintenanceVehicleCost;
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
-         regularMaintenanceVehicleLocation = findStartingPoint().location;
-        updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
-        moveRegularMaintenanceVehicle();
+            
+            // Nastavení počáteční polohy vozidla běžné údržby
+            regularMaintenanceVehicleLocation = findStartingPoint().location;
+            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
 
+            // Spuštění pohybu vozidla běžné údržby
+            moveRegularMaintenanceVehicle();
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
