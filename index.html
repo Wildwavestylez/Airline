@@ -730,10 +730,17 @@ function buyRegularMaintenanceVehicle() {
             showMessage('Vozidlo běžné údržby zakoupeno.');
 
             // Inicializace vozidla běžné údržby
-            regularMaintenanceVehicle = {
-                position: { lat: buildMarker.getLatLng().lat, lng: buildMarker.getLatLng().lng },
-                currentSectionIndex: 0
-            };
+  regularMaintenanceVehicle = {
+            position: { lat: buildMarker.getLatLng().lat, lng: buildMarker.getLatLng().lng },
+            currentSectionIndex: 0
+        };
+
+    
+
+        // Zde by měl být kód pro zobrazení vozidla na mapě
+        regularMaintenanceVehicleMarker = L.marker([regularMaintenanceVehicle.position.lat, regularMaintenanceVehicle.position.lng], {
+            icon: regularMaintenanceVehicleIcon
+        }).addTo(map);
 
             // Aktualizace polohy vozidla každou sekundu
             setInterval(updateRegularMaintenanceVehiclePosition, 1000);
