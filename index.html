@@ -729,16 +729,16 @@ let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
 
-            // Nastavení počáteční polohy vozidla běžné údržby
-            const startingPoint = findStartingPoint();
-            if (startingPoint) {
-                regularMaintenanceVehicleLocation = startingPoint.location;
+            // Nastavení počáteční polohy vozidla běžné údržby na nejbližší servisní centrum
+            const nearestServiceCenter = findNearestServiceCenter();
+            if (nearestServiceCenter) {
+                regularMaintenanceVehicleLocation = nearestServiceCenter.location;
                 updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
 
                 // Spuštění pohybu vozidla běžné údržby
                 moveRegularMaintenanceVehicle();
             } else {
-                showMessage('Nelze najít odemčený exit pro nastavení počáteční polohy vozidla.');
+                showMessage('Nelze najít nejbližší servisní centrum pro nastavení počáteční polohy vozidla.');
             }
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
@@ -746,31 +746,25 @@ let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
     }
 }
 
-
-function moveRegularMaintenanceVehicle() {
-    setInterval(function () {
-        if (regularMaintenanceVehicleLocation) {
-            const currentHighway = findCurrentHighway(regularMaintenanceVehicleLocation);
-            if (currentHighway) {
-                const currentIndex = currentHighway.route.findIndex(point =>
-                    point.location[0] === regularMaintenanceVehicleLocation[0] &&
-                    point.location[1] === regularMaintenanceVehicleLocation[1]
-                );
-                if (currentIndex !== -1 && currentIndex < currentHighway.route.length - 1) {
-                    const nextPoint = findNextPoint(currentHighway, regularMaintenanceVehicleLocation);
-                    if (nextPoint && nextPoint.unlocked) {
-                        regularMaintenanceVehicleLocation = calculateNextLocation(
-                            regularMaintenanceVehicleLocation,
-                            nextPoint.location,
-                            60
-                        );
-                        updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
-                    }
-                }
+function findNearestServiceCenter() {
+    const serviceCenters = highways.reduce((acc, highway) => {
+        highway.route.forEach(point => {
+            if (point.Service && point.unlocked) {
+                acc.push({ location: point.location, distance: calculateDistance(point.location, regularMaintenanceVehicleLocation) });
             }
-        }
-    }, 1000);
+        });
+        return acc;
+    }, []);
+
+    if (serviceCenters.length > 0) {
+        // Najdeme nejbližší servisní centrum
+        serviceCenters.sort((a, b) => a.distance - b.distance);
+        return serviceCenters[0];
+    }
+
+    return null;
 }
+    
 function findStartingPoint() {
     for (const highway of highways) {
         for (const point of highway.route) {
