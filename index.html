@@ -776,7 +776,7 @@ function findStartingPoint() {
         for (const point of highway.route) {
             if (point.exit && point.unlocked) {
                 const previousPoint = findPreviousPoint(highway, point);
-                if (previousPoint && previousPoint.unlocked) {
+                if (previousPoint && isPreviousPointUnlocked(highway, point)) {
                     return point;
                 }
             }
@@ -795,7 +795,6 @@ function isPreviousPointUnlocked(highway, currentPoint) {
     }
     return false;
 }
-
 
 
 function findCurrentHighway(location) {
