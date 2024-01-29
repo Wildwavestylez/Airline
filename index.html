@@ -34,7 +34,7 @@
 
 <div id="playerPanel">
     <h2>Player Panel</h2>
-    <p>kod: 94 </p>
+    <p>kod: 21 </p>
     <p id="finance">Finance: 50000 Kč</p>
     <button onclick="collectToll()">Vybírat Mýtné</button>
     <button id="unlockButton" onclick="showUnlockDialog()">Odemknout</button>
@@ -575,164 +575,270 @@ var highways = [
     },
 ]
     
-const map = L.map('map').setView([50.03, 14.50], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+const map = L.map('map').setView([50.03, 14.50], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
 
-// Vykreslení dálnic na mapu function showHighways() { highways.forEach(highway => { if (!highway.hidden) { const routePolyline = L.polyline(highway.route.map(point => point.location), { color: highway.color }).addTo(map);
+// Vykreslení dálnic na mapu
+function showHighways() {
+    highways.forEach(highway => {
+        if (!highway.hidden) {
+            const routePolyline = L.polyline(highway.route.map(point => point.location), { color: highway.color }).addTo(map);
 
-        highway.route.forEach(point => {
-            if (point.exit) {
-                const marker = L.marker(point.location, { icon: exitIcon }).addTo(map);
-                marker.on('click', () => {
-                    if (!point.unlocked) {
-                        showUnlockDialog(point);
-                    }
-                });
-            } else if (point.Service) {
-                const marker = L.marker(point.location, { icon: serviceIcon }).addTo(map);
-                marker.on('click', () => {
-                    if (!point.unlocked) {
-                        showUnlockDialog(point);
-                    }
-                });
-            } else if (point.crossing) {
-                const marker = L.marker(point.location, { icon: crossingIcon }).addTo(map);
-                marker.on('click', () => {
-                    if (!point.unlocked) {
-                        showUnlockDialog(point);
-                    }
-                });
-            }
-        });
-    }
-});
+            highway.route.forEach(point => {
+                if (point.exit) {
+                    const marker = L.marker(point.location, { icon: exitIcon }).addTo(map);
+                    marker.on('click', () => {
+                        if (!point.unlocked) {
+                            showUnlockDialog(point);
+                        }
+                    });
+                } else if (point.Service) {
+                    const marker = L.marker(point.location, { icon: serviceIcon }).addTo(map);
+                    marker.on('click', () => {
+                        if (!point.unlocked) {
+                            showUnlockDialog(point);
+                        }
+                    });
+                } else if (point.crossing) {
+                    const marker = L.marker(point.location, { icon: crossingIcon }).addTo(map);
+                    marker.on('click', () => {
+                        if (!point.unlocked) {
+                            showUnlockDialog(point);
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
 
 showHighways();
 
-function updateFinance() { document.getElementById('finance').innerText = Finance: ${playerFinance} Kč; }
-
-function showMessage(message) { const messagesDiv = document.getElementById('messages'); messagesDiv.innerHTML = <p>${message}</p>; }
-
-function collectToll() { setInterval(function() { playerFinance += tollRate; highways.forEach(highway => { highway.route.forEach(point => { if (point.exit && point.unlocked) { const earnings = generateRandomEarnings(5, 10); playerFinance += earnings; point.earnings += earnings; } else if (point.Service && point.unlocked) { const earnings = generateRandomEarnings(10, 20); playerFinance += earnings; point.earnings += earnings; } else if (point.crossing && point.unlocked) { const earnings = generateRandomEarnings(5, 10); playerFinance += earnings; point.earnings += earnings; } }); }); updateFinance(); }, 2000);
-
-showMessage(`Probíhá výběr mýtného na dálnicích.`);
+function updateFinance() {
+    document.getElementById('finance').innerText = `Finance: ${playerFinance} Kč`;
 }
 
-function generateRandomCost() { return Math.floor(Math.random() * (1000 - 700 + 1)) + 700; }
+function showMessage(message) {
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML = `<p>${message}</p>`;
+}
 
-function generateRandomEarnings(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function collectToll() {
+    setInterval(function() {
+        playerFinance += tollRate;
+        highways.forEach(highway => {
+            highway.route.forEach(point => {
+                if (point.exit && point.unlocked) {
+                    const earnings = generateRandomEarnings(5, 10);
+                    playerFinance += earnings;
+                    point.earnings += earnings;
+                } else if (point.Service && point.unlocked) {
+                    const earnings = generateRandomEarnings(10, 20);
+                    playerFinance += earnings;
+                    point.earnings += earnings;
+                } else if (point.crossing && point.unlocked) {
+                    const earnings = generateRandomEarnings(5, 10);
+                    playerFinance += earnings;
+                    point.earnings += earnings;
+                }
+            });
+        });
+        updateFinance();
+    }, 2000);
 
-function showUnlockDialog(point) { const confirmUnlock = confirm(Odemknout ${point.exit || 'benzínku'} za ${point.cost} Kč?); if (confirmUnlock) { if (playerFinance >= point.cost) { point.unlocked = true; playerFinance -= point.cost; updateFinance(); showMessage(Úsek ${point.exit || 'benzínka'} odemknut.); document.getElementById('unlockButton').style.display = 'none';
+    showMessage(`Probíhá výběr mýtného na dálnicích.`);
+}
 
-        if (point.crossing) {
-            // Pokud je to křížení, odemkne přidruženou dálnici
-            const connectedHighway = highways.find(highway => highway.name === point.crossing);
-            if (connectedHighway) {
-                connectedHighway.hidden = false;
-                showHighways();
+function generateRandomCost() {
+    return Math.floor(Math.random() * (1000 - 700 + 1)) + 700;
+}
+
+function generateRandomEarnings(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function showUnlockDialog(point) {
+    const confirmUnlock = confirm(`Odemknout ${point.exit || 'benzínku'} za ${point.cost} Kč?`);
+    if (confirmUnlock) {
+        if (playerFinance >= point.cost) {
+            point.unlocked = true;
+            playerFinance -= point.cost;
+            updateFinance();
+            showMessage(`Úsek ${point.exit || 'benzínka'} odemknut.`);
+            document.getElementById('unlockButton').style.display = 'none';
+
+            if (point.crossing) {
+                // Pokud je to křížení, odemkne přidruženou dálnici
+                const connectedHighway = highways.find(highway => highway.name === point.crossing);
+                if (connectedHighway) {
+                    connectedHighway.hidden = false;
+                    showHighways();
+                }
+            }
+        } else {
+            showMessage('Nemáte dostatek financí k odemknutí.');
+        }
+    }
+}
+
+function startBuilding() {
+    showMessage('Klikněte na mapu, kde chcete postavit servisní středisko.');
+    map.on('click', buildServiceCenter);
+}
+
+function buildServiceCenter(event) {
+    if (buildingInProgress) return;
+
+    const buildConfirmation = confirm(`Postavit servisní středisko za ${buildingCost} Kč?`);
+    if (buildConfirmation) {
+        if (playerFinance >= buildingCost) {
+            buildingInProgress = true;
+            playerFinance -= buildingCost;
+            updateFinance();
+
+            const buildMarker = L.marker(event.latlng, { icon: buildIcon }).addTo(map);
+            buildMarker.bindPopup('Servisní středisko').openPopup();
+
+            showMessage('Servisní středisko postaveno.');
+            document.getElementById('buildButton').style.display = 'none';
+            
+            // Středisko údržby postaveno, umožnění zakoupení údržbářských vozidel
+            regularMaintenanceVehicleAvailable = true;
+            winterMaintenanceVehicleAvailable = true;
+            document.getElementById('buyRegularMaintenanceVehicleButton').style.display = 'inline-block';
+            document.getElementById('buyWinterMaintenanceVehicleButton').style.display = 'inline-block';
+        } else {
+            showMessage('Nemáte dostatek financí na stavbu servisního střediska.');
+        }
+    }
+
+    map.off('click', buildServiceCenter);
+    buildingInProgress = false;
+}
+
+let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla běžné údržby
+
+let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
+
+function moveRegularMaintenanceVehicle() {
+    setInterval(function () {
+        if (regularMaintenanceVehicleLocation) {
+            const currentHighway = findCurrentHighway(regularMaintenanceVehicleLocation);
+            if (currentHighway) {
+                const nextPoint = findNextPoint(currentHighway, regularMaintenanceVehicleLocation);
+                if (nextPoint) {
+                    regularMaintenanceVehicleLocation = calculateNextLocation(regularMaintenanceVehicleLocation, nextPoint.location, 60);
+                    updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
+                }
             }
         }
-    } else {
-        showMessage('Nemáte dostatek financí k odemknutí.');
+    }, 1000);
     }
-}
-}
-
-function startBuilding() { showMessage('Klikněte na mapu, kde chcete postavit servisní středisko.'); map.on('click', buildServiceCenter); }
-
-function buildServiceCenter(event) { if (buildingInProgress) return;
-
-const buildConfirmation = confirm(`Postavit servisní středisko za ${buildingCost} Kč?`);
-if (buildConfirmation) {
-    if (playerFinance >= buildingCost) {
-        buildingInProgress = true;
-        playerFinance -= buildingCost;
-        updateFinance();
-
-        const buildMarker = L.marker(event.latlng, { icon: buildIcon }).addTo(map);
-        buildMarker.bindPopup('Servisní středisko').openPopup();
-
-        showMessage('Servisní středisko postaveno.');
-        document.getElementById('buildButton').style.display = 'none';
-        
-        // Středisko údržby postaveno, umožnění zakoupení údržbářských vozidel
-        regularMaintenanceVehicleAvailable = true;
-        winterMaintenanceVehicleAvailable = true;
-        document.getElementById('buyRegularMaintenanceVehicleButton').style.display = 'inline-block';
-        document.getElementById('buyWinterMaintenanceVehicleButton').style.display = 'inline-block';
-    } else {
-        showMessage('Nemáte dostatek financí na stavbu servisního střediska.');
-    }
-}
-
-map.off('click', buildServiceCenter);
-buildingInProgress = false;
-}
-
-let regularMaintenanceVehicle = null; let regularMaintenanceVehicleSpeed = 60; // rychlost v km/h
-
-function buyRegularMaintenanceVehicle() { const buyConfirmation = confirm(Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?); if (buyConfirmation) { if (playerFinance >= regularMaintenanceVehicleCost) { playerFinance -= regularMaintenanceVehicleCost; updateFinance(); showMessage('Vozidlo běžné údržby zakoupeno.');
-
-        // Inicializace vozidla běžné údržby
-        regularMaintenanceVehicle = {
-            position: { lat: buildMarker.getLatLng().lat, lng: buildMarker.getLatLng().lng },
-            currentSectionIndex: 0
-        };
-
-        // Aktualizace polohy vozidla každou sekundu
-        setInterval(updateRegularMaintenanceVehiclePosition, 1000);
-    } else {
-        showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
-    }
-}
-}
-
-function updateRegularMaintenanceVehiclePosition() { if (regularMaintenanceVehicle) { const currentSection = highways[regularMaintenanceVehicle.currentSectionIndex].route; const nextPoint = currentSection[regularMaintenanceVehicle.currentSectionIndex + 1];
-
-    if (nextPoint) {
-        // Vypočítat novou polohu na trase mezi dvěma body
-        const distance = getDistanceBetweenPoints(regularMaintenanceVehicle.position, nextPoint.location);
-        const timeToReachNextPoint = (distance / regularMaintenanceVehicleSpeed) * 60 * 60 * 1000; // v milisekundách
-
-        regularMaintenanceVehicle.position = interpolatePoint(regularMaintenanceVehicle.position, nextPoint.location, timeToReachNextPoint);
-        updateRegularMaintenanceVehicleMarker();
-    } else {
-        // Vůz dojel na konec aktuální sekce, posunout se na další sekci
-        regularMaintenanceVehicle.currentSectionIndex = (regularMaintenanceVehicle.currentSectionIndex + 1) % currentSection.length;
-    }
-}
-}
-
-function interpolatePoint(startPoint, endPoint, time) { // Lineární interpolace mezi dvěma body const latDelta = endPoint[0] - startPoint.lat; const lngDelta = endPoint[1] - startPoint.lng;
-
-const interpolationRatio = time / 60000; // převést čas na minuty
-return {
-    lat: startPoint.lat + latDelta * interpolationRatio,
-    lng: startPoint.lng + lngDelta * interpolationRatio
-};
-}
-
-function getDistanceBetweenPoints(point1, point2) { const lat1 = point1.lat; const lng1 = point1.lng; const lat2 = point2[0]; const lng2 = point2[1];
-
-const R = 6371e3; // poloměr Země v metrech
-const φ1 = lat1 * (Math.PI / 180);
-const φ2 = lat2 * (Math.PI / 180);
-const Δφ = (lat2 - lat1) * (Math.PI / 180);
-const Δλ = (lng2 - lng1) * (Math.PI / 180);
-
-const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-const distance = R * c;
-return distance;
-}
-
-function updateRegularMaintenanceVehicleMarker() { if (regularMaintenanceVehicleMarker) { regularMaintenanceVehicleMarker.setLatLng([regularMaintenanceVehicle.position.lat, regularMaintenanceVehicle.position.lng]); } else { regularMaintenanceVehicleMarker = L.marker([regularMaintenanceVehicle.position.lat, regularMaintenanceVehicle.position.lng], { icon: regularMaintenanceVehicleIcon }).addTo(map); } }
-
-
     
+function findStartingPoint() {
+    // Najde první odemčený exit jako počáteční bod pro vozidlo běžné údržby
+    for (const highway of highways) {
+        for (const point of highway.route) {
+            if (point.exit && point.unlocked) {
+                return point;
+            }
+        }
+    }
+    return null;
+}
+
+
+function findCurrentHighway(location) {
+    for (const highway of highways) {
+        for (const point of highway.route) {
+            if (point.exit && point.unlocked && point.location[0] === location[0] && point.location[1] === location[1]) {
+                return highway;
+            }
+        }
+    }
+    return null;
+}
+
+function findNextPoint(highway, location) {
+    const currentIndex = highway.route.findIndex(point => point.location[0] === location[0] && point.location[1] === location[1]);
+    if (currentIndex !== -1 && currentIndex < highway.route.length - 1) {
+        return highway.route[currentIndex + 1];
+    }
+    return null;
+}
+
+function calculateNextLocation(currentLocation, targetLocation, speed) {
+    const distance = calculateDistance(currentLocation, targetLocation);
+    const time = distance / speed;  // Čas v hodinách
+    const ratio = 1 / time;
+    return [
+        currentLocation[0] + (ratio * (targetLocation[0] - currentLocation[0])),
+        currentLocation[1] + (ratio * (targetLocation[1] - currentLocation[1]))
+    ];
+}
+
+function calculateDistance(location1, location2) {
+    const lat1 = location1[0];
+    const lon1 = location1[1];
+    const lat2 = location2[0];
+    const lon2 = location2[1];
+    const R = 6371;  // Poloměr Země v kilometrech
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;  // Vzdálenost v kilometrech
+    return distance;
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+}
+
+function updateMaintenanceVehicleMarker(location) {
+    if (regularMaintenanceVehicleMarker) {
+        regularMaintenanceVehicleMarker.setLatLng(location);
+    } else {
+        regularMaintenanceVehicleMarker = L.marker(location, { icon: regularMaintenanceVehicleIcon }).addTo(map);
+    }
+}
+
+
+
+function buyRegularMaintenanceVehicle() {
+    const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
+    if (buyConfirmation) {
+        if (playerFinance >= regularMaintenanceVehicleCost) {
+            playerFinance -= regularMaintenanceVehicleCost;
+            updateFinance();
+            showMessage('Vozidlo běžné údržby zakoupeno.');
+            regularMaintenanceVehicleLocation = findStartingPoint().location;
+            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
+            moveRegularMaintenanceVehicle();
+        } else {
+            showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
+        }
+    }
+}
+
+function buyWinterMaintenanceVehicle() {
+    const buyConfirmation = confirm(`Zakoupit vozidlo zimní údržby za ${winterMaintenanceVehicleCost} Kč?`);
+    if (buyConfirmation) {
+        if (playerFinance >= winterMaintenanceVehicleCost) {
+            playerFinance -= winterMaintenanceVehicleCost;
+            updateFinance();
+            showMessage('Vozidlo zimní údržby zakoupeno.');
+            // TODO: Přidat funkcionalitu pro použití vozidla zimní údržby
+        } else {
+            showMessage('Nemáte dostatek financí na zakoupení vozidla zimní údržby.');
+        }
+    }
+}
+
 </script>
 </body>
 </html>
