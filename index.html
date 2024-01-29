@@ -721,6 +721,31 @@ let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla b�
 
 let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
 
+    function buyRegularMaintenanceVehicle() {
+    const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
+    if (buyConfirmation) {
+        if (playerFinance >= regularMaintenanceVehicleCost) {
+            playerFinance -= regularMaintenanceVehicleCost;
+            updateFinance();
+            showMessage('Vozidlo běžné údržby zakoupeno.');
+
+            // Nastavení počáteční polohy vozidla běžné údržby
+            const startingPoint = findStartingPoint();
+            if (startingPoint) {
+                regularMaintenanceVehicleLocation = startingPoint.location;
+                updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
+
+                // Spuštění pohybu vozidla běžné údržby
+                moveRegularMaintenanceVehicle();
+            } else {
+                showMessage('Nelze najít odemčený exit pro nastavení počáteční polohy vozidla.');
+            }
+        } else {
+            showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
+        }
+    }
+}
+
  function moveRegularMaintenanceVehicle() {
     setInterval(function () {
         if (regularMaintenanceVehicleLocation) {
@@ -805,34 +830,6 @@ function updateMaintenanceVehicleMarker(location) {
         regularMaintenanceVehicleMarker = L.marker(location, { icon: regularMaintenanceVehicleIcon }).addTo(map);
     }
 }
-
-
-
-function buyRegularMaintenanceVehicle() {
-    const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
-    if (buyConfirmation) {
-        if (playerFinance >= regularMaintenanceVehicleCost) {
-            playerFinance -= regularMaintenanceVehicleCost;
-            updateFinance();
-            showMessage('Vozidlo běžné údržby zakoupeno.');
-
-            // Nastavení počáteční polohy vozidla běžné údržby
-            const startingPoint = findStartingPoint();
-            if (startingPoint) {
-                regularMaintenanceVehicleLocation = startingPoint.location;
-                updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
-
-                // Spuštění pohybu vozidla běžné údržby
-                moveRegularMaintenanceVehicle();
-            } else {
-                showMessage('Nelze najít odemčený exit pro nastavení počáteční polohy vozidla.');
-            }
-        } else {
-            showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
-        }
-    }
-}
-   
 
 function buyWinterMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo zimní údržby za ${winterMaintenanceVehicleCost} Kč?`);
