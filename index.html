@@ -762,13 +762,28 @@ let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
 }
     
 function findStartingPoint() {
-    // Najde první odemčený exit jako počáteční bod pro vozidlo běžné údržby
+    // Projde všechny dálnice
     for (const highway of highways) {
+        // Projde všechny body trasy dálnice
         for (const point of highway.route) {
+            // Zkontroluje, zda je to odemčený exit
             if (point.exit && point.unlocked) {
-                return point;
+                // Zkontroluje, zda existuje předchozí bod na trase (aby se nejednalo o první bod)
+                const previousPoint = findPreviousPoint(highway, point);
+                if (previousPoint && previousPoint.exit && previousPoint.unlocked) {
+                    return previousPoint;
+                }
             }
         }
+    }
+    return null;
+}
+
+// Pomocná funkce pro najití předchozího bodu na trase dálnice
+function findPreviousPoint(highway, currentPoint) {
+    const currentIndex = highway.route.findIndex(point => point === currentPoint);
+    if (currentIndex !== -1 && currentIndex > 0) {
+        return highway.route[currentIndex - 1];
     }
     return null;
 }
