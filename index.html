@@ -34,7 +34,7 @@
 
 <div id="playerPanel">
     <h2>Player Panel</h2>
-    <p>kod: 11 Kč</p>
+    <p>kod: 74 </p>
     <p id="finance">Finance: 50000 Kč</p>
     <button onclick="collectToll()">Vybírat Mýtné</button>
     <button id="unlockButton" onclick="showUnlockDialog()">Odemknout</button>
@@ -72,7 +72,7 @@ const crossingIcon = L.icon({
     const buildIcon = L.icon({
     iconUrl: 'https://i.imgur.com/CYb25t2.png',
     iconSize: [80, 80],
-    iconAnchor: [80, 80],
+    iconAnchor: [32, 32],
     popupAnchor: [0, -40]
 });
 
@@ -730,17 +730,16 @@ let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
 
-            // Nastavení počáteční polohy vozidla běžné údržby na nejbližší servisní centrum
-            const nearestServiceCenter = findNearestServiceCenter();
-            if (nearestServiceCenter) {
-                regularMaintenanceVehicleLocation = nearestServiceCenter.location;
-                updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
+         const nearestServiceCenter = findNearestServiceCenter();
+if (nearestServiceCenter) {
+    regularMaintenanceVehicleLocation = nearestServiceCenter.location;
+    updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
 
-                // Spuštění pohybu vozidla běžné údržby
-                moveRegularMaintenanceVehicle();
-            } else {
-                showMessage('Nelze najít nejbližší servisní centrum pro nastavení počáteční polohy vozidla.');
-            }
+    // Spuštění pohybu vozidla běžné údržby
+    moveRegularMaintenanceVehicle();
+} else {
+    showMessage('Nelze najít nejbližší servisní centrum pro nastavení počáteční polohy vozidla.');
+}
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
@@ -809,6 +808,23 @@ function findNextPoint(highway, location) {
         return highway.route[currentIndex + 1];
     }
     return null;
+}
+    function moveRegularMaintenanceVehicle() {
+    setInterval(function() {
+        const currentHighway = findCurrentHighway(regularMaintenanceVehicleLocation);
+        const nextPoint = findNextPoint(currentHighway, regularMaintenanceVehicleLocation);
+
+        if (nextPoint) {
+            const speed = 20; // Uveďte rychlost vozidla údržby
+            regularMaintenanceVehicleLocation = calculateNextLocation(
+                regularMaintenanceVehicleLocation,
+                nextPoint.location,
+                speed
+            );
+
+            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
+        }
+    }, 1000);
 }
 
 function calculateNextLocation(currentLocation, targetLocation, speed) {
