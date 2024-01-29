@@ -746,7 +746,7 @@ let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
     }
 }
 
- function moveRegularMaintenanceVehicle() {
+function moveRegularMaintenanceVehicle() {
     setInterval(function () {
         if (regularMaintenanceVehicleLocation) {
             const currentHighway = findCurrentHighway(regularMaintenanceVehicleLocation);
@@ -756,8 +756,8 @@ let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
                     point.location[1] === regularMaintenanceVehicleLocation[1]
                 );
                 if (currentIndex !== -1 && currentIndex < currentHighway.route.length - 1) {
-                    const nextPoint = currentHighway.route[currentIndex + 1];
-                    if (nextPoint.unlocked) {
+                    const nextPoint = findNextPoint(currentHighway, regularMaintenanceVehicleLocation);
+                    if (nextPoint && nextPoint.unlocked) {
                         regularMaintenanceVehicleLocation = calculateNextLocation(
                             regularMaintenanceVehicleLocation,
                             nextPoint.location,
@@ -768,14 +768,15 @@ let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
                 }
             }
         }
-    }, 100);
+    }, 1000);
 }
     
 function findStartingPoint() {
     for (const highway of highways) {
         for (const point of highway.route) {
             if (point.exit && point.unlocked) {
-                if (isPreviousPointUnlocked(highway, point)) {
+                const previousPoint = findPreviousPoint(highway, point);
+                if (previousPoint && previousPoint.unlocked) {
                     return point;
                 }
             }
