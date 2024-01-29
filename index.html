@@ -727,13 +727,13 @@ let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
             const currentHighway = findCurrentHighway(regularMaintenanceVehicleLocation);
             if (currentHighway) {
                 const nextPoint = findNextPoint(currentHighway, regularMaintenanceVehicleLocation);
-                if (nextPoint) {
+                if (nextPoint && nextPoint.unlocked) {
                     regularMaintenanceVehicleLocation = calculateNextLocation(regularMaintenanceVehicleLocation, nextPoint.location, 60);
                     updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
                 }
             }
         }
-    }, 1000);
+    }, 100);
 }
     
 function findStartingPoint() {
@@ -815,13 +815,18 @@ function buyRegularMaintenanceVehicle() {
             playerFinance -= regularMaintenanceVehicleCost;
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
-            
-            // Nastavení počáteční polohy vozidla běžné údržby
-            regularMaintenanceVehicleLocation = findStartingPoint().location;
-            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
 
-            // Spuštění pohybu vozidla běžné údržby
-            moveRegularMaintenanceVehicle();
+            // Nastavení počáteční polohy vozidla běžné údržby
+            const startingPoint = findStartingPoint();
+            if (startingPoint) {
+                regularMaintenanceVehicleLocation = startingPoint.location;
+                updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
+
+                // Spuštění pohybu vozidla běžné údržby
+                moveRegularMaintenanceVehicle();
+            } else {
+                showMessage('Nelze najít odemčený exit pro nastavení počáteční polohy vozidla.');
+            }
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
