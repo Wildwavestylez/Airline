@@ -710,6 +710,7 @@ function buildServiceCenter(event) {
             winterMaintenanceVehicleAvailable = true;
             document.getElementById('buyRegularMaintenanceVehicleButton').style.display = 'inline-block';
             document.getElementById('buyWinterMaintenanceVehicleButton').style.display = 'inline-block';
+            document.getElementById('startVehicleButton').style.display = 'inline-block';
         } else {
             showMessage('Nemáte dostatek financí na stavbu servisního střediska.');
         }
@@ -717,6 +718,7 @@ function buildServiceCenter(event) {
 
     map.off('click', buildServiceCenter);
     buildingInProgress = false;
+ d
 }
 
 let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla běžné údržby
