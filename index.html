@@ -691,6 +691,12 @@ function startBuilding() {
 
 let buildMarker; // Přesunutá definice proměnné buildMarker na globální úroveň
 
+let buildMarker;
+let regularMaintenanceVehicleInterval;
+
+// Přidána globální proměnná pro uchování stavu pohybu vozidla
+let regularMaintenanceVehicleMoving = false;
+
 function buildServiceCenter(event) {
     if (buildingInProgress) return;
 
@@ -724,12 +730,21 @@ function buildServiceCenter(event) {
     buildingInProgress = false;
 }
 
+// Přidána funkce pro spuštění pohybu vozidla
+function startVehicleMovement() {
+    if (regularMaintenanceVehicleAvailable && !regularMaintenanceVehicleMoving) {
+        regularMaintenanceVehicleMoving = true;
+        regularMaintenanceVehicleInterval = setInterval(moveRegularMaintenanceVehicle, 1000);
+    }
+}
 
-
-let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla běžné údržby
-
-let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
-
+// Přidána funkce pro zastavení pohybu vozidla
+function stopVehicleMovement() {
+    if (regularMaintenanceVehicleMoving) {
+        clearInterval(regularMaintenanceVehicleInterval);
+        regularMaintenanceVehicleMoving = false;
+    }
+}
 function buyRegularMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
     if (buyConfirmation) {
