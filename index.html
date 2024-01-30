@@ -704,12 +704,14 @@ function buildServiceCenter(event) {
 
             showMessage('Servisní středisko postaveno.');
             document.getElementById('buildButton').style.display = 'none';
-            
+
             // Středisko údržby postaveno, umožnění zakoupení údržbářských vozidel
             regularMaintenanceVehicleAvailable = true;
             winterMaintenanceVehicleAvailable = true;
             document.getElementById('buyRegularMaintenanceVehicleButton').style.display = 'inline-block';
             document.getElementById('buyWinterMaintenanceVehicleButton').style.display = 'inline-block';
+            
+            // Přidáno: Spustit pohyb vozidla
             document.getElementById('startVehicleButton').style.display = 'inline-block';
         } else {
             showMessage('Nemáte dostatek financí na stavbu servisního střediska.');
@@ -718,8 +720,8 @@ function buildServiceCenter(event) {
 
     map.off('click', buildServiceCenter);
     buildingInProgress = false;
- d
 }
+
 
 let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla běžné údržby
 
