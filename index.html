@@ -689,6 +689,8 @@ function startBuilding() {
     map.on('click', buildServiceCenter);
 }
 
+let buildMarker; // Přesunutá definice proměnné buildMarker na globální úroveň
+
 function buildServiceCenter(event) {
     if (buildingInProgress) return;
 
@@ -699,7 +701,7 @@ function buildServiceCenter(event) {
             playerFinance -= buildingCost;
             updateFinance();
 
-            const buildMarker = L.marker(event.latlng, { icon: buildIcon }).addTo(map);
+            buildMarker = L.marker(event.latlng, { icon: buildIcon }).addTo(map);
             buildMarker.bindPopup('Servisní středisko').openPopup();
 
             showMessage('Servisní středisko postaveno.');
@@ -721,6 +723,7 @@ function buildServiceCenter(event) {
     map.off('click', buildServiceCenter);
     buildingInProgress = false;
 }
+
 
 
 let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla běžné údržby
