@@ -34,13 +34,14 @@
 
 <div id="playerPanel">
     <h2>Player Panel</h2>
-    <p>kod: 28 </p>
+    <p>kod: 73 </p>
     <p id="finance">Finance: 50000 Kč</p>
     <button onclick="collectToll()">Vybírat Mýtné</button>
     <button id="unlockButton" onclick="showUnlockDialog()">Odemknout</button>
     <button id="buildButton" onclick="startBuilding()">Postavit servisní středisko</button>
     <button id="buyRegularMaintenanceVehicleButton" onclick="buyRegularMaintenanceVehicle()" style="display: none;">Koupit vozidlo běžné údržby</button>
     <button id="buyWinterMaintenanceVehicleButton" onclick="buyWinterMaintenanceVehicle()" style="display: none;">Koupit vozidlo zimní údržby</button>
+    <button id="startVehicleButton" onclick="startVehicleMovement()" style="display: none;">Spustit vozidlo</button>
     <div id="messages"></div>
 </div>
 
@@ -722,94 +723,6 @@ let regularMaintenanceVehicleLocation;  // Ukládá aktuální polohu vozidla b�
 
 let regularMaintenanceVehicleMarker;  // Marker pro vozidlo běžné údržby
 
-function moveRegularMaintenanceVehicle() {
-    setInterval(function () {
-        if (regularMaintenanceVehicleLocation) {
-            const currentHighway = findCurrentHighway(regularMaintenanceVehicleLocation);
-            if (currentHighway) {
-                const nextPoint = findNextPoint(currentHighway, regularMaintenanceVehicleLocation);
-                if (nextPoint) {
-                    regularMaintenanceVehicleLocation = calculateNextLocation(regularMaintenanceVehicleLocation, nextPoint.location, 60);
-                    updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
-                }
-            }
-        }
-    }, 1000);
-    }
-    
-function findStartingPoint() {
-    // Najde první odemčený exit jako počáteční bod pro vozidlo běžné údržby
-    for (const highway of highways) {
-        for (const point of highway.route) {
-            if (point.exit && point.unlocked) {
-                return point;
-            }
-        }
-    }
-    return null;
-}
-
-
-function findCurrentHighway(location) {
-    for (const highway of highways) {
-        for (const point of highway.route) {
-            if (point.exit && point.unlocked && point.location[0] === location[0] && point.location[1] === location[1]) {
-                return highway;
-            }
-        }
-    }
-    return null;
-}
-
-function findNextPoint(highway, location) {
-    const currentIndex = highway.route.findIndex(point => point.location[0] === location[0] && point.location[1] === location[1]);
-    if (currentIndex !== -1 && currentIndex < highway.route.length - 1) {
-        return highway.route[currentIndex + 1];
-    }
-    return null;
-}
-
-function calculateNextLocation(currentLocation, targetLocation, speed) {
-    const distance = calculateDistance(currentLocation, targetLocation);
-    const time = distance / speed;  // Čas v hodinách
-    const ratio = 1 / time;
-    return [
-        currentLocation[0] + (ratio * (targetLocation[0] - currentLocation[0])),
-        currentLocation[1] + (ratio * (targetLocation[1] - currentLocation[1]))
-    ];
-}
-
-function calculateDistance(location1, location2) {
-    const lat1 = location1[0];
-    const lon1 = location1[1];
-    const lat2 = location2[0];
-    const lon2 = location2[1];
-    const R = 6371;  // Poloměr Země v kilometrech
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;  // Vzdálenost v kilometrech
-    return distance;
-}
-
-function deg2rad(deg) {
-    return deg * (Math.PI / 180);
-}
-
-function updateMaintenanceVehicleMarker(location) {
-    if (regularMaintenanceVehicleMarker) {
-        regularMaintenanceVehicleMarker.setLatLng(location);
-    } else {
-        regularMaintenanceVehicleMarker = L.marker(location, { icon: regularMaintenanceVehicleIcon }).addTo(map);
-    }
-}
-
-
-
-
 function buyRegularMaintenanceVehicle() {
     const buyConfirmation = confirm(`Zakoupit vozidlo běžné údržby za ${regularMaintenanceVehicleCost} Kč?`);
     if (buyConfirmation) {
@@ -817,9 +730,7 @@ function buyRegularMaintenanceVehicle() {
             playerFinance -= regularMaintenanceVehicleCost;
             updateFinance();
             showMessage('Vozidlo běžné údržby zakoupeno.');
-            regularMaintenanceVehicleLocation = findStartingPoint().location;
-            updateMaintenanceVehicleMarker(regularMaintenanceVehicleLocation);
-            moveRegularMaintenanceVehicle();
+            // TODO: Přidat funkcionalitu pro použití vozidla běžné údržby
         } else {
             showMessage('Nemáte dostatek financí na zakoupení vozidla běžné údržby.');
         }
@@ -839,6 +750,117 @@ function buyWinterMaintenanceVehicle() {
         }
     }
 }
+
+ let regularMaintenanceVehiclePosition = null;
+let currentHighway = null;
+
+function startVehicleMovement() {
+    regularMaintenanceVehiclePosition = { latlng: buildMarker.getLatLng(), index: 0 };
+    currentHighway = findCurrentHighway(regularMaintenanceVehiclePosition.latlng);
+    setInterval(moveRegularMaintenanceVehicle, 1000);
+}
+
+function moveRegularMaintenanceVehicle() {
+    if (!currentHighway || !regularMaintenanceVehiclePosition) return;
+
+    const nextIndex = regularMaintenanceVehiclePosition.index + 1;
+    if (nextIndex < currentHighway.route.length) {
+        const startPoint = currentHighway.route[regularMaintenanceVehiclePosition.index].location;
+        const endPoint = currentHighway.route[nextIndex].location;
+        const distance = calculateDistance(startPoint, endPoint);
+        const duration = distance / 60; // Předpokládaná rychlost 60 km/h
+
+        regularMaintenanceVehiclePosition.latlng = interpolateLatLng(startPoint, endPoint, duration);
+        regularMaintenanceVehiclePosition.index = nextIndex;
+
+        // Aktualizace polohy vozidla na mapě
+        buildMarker.setLatLng(regularMaintenanceVehiclePosition.latlng);
+
+        // Aktualizace informací o aktuálním úseku dálnice
+        updateCurrentHighwayInfo();
+
+    } else {
+        // Vozidlo dosáhlo konce trasy aktuální dálnice, hledáme další dálnici
+        const nextHighway = findNextHighway();
+        if (nextHighway) {
+            currentHighway = nextHighway;
+            regularMaintenanceVehiclePosition.index = 0;
+        }
+    }
+}
+
+function findCurrentHighway(latlng) {
+    // Najde aktuální dálnici na základě polohy vozidla
+    return highways.find(highway => {
+        for (let i = 1; i < highway.route.length; i++) {
+            const startPoint = highway.route[i - 1].location;
+            const endPoint = highway.route[i].location;
+            if (isPointOnLine(latlng, startPoint, endPoint)) {
+                return true;
+            }
+        }
+        return false;
+    });
+}
+
+function findNextHighway() {
+    // Najde další dálnici, kterou vozidlo projede
+    const unlockedHighways = highways.filter(highway => !highway.hidden);
+    const currentIndex = unlockedHighways.findIndex(highway => highway.name === currentHighway.name);
+    const nextIndex = (currentIndex + 1) % unlockedHighways.length;
+    return unlockedHighways[nextIndex];
+}
+
+function calculateDistance(latlng1, latlng2) {
+    // Vrátí vzdálenost mezi dvěma body na mapě
+    const radlat1 = (Math.PI * latlng1[0]) / 180;
+    const radlat2 = (Math.PI * latlng2[0]) / 180;
+    const theta = latlng1[1] - latlng2[1];
+    const radtheta = (Math.PI * theta) / 180;
+    let dist =
+        Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+    dist = Math.acos(dist);
+    dist = (dist * 180) / Math.PI;
+    dist = dist * 60 * 1.1515 * 1.609344; // Převod na kilometry
+    return dist;
+}
+
+function interpolateLatLng(latlng1, latlng2, duration) {
+    // Interpolace nové polohy mezi dvěma body na mapě
+    const fraction = 1 / (60 * duration); // Předpokládaná rychlost 60 km/h
+    const lat = latlng1[0] + fraction * (latlng2[0] - latlng1[0]);
+    const lng = latlng1[1] + fraction * (latlng2[1] - latlng1[1]);
+    return [lat, lng];
+}
+
+function isPointOnLine(point, lineStart, lineEnd) {
+    // Ověření, zda je bod na přímce mezi dvěma body
+    const dxc = point[1] - lineStart[1];
+    const dyc = point[0] - lineStart[0];
+    const dxl = lineEnd[1] - lineStart[1];
+    const dyl = lineEnd[0] - lineStart[0];
+    const cross = dxc * dyl - dyc * dxl;
+    if (cross !== 0) return false;
+
+    if (Math.abs(dxl) >= Math.abs(dyl)) {
+        return dxl > 0 ? lineStart[1] <= point[1] && point[1] <= lineEnd[1] : lineEnd[1] <= point[1] && point[1] <= lineStart[1];
+    } else {
+        return dyl > 0 ? lineStart[0] <= point[0] && point[0] <= lineEnd[0] : lineEnd[0] <= point[0] && point[0] <= lineStart[0];
+    }
+}
+
+function updateCurrentHighwayInfo() {
+    // Aktualizace informací o aktuálním úseku dálnice
+    const currentSectionInfo = document.getElementById('currentSection');
+    if (currentHighway) {
+        const currentSection = currentHighway.route[regularMaintenanceVehiclePosition.index];
+        const sectionName = currentSection.exit ? currentSection.exit : currentSection.Service ? currentSection.Service : '';
+        currentSectionInfo.innerText = `Aktuální dálniční úsek: ${currentHighway.name} - ${sectionName}`;
+    } else {
+        currentSectionInfo.innerText = 'Aktuální dálniční úsek: Není definován';
+    }
+}
+
 
 </script>
 </body>
