@@ -33,7 +33,14 @@
             height: 100%;
         }
 
-        .header, .footer {
+        .header {
+            background: #0078d7;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .footer {
             background: #0078d7;
             color: white;
             padding: 10px;
@@ -52,6 +59,18 @@
         button:hover {
             background: #005bb5;
         }
+
+        .money {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .locked {
+            background-color: red;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -62,8 +81,8 @@
         <div id="map"></div>
         <div class="sidebar">
             <h2>Ovládání</h2>
-            <p>Vyberte letiště, které chcete otevřít.</p>
-            <div id="airport-controls"></div>
+            <p id="money" class="money">Peněženka: 100 Kč</p>
+            <button onclick="flyPlane()">Poslat Letadlo</button>
         </div>
     </div>
     <div class="footer">
@@ -71,58 +90,62 @@
     </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
+        // Initialize the map and set its view to Prague
         var map = L.map('map').setView([50.0755, 14.4378], 5);
 
+        // Add the OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var airports = [
-            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], opened: true },
-            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], opened: false },
-            { name: "Letiště Charles de Gaulle Paříž", coords: [49.0097, 2.5479], opened: false },
-            { name: "Letiště Frankfurt", coords: [50.0379, 8.5622], opened: false },
-            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], opened: false }
-        ];
+        // Initial money
+        var money = 100;
 
-        var airportMarkers = {};
-
-        airports.forEach(function(airport, index) {
-            var marker = L.marker(airport.coords).addTo(map);
-
-            if (!airport.opened) {
-                marker.bindPopup('<b>' + airport.name + '</b><br><button onclick="openAirport(' + index + ')">Otevřít letiště</button>');
-            } else {
-                marker.bindPopup('<b>' + airport.name + '</b><br>Letiště je otevřené.');
-            }
-
-            airportMarkers[index] = marker;
-        });
-
-        function openAirport(index) {
-            var airport = airports[index];
-            airport.opened = true;
-
-            var marker = airportMarkers[index];
-            marker.bindPopup('<b>' + airport.name + '</b><br>Letiště je otevřené.');
-
-            updateAirportControls();
+        // Update money display
+        function updateMoneyDisplay() {
+            document.getElementById('money').textContent = "Peněženka: " + money + " Kč";
         }
 
-        function updateAirportControls() {
-            var controls = document.getElementById('airport-controls');
-            controls.innerHTML = '';
-            airports.forEach(function(airport, index) {
-                if (!airport.opened) {
-                    var button = document.createElement('button');
-                    button.innerText = 'Otevřít ' + airport.name;
-                    button.onclick = function() { openAirport(index); };
-                    controls.appendChild(button);
+        // List of airports
+        var airports = [
+            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true },
+            { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50 },
+            { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70 },
+            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80 },
+            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100 }
+        ];
+
+        // Function to add airport markers to the map
+        function addAirportMarkers() {
+            airports.forEach(function(airport) {
+                var marker = L.marker(airport.coords).addTo(map);
+
+                if (!airport.unlocked) {
+                    marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
+                } else {
+                    marker.bindPopup(airport.name);
                 }
+
+                airport.marker = marker;
             });
         }
 
-        updateAirportControls();
+        // Function to unlock an airport
+        function unlockAirport(name) {
+            var airport = airports.find(a => a.name === name);
+            if (money >= airport.cost) {
+                money -= airport.cost;
+                airport.unlocked = true;
+                updateMoneyDisplay();
+                airport.marker.bindPopup(airport.name).openPopup();
+            } else {
+                alert("Nemáte dostatek peněz k odemknutí tohoto letiště!");
+            }
+        }
+
+        // Initial setup
+        updateMoneyDisplay();
+        addAirportMarkers();
     </script>
 </body>
 </html>
