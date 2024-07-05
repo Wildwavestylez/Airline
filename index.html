@@ -183,6 +183,9 @@
         // List of planes
         var planes = [];
 
+        // List of passengers
+        var passengers = [];
+
         // Plane types
         var planeTypes = {
             'mini': { name: 'Mini Letadlo', capacity: 4, range: 500, speed: 2500, cost: 1000 },
@@ -222,14 +225,17 @@
 
         // Function to generate passengers
         function generatePassengers() {
+            passengers = [];
             airports.forEach(function(airport) {
                 if (airport.unlocked) {
                     var destination = getRandomDestination(airport.name);
                     var passenger = { from: airport.name, to: destination };
+                    passengers.push(passenger);
                     airport.passengers[destination] = (airport.passengers[destination] || 0) + 1;
                     updatePopupContent(airport);
                 }
             });
+            updatePassengerList();
         }
 
         // Function to get a random destination from the unlocked airports
@@ -339,7 +345,9 @@
         // Initial setup
         updateMoneyDisplay();
         addAirportMarkers();
+        generatePassengers(); // Generate initial passengers
         setInterval(generatePassengers, 60000); // Generate passengers every minute
     </script>
 </body>
 </html>
+
