@@ -3,79 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Hra s Letadly</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-     body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-#map {
-    width: 100%;
-    height: 50vh;
-}
-
-#controls {
-    width: 100%;
-    padding: 10px;
-    background-color: #f8f9fa;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-@media (min-width: 600px) {
-    #map {
-        height: 70vh;
-    }
-
-    #controls {
-        max-width: 600px;
-    }
-}
-
-.panel-section {
-    margin-bottom: 10px;
-}
-
-.panel-section button, .panel-section select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-}
+        #map {
+            flex: 1;
+        }
 
         .sidebar {
             width: 300px;
+
+    
+          
+            
+    
+
+          
+          Expand Down
+          
+            
+    
+
+          
+          Expand Up
+    
+    @@ -150,6 +179,18 @@ <h3>Seznam pasažérů</h3>
+  
             background: #f0f0f0;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
         }
-
         .container {
             display: flex;
             height: 100%;
         }
-
         .header {
             background: #0078d7;
             color: white;
             padding: 10px;
             text-align: center;
         }
-
         .footer {
             background: #0078d7;
             color: white;
             padding: 10px;
             text-align: center;
         }
-
         button {
             background: #0078d7;
             color: white;
@@ -84,28 +68,23 @@
             margin-top: 10px;
             cursor: pointer;
         }
-
         button:hover {
             background: #005bb5;
         }
-
         .money {
             font-size: 20px;
             margin-bottom: 20px;
         }
-
         .locked {
             background-color: red;
             color: white;
             padding: 5px;
             border-radius: 3px;
         }
-
         .passenger-list {
             list-style-type: none;
             padding: 0;
         }
-
         .passenger-item {
             background: #fff;
             margin-bottom: 10px;
