@@ -101,8 +101,6 @@
             <h2>Ovládání</h2>
             <p id="money" class="money">Peněženka: 1000000 Kč</p>
             <button onclick="flyPlane()">Poslat Letadlo</button>
-            <h3>Seznam pasažérů</h3>
-            <ul id="passenger-list" class="passenger-list"></ul>
             <h3>Koupit Letadlo</h3>
             <select id="plane-select">
                 <option value="mini">Mini Letadlo - 1000 Kč</option>
@@ -112,6 +110,8 @@
                 <option value="xl">Velkokapacitní Letadlo - 500000 Kč</option>
             </select>
             <button onclick="buyPlane()">Koupit</button>
+            <h3>Seznam pasažérů</h3>
+            <ul id="passenger-list" class="passenger-list"></ul>
         </div>
     </div>
     <div class="footer">
@@ -217,7 +217,8 @@
                 money -= airport.cost;
                 airport.unlocked = true;
                 updateMoneyDisplay();
-                airport.marker.bindPopup(generatePopupContent(airport)).openPopup();
+                airport.marker.bindPopup(generatePopupContent(airport));
+                alert("Letiště " + airport.name + " bylo odemčeno!");
             } else {
                 alert("Nemáte dostatek peněz k odemknutí tohoto letiště!");
             }
@@ -249,11 +250,13 @@
         // Function to generate popup content for an airport
         function generatePopupContent(airport) {
             var content = "<b>" + airport.name + "</b><br>";
+            var totalPassengers = 0;
             for (var destination in airport.passengers) {
                 if (airport.passengers.hasOwnProperty(destination)) {
-                    content += destination + ": " + airport.passengers[destination] + "<br>";
+                    totalPassengers += airport.passengers[destination];
                 }
             }
+            content += "Čekající pasažéři: " + totalPassengers + "<br>";
             return content;
         }
 
@@ -327,6 +330,7 @@
                 if (currentStep >= totalSteps) {
                     clearInterval(stepInterval);
                     map.removeLayer(polyline);
+                    planeMarker.setLatLng(toLatLng); // Ensure the plane ends up at the destination
                     // Earn money for successful flight
                     money += 20;
                     updateMoneyDisplay();
@@ -350,4 +354,3 @@
     </script>
 </body>
 </html>
-
