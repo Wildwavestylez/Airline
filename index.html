@@ -134,14 +134,14 @@
     // Custom icon for airports
     var airportIcon = L.icon({
         iconUrl: 'https://i.imgur.com/dU2KpHP.png',
-        iconSize: [32, 32], // size of the icon
-        iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
+        iconSize: [100, 100], // size of the icon
+        iconAnchor: [0, 0], // point of the icon which will correspond to marker's location
         popupAnchor: [0, -16] // point from which the popup should open relative to the iconAnchor
     });
 
     // Custom icons for planes
     var planeIcons = {
-        mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [64, 64], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
+        mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [100, 100], iconAnchor: [0, 0], popupAnchor: [0, -16] }),
         small: L.icon({ iconUrl: 'https://i.imgur.com/small-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
         medium: L.icon({ iconUrl: 'https://i.imgur.com/medium-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
         large: L.icon({ iconUrl: 'https://i.imgur.com/large-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
@@ -154,7 +154,8 @@
         { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {} },
         { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {} },
         { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80, passengers: {} },
-        { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} }
+        { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} },
+        { name: "Letiště Pardubice (PED)", coords: [50.0167719, 15.7250772], unlocked: false, cost: 100, passengers: {} }
     ];
 
     // List of planes
@@ -347,14 +348,15 @@
                 map.removeLayer(polyline);
                 plane.marker.setLatLng(toLatLng);
                 plane.inFlight = false;
-                plane.passengers = 0;
-                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-                
+
                 // Calculate earnings
                 var earnings = distance * 3 * plane.passengers;
                 money += earnings;
                 updateMoneyDisplay();
                 
+                plane.passengers = 0;
+                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+
                 // Update destination airport's popup content
                 updatePopupContent(toAirport);
                 
@@ -374,6 +376,7 @@
     addAirportMarkers();
     setInterval(generatePassengers, 3000); // Generate passengers every minute
 </script>
+
 
 
 
