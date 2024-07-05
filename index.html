@@ -33,14 +33,7 @@
             height: 100%;
         }
 
-        .header {
-            background: #0078d7;
-            color: white;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .footer {
+        .header, .footer {
             background: #0078d7;
             color: white;
             padding: 10px;
@@ -59,15 +52,6 @@
         button:hover {
             background: #005bb5;
         }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin: 5px 0;
-        }
     </style>
 </head>
 <body>
@@ -78,11 +62,8 @@
         <div id="map"></div>
         <div class="sidebar">
             <h2>Ovládání</h2>
-            <button onclick="unlockNextAirport()">Odemknout Nové Letiště</button>
-            <h3>Odemčená Letiště</h3>
-            <ul id="airport-list">
-                <li>Letiště Václava Havla Praha</li>
-            </ul>
+            <p>Vyberte letiště, které chcete otevřít.</p>
+            <div id="airport-controls"></div>
         </div>
     </div>
     <div class="footer">
@@ -90,45 +71,59 @@
     </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        // Initialize the map and set its view to Prague
-        var map = L.map('map').setView([50.0755, 14.4378], 13);
+        var map = L.map('map').setView([50.0755, 14.4378], 5);
 
-        // Add the OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // List of airports with coordinates and names
         var airports = [
-            {name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632]},
-            {name: "Letiště Vídeň", coords: [48.1103, 16.5697]},
-            {name: "Letiště Charles de Gaulle Paříž", coords: [49.0097, 2.5479]},
-            {name: "Letiště Frankfurt", coords: [50.0379, 8.5622]},
-            {name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543]}
+            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], opened: true },
+            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], opened: false },
+            { name: "Letiště Charles de Gaulle Paříž", coords: [49.0097, 2.5479], opened: false },
+            { name: "Letiště Frankfurt", coords: [50.0379, 8.5622], opened: false },
+            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], opened: false }
         ];
 
-        // Markers for unlocked airports
-        var unlockedAirports = [];
-        unlockedAirports.push(L.marker(airports[0].coords).addTo(map)
-            .bindPopup(airports[0].name));
+        var airportMarkers = {};
 
-        // Function to unlock the next airport
-        function unlockNextAirport() {
-            if (unlockedAirports.length < airports.length) {
-                var nextAirport = airports[unlockedAirports.length];
-                var marker = L.marker(nextAirport.coords).addTo(map)
-                    .bindPopup(nextAirport.name);
-                unlockedAirports.push(marker);
+        airports.forEach(function(airport, index) {
+            var marker = L.marker(airport.coords).addTo(map);
 
-                // Add to the list in the sidebar
-                var airportList = document.getElementById("airport-list");
-                var listItem = document.createElement("li");
-                listItem.textContent = nextAirport.name;
-                airportList.appendChild(listItem);
+            if (!airport.opened) {
+                marker.bindPopup('<b>' + airport.name + '</b><br><button onclick="openAirport(' + index + ')">Otevřít letiště</button>');
             } else {
-                alert("Všechna letiště jsou již odemčena!");
+                marker.bindPopup('<b>' + airport.name + '</b><br>Letiště je otevřené.');
             }
+
+            airportMarkers[index] = marker;
+        });
+
+        function openAirport(index) {
+            var airport = airports[index];
+            airport.opened = true;
+
+            var marker = airportMarkers[index];
+            marker.bindPopup('<b>' + airport.name + '</b><br>Letiště je otevřené.');
+
+            updateAirportControls();
         }
+
+        function updateAirportControls() {
+            var controls = document.getElementById('airport-controls');
+            controls.innerHTML = '';
+            airports.forEach(function(airport, index) {
+                if (!airport.opened) {
+                    var button = document.createElement('button');
+                    button.innerText = 'Otevřít ' + airport.name;
+                    button.onclick = function() { openAirport(index); };
+                    controls.appendChild(button);
+                }
+            });
+        }
+
+        updateAirportControls();
     </script>
 </body>
 </html>
+
