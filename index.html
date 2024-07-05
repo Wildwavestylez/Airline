@@ -84,6 +84,11 @@
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
         }
+
+        select {
+            padding: 10px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -94,10 +99,19 @@
         <div id="map"></div>
         <div class="sidebar">
             <h2>Ovládání</h2>
-            <p id="money" class="money">Peněženka: 100 Kč</p>
+            <p id="money" class="money">Peněženka: 1000000 Kč</p>
             <button onclick="flyPlane()">Poslat Letadlo</button>
             <h3>Seznam pasažérů</h3>
             <ul id="passenger-list" class="passenger-list"></ul>
+            <h3>Koupit Letadlo</h3>
+            <select id="plane-select">
+                <option value="mini">Mini Letadlo - 1000 Kč</option>
+                <option value="small">Malé Letadlo - 10000 Kč</option>
+                <option value="medium">Střední Letadlo - 50000 Kč</option>
+                <option value="large">Velké Letadlo - 150000 Kč</option>
+                <option value="xl">Velkokapacitní Letadlo - 500000 Kč</option>
+            </select>
+            <button onclick="buyPlane()">Koupit</button>
         </div>
     </div>
     <div class="footer">
@@ -114,27 +128,48 @@
         }).addTo(map);
 
         // Initial money
-        var money = 100000;
+        var money = 1000000;
 
         // Update money display
         function updateMoneyDisplay() {
             document.getElementById('money').textContent = "Peněženka: " + money + " Kč";
         }
 
-        // Custom icon for airports
+        // Custom icons for airports and planes
         var airportIcon = L.icon({
             iconUrl: 'https://i.imgur.com/dU2KpHP.png',
-            iconSize: [32, 32], // size of the icon
-            iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
-            popupAnchor: [0, -16] // point from which the popup should open relative to the iconAnchor
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
         });
 
-        // Custom icon for planes
-        var planeIcon = L.icon({
-            iconUrl: 'https://i.imgur.com/At7sP7j.png',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-        });
+        var planeIcons = {
+            'mini': L.icon({
+                iconUrl: 'https://i.imgur.com/At7sP7j.png',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            }),
+            'small': L.icon({
+                iconUrl: 'https://i.imgur.com/a9cN3j3.png', // Placeholder URL for small plane
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            }),
+            'medium': L.icon({
+                iconUrl: 'https://i.imgur.com/k0rFbPa.png', // Placeholder URL for medium plane
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            }),
+            'large': L.icon({
+                iconUrl: 'https://i.imgur.com/Pv9Szzq.png', // Placeholder URL for large plane
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            }),
+            'xl': L.icon({
+                iconUrl: 'https://i.imgur.com/1t6f8aU.png', // Placeholder URL for xl plane
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            })
+        };
 
         // List of airports
         var airports = [
@@ -145,8 +180,17 @@
             { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} }
         ];
 
-        // List of passengers
-        var passengers = [];
+        // List of planes
+        var planes = [];
+
+        // Plane types
+        var planeTypes = {
+            'mini': { name: 'Mini Letadlo', capacity: 4, range: 500, speed: 2500, cost: 1000 },
+            'small': { name: 'Malé Letadlo', capacity: 30, range: 1200, speed: 2500, cost: 10000 },
+            'medium': { name: 'Střední Letadlo', capacity: 70, range: 2000, speed: 3500, cost: 50000 },
+            'large': { name: 'Velké Letadlo', capacity: 150, range: 5000, speed: 5000, cost: 150000 },
+            'xl': { name: 'Velkokapacitní Letadlo', capacity: 300, range: 15000, speed: 7500, cost: 500000 }
+        };
 
         // Function to add airport markers to the map
         function addAirportMarkers() {
@@ -182,16 +226,10 @@
                 if (airport.unlocked) {
                     var destination = getRandomDestination(airport.name);
                     var passenger = { from: airport.name, to: destination };
-                    passengers.push(passenger);
-
-                    if (!airport.passengers[destination]) {
-                        airport.passengers[destination] = 0;
-                    }
-                    airport.passengers[destination]++;
+                    airport.passengers[destination] = (airport.passengers[destination] || 0) + 1;
                     updatePopupContent(airport);
                 }
             });
-            updatePassengerList();
         }
 
         // Function to get a random destination from the unlocked airports
@@ -218,29 +256,58 @@
             airport.marker.setPopupContent(generatePopupContent(airport));
         }
 
-        // Function to update the passenger list in the sidebar
+        // Function to update the passenger list display
         function updatePassengerList() {
             var passengerList = document.getElementById('passenger-list');
             passengerList.innerHTML = '';
-            passengers.forEach(function(passenger, index) {
+            passengers.forEach(function(passenger) {
                 var listItem = document.createElement('li');
                 listItem.className = 'passenger-item';
-                listItem.textContent = "Pasažér " + (index + 1) + ": " + passenger.from + " -> " + passenger.to;
+                listItem.textContent = passenger.from + " -> " + passenger.to;
                 passengerList.appendChild(listItem);
             });
         }
 
-        // Function to animate a plane from one airport to another
+        // Function to buy a plane
+        function buyPlane() {
+            var planeSelect = document.getElementById('plane-select');
+            var selectedPlaneType = planeSelect.value;
+            var selectedPlane = planeTypes[selectedPlaneType];
+
+            if (money >= selectedPlane.cost) {
+                money -= selectedPlane.cost;
+                updateMoneyDisplay();
+                var plane = {
+                    type: selectedPlaneType,
+                    capacity: selectedPlane.capacity,
+                    range: selectedPlane.range,
+                    speed: selectedPlane.speed,
+                    marker: L.marker(airports[0].coords, { icon: planeIcons[selectedPlaneType] }).addTo(map)
+                };
+                planes.push(plane);
+                alert("Koupeno: " + selectedPlane.name);
+            } else {
+                alert("Nemáte dostatek peněz na nákup tohoto letadla!");
+            }
+        }
+
+        // Function to fly a plane
         function flyPlane() {
+            if (planes.length === 0) {
+                alert("Nemáte žádná letadla!");
+                return;
+            }
             if (passengers.length === 0) {
                 alert("Žádní pasažéři k přepravě!");
                 return;
             }
+
             var passenger = passengers.shift();
             var fromAirport = airports.find(a => a.name === passenger.from);
             var toAirport = airports.find(a => a.name === passenger.to);
 
-            var planeMarker = L.marker(fromAirport.coords, { icon: planeIcon }).addTo(map);
+            var plane = planes[0]; // Select the first plane for simplicity
+            var planeMarker = plane.marker;
 
             var fromLatLng = L.latLng(fromAirport.coords);
             var toLatLng = L.latLng(toAirport.coords);
@@ -253,7 +320,6 @@
             var stepInterval = setInterval(function() {
                 if (currentStep >= totalSteps) {
                     clearInterval(stepInterval);
-                    map.removeLayer(planeMarker);
                     map.removeLayer(polyline);
                     // Earn money for successful flight
                     money += 20;
@@ -273,8 +339,7 @@
         // Initial setup
         updateMoneyDisplay();
         addAirportMarkers();
-        setInterval(generatePassengers, 6000); // Generate passengers every minute
+        setInterval(generatePassengers, 60000); // Generate passengers every minute
     </script>
 </body>
 </html>
-
