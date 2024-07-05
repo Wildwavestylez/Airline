@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hra s Letadly</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #map {
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f0f0f0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            height: 100%;
+        }
+
+        .header {
+            background: #0078d7;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .footer {
+            background: #0078d7;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        button {
+            background: #0078d7;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005bb5;
+        }
+
+        .money {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .locked {
+            background-color: red;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .passenger-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .passenger-item {
+            background: #fff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Hra s Letadly</h1>
+    </div>
+    <div class="container">
+        <div id="map"></div>
+        <div class="sidebar">
+            <h2>Ovládání</h2>
+            <p id="money" class="money">Peněženka: 100 Kč</p>
+            <button onclick="flyPlane()">Poslat Letadlo</button>
+            <h3>Seznam pasažérů</h3>
+            <ul id="passenger-list" class="passenger-list"></ul>
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2024 Hra s Letadly
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map and set its view to Prague
+        var map = L.map('map').setView([50.0755, 14.4378], 5);
+
+        // Add the OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Initial money
+        var money = 100;
+
+        // Update money display
+        function updateMoneyDisplay() {
+            document.getElementById('money').textContent = "Peněženka: " + money + " Kč";
+        }
+
+        // Custom icon for airports
+        var airportIcon = L.icon({
+            iconUrl: 'https://i.imgur.com/dU2KpHP.png',
+            iconSize: [32, 32], // size of the icon
+            iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
+            popupAnchor: [0, -16] // point from which the popup should open relative to the iconAnchor
+        });
+
+        // Custom icon for planes
+        var planeIcon = L.icon({
+            iconUrl: 'https://i.imgur.com/At7sP7j.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        // List of airports
+        var airports = [
+            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
+            { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {} },
+            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80, passengers: {} },
+            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} }
+        ];
+
+        // List of passengers
+        var passengers = [];
+
+        // Function to add airport markers to the map
+        function addAirportMarkers() {
+            airports.forEach(function(airport) {
+                var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
+
+                if (!airport.unlocked) {
+                    marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
+                } else {
+                    marker.bindPopup(generatePopupContent(airport));
+                }
+
+                airport.marker = marker;
+            });
+        }
+
+        // Function to unlock an airport
+        function unlockAirport(name) {
+            var airport = airports.find(a => a.name === name);
+            if (money >= airport.cost) {
+                money -= airport.cost;
+                airport.unlocked = true;
+                updateMoneyDisplay();
+                airport.marker.bindPopup(generatePopupContent(airport)).openPopup();
+            } else {
+                alert("Nemáte dostatek peněz k odemknutí tohoto letiště!");
+            }
+        }
+
+        // Function to generate passengers
+        function generatePassengers() {
+            airports.forEach(function(airport) {
+                if (airport.unlocked) {
+                    var destination = getRandomDestination(airport.name);
+                    var passenger = { from: airport.name, to: destination };
+                    passengers.push(passenger);
+
+                    if (!airport.passengers[destination]) {
+                        airport.passengers[destination] = 0;
+                    }
+                    airport.passengers[destination]++;
+                    updatePopupContent(airport);
+                }
+            });
+            updatePassengerList();
+        }
+
+        // Function to get a random destination from the unlocked airports
+        function getRandomDestination(exclude) {
+            var unlockedAirports = airports.filter(a => a.unlocked && a.name !== exclude);
+            if (unlockedAirports.length === 0) return "Žádná dostupná destinace";
+            var randomIndex = Math.floor(Math.random() * unlockedAirports.length);
+            return unlockedAirports[randomIndex].name;
+        }
+
+        // Function to generate popup content for an airport
+        function generatePopupContent(airport) {
+            var content = "<b>" + airport.name + "</b><br>";
+            for (var destination in airport.passengers) {
+                if (airport.passengers.hasOwnProperty(destination)) {
+                    content += destination + ": " + airport.passengers[destination] + "<br>";
+                }
+            }
+            return content;
+        }
+
+        // Function to update the popup content for an airport
+        function updatePopupContent(airport) {
+            airport.marker.setPopupContent(generatePopupContent(airport));
+        }
+
+        // Function to update the passenger list in the sidebar
+        function updatePassengerList() {
+            var passengerList = document.getElementById('passenger-list');
+            passengerList.innerHTML = '';
+            passengers.forEach(function(passenger, index) {
+                var listItem = document.createElement('li');
+                listItem.className = 'passenger-item';
+                listItem.textContent = "Pasažér " + (index + 1) + ": " + passenger.from + " -> " + passenger.to;
+                passengerList.appendChild(listItem);
+            });
+        }
+
+        // Function to animate a plane from one airport to another
+        function flyPlane() {
+            if (passengers.length === 0) {
+                alert("Žádní pasažéři k přepravě!");
+                return;
+            }
+            var passenger = passengers.shift();
+            var fromAirport = airports.find(a => a.name === passenger.from);
+            var toAirport = airports.find(a => a.name === passenger.to);
+
+            var planeMarker = L.marker(fromAirport.coords, { icon: planeIcon }).addTo(map);
+
+            var fromLatLng = L.latLng(fromAirport.coords);
+            var toLatLng = L.latLng(toAirport.coords);
+
+            var planePath = [fromLatLng, toLatLng];
+            var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
+
+            var currentStep = 0;
+            var totalSteps = 100;
+            var stepInterval = setInterval(function() {
+                if (currentStep >= totalSteps) {
+                    clearInterval(stepInterval);
+                    map.removeLayer(planeMarker);
+                    map.removeLayer(polyline);
+                    // Earn money for successful flight
+                    money += 20;
+                    updateMoneyDisplay();
+                    updatePassengerList();
+                    return;
+                }
+                var currentLatLng = L.latLng(
+                    fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * (currentStep / totalSteps),
+                    fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * (currentStep / totalSteps)
+                );
+                planeMarker.setLatLng(currentLatLng);
+                currentStep++;
+            }, 50);
+        }
+
+        // Initial setup
+        updateMoneyDisplay();
+        addAirportMarkers();
+        setInterval(generatePassengers, 60000); // Generate passengers every minute
+    </script>
+</body>
+</html>
