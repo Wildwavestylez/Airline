@@ -71,6 +71,19 @@
             padding: 5px;
             border-radius: 3px;
         }
+
+        .passenger-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .passenger-item {
+            background: #fff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -83,6 +96,8 @@
             <h2>Ovládání</h2>
             <p id="money" class="money">Peněženka: 100 Kč</p>
             <button onclick="flyPlane()">Poslat Letadlo</button>
+            <h3>Seznam pasažérů</h3>
+            <ul id="passenger-list" class="passenger-list"></ul>
         </div>
     </div>
     <div class="footer">
@@ -123,6 +138,9 @@
             { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100 }
         ];
 
+        // List of passengers
+        var passengers = [];
+
         // Function to add airport markers to the map
         function addAirportMarkers() {
             airports.forEach(function(airport) {
@@ -151,9 +169,42 @@
             }
         }
 
+        // Function to generate passengers
+        function generatePassengers() {
+            airports.forEach(function(airport) {
+                if (airport.unlocked) {
+                    var destination = getRandomDestination(airport.name);
+                    var passenger = { from: airport.name, to: destination };
+                    passengers.push(passenger);
+                    updatePassengerList();
+                }
+            });
+        }
+
+        // Function to get a random destination from the unlocked airports
+        function getRandomDestination(exclude) {
+            var unlockedAirports = airports.filter(a => a.unlocked && a.name !== exclude);
+            if (unlockedAirports.length === 0) return "Žádná dostupná destinace";
+            var randomIndex = Math.floor(Math.random() * unlockedAirports.length);
+            return unlockedAirports[randomIndex].name;
+        }
+
+        // Function to update the passenger list display
+        function updatePassengerList() {
+            var passengerListElement = document.getElementById('passenger-list');
+            passengerListElement.innerHTML = '';
+            passengers.forEach(function(passenger) {
+                var listItem = document.createElement('li');
+                listItem.className = 'passenger-item';
+                listItem.textContent = "Z: " + passenger.from + " Do: " + passenger.to;
+                passengerListElement.appendChild(listItem);
+            });
+        }
+
         // Initial setup
         updateMoneyDisplay();
         addAirportMarkers();
+        setInterval(generatePassengers, 60000); // Generate passengers every minute
     </script>
 </body>
 </html>
