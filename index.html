@@ -124,7 +124,7 @@
     }).addTo(map);
 
     // Initial money
-    var money = 10000;
+    var money = 100;
 
     // Update money display
     function updateMoneyDisplay() {
@@ -257,14 +257,17 @@
                 capacity: planeType.capacity,
                 range: planeType.range,
                 speed: planeType.speed,
-                marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map)
+                marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map),
+                passengers: 0,
+                destination: null,
+                inFlight: false,
+                registration: generateRegistration()
             };
 
-            // Generate a unique registration number
-            plane.registration = generateRegistration();
-            planes.push(plane);
+            // Bind popup with destination selection to the plane marker
+            plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
 
-            alert("Koupeno: " + planeType.name + " s registrační značkou " + plane.registration);
+            planes.push(plane);
         } else {
             alert("Nemáte dostatek peněz na nákup tohoto letadla!");
         }
@@ -280,11 +283,76 @@
         return registration;
     }
 
+    // Function to generate popup content for a plane
+    function generatePlanePopupContent(plane) {
+        var content = "<b>" + plane.type + " (" + plane.registration + ")</b><br>";
+        content += "Kapacita: " + plane.capacity + " pasažérů<br>";
+        content += "Dolet: " + plane.range + " km<br>";
+        content += "Rychlost: " + plane.speed + " km/h<br>";
+        if (plane.inFlight) {
+            content += "Status: Na cestě do " + plane.destination + "<br>";
+        } else {
+            content += "Status: Připraven k letu<br>";
+            content += "<select id='destination-select-" + plane.registration + "'>";
+            airports.forEach(function(airport) {
+                if (airport.unlocked) {
+                    content += "<option value='" + airport.name + "'>" + airport.name + "</option>";
+                }
+            });
+            content += "</select><br>";
+            content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button>";
+        }
+        return content;
+    }
+
+    // Function to send a plane to a selected destination
+    function sendPlane(registration) {
+        var plane = planes.find(p => p.registration === registration);
+        var select = document.getElementById('destination-select-' + registration);
+        var destination = select.value;
+        var airport = airports.find(a => a.name === plane.marker.getLatLng());
+
+        if (plane && airport.passengers[destination] > 0) {
+            var passengersToLoad = Math.min(plane.capacity, airport.passengers[destination]);
+            plane.passengers = passengersToLoad;
+            airport.passengers[destination] -= passengersToLoad;
+            updatePopupContent(airport);
+
+            plane.destination = destination;
+            plane.inFlight = true;
+
+            var destinationCoords = airports.find(a => a.name === destination).coords;
+            var distance = map.distance(plane.marker.getLatLng(), destinationCoords);
+            var travelTime = (distance / 1000) / plane.speed * 3600 * 1000; // in milliseconds
+
+            plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+
+            // Move the plane marker to the destination
+            var flightInterval = setInterval(function() {
+                plane.marker.setLatLng(L.latLng(
+                    plane.marker.getLatLng().lat + (destinationCoords[0] - plane.marker.getLatLng().lat) / (travelTime / 100),
+                    plane.marker.getLatLng().lng + (destinationCoords[1] - plane.marker.getLatLng().lng) / (travelTime / 100)
+                ));
+            }, 100);
+
+            setTimeout(function() {
+                clearInterval(flightInterval);
+                plane.marker.setLatLng(destinationCoords);
+                plane.inFlight = false;
+                plane.passengers = 0;
+                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+            }, travelTime);
+        } else {
+            alert("Není dostatek pasažérů pro tuto destinaci!");
+        }
+    }
+
     // Initial setup
     updateMoneyDisplay();
     addAirportMarkers();
-    setInterval(generatePassengers, 3000); // Generate passengers every minute
+    setInterval(generatePassengers, 30000); // Generate passengers every minute
 </script>
+
 
 </body>
 </html>
