@@ -104,7 +104,7 @@
             <option value="large">Velké Letadlo (150000 Kč)</option>
             <option value="jumbo">Velkokapacitní Letadlo (500000 Kč)</option>
         </select>
-        <button onclick="buyPlane()">Koupit</button>
+       <button onclick="buyPlane()">Koupit Letadlo</button>
     </div>
     <h3>Seznam pasažérů</h3>
     <ul id="passenger-list" class="passenger-list"></ul>
@@ -141,7 +141,7 @@
 
     // Custom icons for planes
     var planeIcons = {
-        mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [64, 64], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
+        mini: L.icon({ iconUrl: 'https://i.imgur.com/dU2KpHP.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
         small: L.icon({ iconUrl: 'https://i.imgur.com/small-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
         medium: L.icon({ iconUrl: 'https://i.imgur.com/medium-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
         large: L.icon({ iconUrl: 'https://i.imgur.com/large-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
@@ -159,9 +159,6 @@
 
     // List of planes
     var planes = [];
-
-    // List of passengers
-    var passengers = [];
 
     // Plane types
     var planeTypes = {
@@ -206,7 +203,6 @@
             if (airport.unlocked) {
                 var destination = getRandomDestination(airport.name);
                 var passenger = { from: airport.name, to: destination };
-                passengers.push(passenger);
 
                 if (!airport.passengers[destination]) {
                     airport.passengers[destination] = 0;
@@ -265,7 +261,7 @@
             };
 
             // Bind popup with destination selection to the plane marker
-            plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+            plane.marker.bindPopup(generatePlanePopupContent(plane));
 
             planes.push(plane);
         } else {
@@ -310,7 +306,7 @@
         var plane = planes.find(p => p.registration === registration);
         var select = document.getElementById('destination-select-' + registration);
         var destination = select.value;
-        var fromAirport = airports.find(a => a.name === plane.marker.getLatLng());
+        var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
 
         if (plane && fromAirport.passengers[destination] > 0) {
             var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
@@ -370,6 +366,7 @@
     addAirportMarkers();
     setInterval(generatePassengers, 3000); // Generate passengers every minute
 </script>
+
 
 
 </body>
