@@ -3,95 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Letadlová Hra</title>
+    <title>Hra s Letadly</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
+        body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
         #map {
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f0f0f0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
             height: 100%;
-            width: 100%;
         }
 
-        .control-panel {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-
-        .control-panel h2 {
-            margin: 0 0 10px 0;
-        }
-
-        .control-panel button {
-            display: block;
-            margin: 5px 0;
-            padding: 5px 10px;
-            border: none;
-            background-color: #007BFF;
+        .header {
+            background: #0078d7;
             color: white;
-            cursor: pointer;
-            border-radius: 3px;
+            padding: 10px;
+            text-align: center;
         }
 
-        .control-panel button:hover {
-            background-color: #0056b3;
+        .footer {
+            background: #0078d7;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        button {
+            background: #0078d7;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005bb5;
         }
     </style>
 </head>
 <body>
-    <div id="map"></div>
+    <div class="header">
+        <h1>Hra s Letadly</h1>
+    </div>
+    <div class="container">
+        <div id="map"></div>
+        <div class="sidebar">
+            <h2>Ovládání</h2>
+            <p>Zde budou ovládací prvky pro hru.</p>
+            <button>Poslat Letadlo</button>
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2024 Hra s Letadly
+    </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        // Inicializace mapy
-        var map = L.map('map').setView([50.0755, 14.4378], 10); // Souřadnice pro Prahu
+        // Initialize the map and set its view to Prague
+        var map = L.map('map').setView([50.0755, 14.4378], 13);
 
-        // Přidání základní vrstvy mapy
+        // Add the OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Přidání markeru pro letiště Praha
-        var pragueAirport = L.marker([50.1008, 14.2632]).addTo(map);
-        pragueAirport.bindPopup("<b>Letiště Praha</b><br>Václav Havel Airport").openPopup();
-
-        // Ukázkový panel s ovládacími prvky
-        var controlPanel = L.control({position: 'topright'});
-
-        controlPanel.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'control-panel');
-            div.innerHTML = `
-                <h2>Ovládací Panel</h2>
-                <button id="addPlane">Přidat Letadlo</button>
-                <button id="expandFleet">Rozšířit Flotilu</button>
-                <button id="unlockAirport">Odemknout Letiště</button>
-            `;
-            return div;
-        };
-
-        controlPanel.addTo(map);
-
-        // Přidání událostí pro tlačítka
-        document.getElementById('addPlane').onclick = function() {
-            alert('Přidání letadla ještě není implementováno.');
-        };
-
-        document.getElementById('expandFleet').onclick = function() {
-            alert('Rozšíření flotily ještě není implementováno.');
-        };
-
-        document.getElementById('unlockAirport').onclick = function() {
-            alert('Odemknutí letiště ještě není implementováno.');
-        };
+        // Add a marker for Prague Airport
+        var pragueAirport = L.marker([50.1008, 14.2632]).addTo(map)
+            .bindPopup('Letiště Václava Havla Praha')
+            .openPopup();
     </script>
 </body>
 </html>
