@@ -337,19 +337,27 @@
 
         var currentStep = 0;
         var totalSteps = 100;
-        var distance = map.distance(fromLatLng, toLatLng);
-        var travelTime = (distance / 1000) / plane.speed * 3600 * 1000; // in milliseconds
+        var distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
+        var travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
         var stepInterval = travelTime / totalSteps;
 
         var flightInterval = setInterval(function() {
             if (currentStep >= totalSteps) {
                 clearInterval(flightInterval);
-                map.removeLayer(planeMarker);
                 map.removeLayer(polyline);
                 plane.marker.setLatLng(toLatLng);
                 plane.inFlight = false;
                 plane.passengers = 0;
                 plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+                
+                // Calculate earnings
+                var earnings = distance * 3 * plane.passengers;
+                money += earnings;
+                updateMoneyDisplay();
+                
+                // Update destination airport's popup content
+                updatePopupContent(toAirport);
+                
                 return;
             }
             var currentLatLng = L.latLng(
@@ -366,6 +374,7 @@
     addAirportMarkers();
     setInterval(generatePassengers, 3000); // Generate passengers every minute
 </script>
+
 
 
 
