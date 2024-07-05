@@ -124,7 +124,7 @@
     }).addTo(map);
 
     // Initial money
-    var money = 10000;
+    var money = 100;
 
     // Update money display
     function updateMoneyDisplay() {
@@ -310,47 +310,65 @@
         var plane = planes.find(p => p.registration === registration);
         var select = document.getElementById('destination-select-' + registration);
         var destination = select.value;
-        var airport = airports.find(a => a.name === plane.marker.getLatLng());
+        var fromAirport = airports.find(a => a.name === plane.marker.getLatLng());
 
-        if (plane && airport.passengers[destination] > 0) {
-            var passengersToLoad = Math.min(plane.capacity, airport.passengers[destination]);
+        if (plane && fromAirport.passengers[destination] > 0) {
+            var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
             plane.passengers = passengersToLoad;
-            airport.passengers[destination] -= passengersToLoad;
-            updatePopupContent(airport);
+            fromAirport.passengers[destination] -= passengersToLoad;
+            updatePopupContent(fromAirport);
 
             plane.destination = destination;
             plane.inFlight = true;
 
-            var destinationCoords = airports.find(a => a.name === destination).coords;
-            var distance = map.distance(plane.marker.getLatLng(), destinationCoords);
-            var travelTime = (distance / 1000) / plane.speed * 3600 * 1000; // in milliseconds
+            var toAirport = airports.find(a => a.name === destination);
+            flyPlane(plane, fromAirport, toAirport);
 
             plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-
-            // Move the plane marker to the destination
-            var flightInterval = setInterval(function() {
-                plane.marker.setLatLng(L.latLng(
-                    plane.marker.getLatLng().lat + (destinationCoords[0] - plane.marker.getLatLng().lat) / (travelTime / 100),
-                    plane.marker.getLatLng().lng + (destinationCoords[1] - plane.marker.getLatLng().lng) / (travelTime / 100)
-                ));
-            }, 100);
-
-            setTimeout(function() {
-                clearInterval(flightInterval);
-                plane.marker.setLatLng(destinationCoords);
-                plane.inFlight = false;
-                plane.passengers = 0;
-                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-            }, travelTime);
         } else {
             alert("Není dostatek pasažérů pro tuto destinaci!");
         }
     }
 
+    // Function to animate a plane from one airport to another
+    function flyPlane(plane, fromAirport, toAirport) {
+        var planeMarker = plane.marker;
+        var fromLatLng = L.latLng(fromAirport.coords);
+        var toLatLng = L.latLng(toAirport.coords);
+
+        var planePath = [fromLatLng, toLatLng];
+        var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
+
+        var currentStep = 0;
+        var totalSteps = 100;
+        var distance = map.distance(fromLatLng, toLatLng);
+        var travelTime = (distance / 1000) / plane.speed * 3600 * 1000; // in milliseconds
+        var stepInterval = travelTime / totalSteps;
+
+        var flightInterval = setInterval(function() {
+            if (currentStep >= totalSteps) {
+                clearInterval(flightInterval);
+                map.removeLayer(planeMarker);
+                map.removeLayer(polyline);
+                plane.marker.setLatLng(toLatLng);
+                plane.inFlight = false;
+                plane.passengers = 0;
+                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+                return;
+            }
+            var currentLatLng = L.latLng(
+                fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * (currentStep / totalSteps),
+                fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * (currentStep / totalSteps)
+            );
+            planeMarker.setLatLng(currentLatLng);
+            currentStep++;
+        }, stepInterval);
+    }
+
     // Initial setup
     updateMoneyDisplay();
     addAirportMarkers();
-    setInterval(generatePassengers, 3000); // Generate passengers every minute
+    setInterval(generatePassengers, 60000); // Generate passengers every minute
 </script>
 
 
