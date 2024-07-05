@@ -84,6 +84,11 @@
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
         }
+
+        select {
+            margin-bottom: 10px;
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +103,17 @@
             <button onclick="flyPlane()">Poslat Letadlo</button>
             <h3>Seznam pasažérů</h3>
             <ul id="passenger-list" class="passenger-list"></ul>
+            <div id="buy-airplane-section">
+                <h3>Koupit letadlo</h3>
+                <select id="airplane-type">
+                    <option value="Mini">Mini letadlo - 4 cestující, dolet 500 km, cena 1000 Kč</option>
+                    <option value="Small">Malé letadlo - 30 cestujících, dolet 1200 km, cena 10 000 Kč</option>
+                    <option value="Medium">Střední letadlo - 70 cestujících, dolet 2000 km, cena 50 000 Kč</option>
+                    <option value="Large">Velké letadlo - 150 cestujících, dolet 5000 km, cena 150 000 Kč</option>
+                    <option value="Huge">Velkokapacitní letadlo - 300 cestujících, dolet 15 000 km, cena 500 000 Kč</option>
+                </select>
+                <button onclick="buyAirplane()">Potvrdit nákup</button>
+            </div>
         </div>
     </div>
     <div class="footer">
@@ -118,104 +134,80 @@
 
         // Update money display
         function updateMoneyDisplay() {
-            document.getElementById('money').textContent = "Peněženka: " + money + " Kč";
+            document.getElementById('money').textContent = "Peněženka: " + money.toLocaleString() + " Kč";
         }
 
-        // Custom icon for airports
-        var airportIcon = L.icon({
-            iconUrl: 'https://i.imgur.com/dU2KpHP.png',
-            iconSize: [32, 32], // size of the icon
-            iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
-            popupAnchor: [0, -16] // point from which the popup should open relative to the iconAnchor
-        });
+        // Custom icons for airplanes
+        var airplaneIcons = {
+            Mini: 'https://i.imgur.com/mini.png',
+            Small: 'https://i.imgur.com/small.png',
+            Medium: 'https://i.imgur.com/medium.png',
+            Large: 'https://i.imgur.com/large.png',
+            Huge: 'https://i.imgur.com/huge.png'
+        };
+
+        // List of airplanes
+        var airplanes = [];
+
+        // Function to add airplane markers to the map
+        function addAirplaneMarker(type) {
+            var airport = airports.find(a => a.name === "Letiště Václava Havla Praha");
+            var iconUrl = airplaneIcons[type];
+            var airplaneIcon = L.icon({
+                iconUrl: iconUrl,
+                iconSize: [32, 32], // size of the icon
+                iconAnchor: [16, 16], // point of the icon which will correspond to marker's location
+                popupAnchor: [0, -16] // point from which the popup should open relative to the iconAnchor
+            });
+
+            var marker = L.marker(airport.coords, { icon: airplaneIcon }).addTo(map);
+            airport.airplanes.push({ type: type, marker: marker });
+        }
+
+        // Function to buy an airplane
+        function buyAirplane() {
+            var select = document.getElementById("airplane-type");
+            var type = select.value;
+
+            var airplaneSpecs = {
+                "Mini": { capacity: 4, range: 500, price: 1000 },
+                "Small": { capacity: 30, range: 1200, price: 10000 },
+                "Medium": { capacity: 70, range: 2000, price: 50000 },
+                "Large": { capacity: 150, range: 5000, price: 150000 },
+                "Huge": { capacity: 300, range: 15000, price: 500000 }
+            };
+
+            var specs = airplaneSpecs[type];
+
+            if (money >= specs.price) {
+                money -= specs.price;
+                updateMoneyDisplay();
+                addAirplaneMarker(type);
+                alert("Nákup proběhl úspěšně! Letadlo typu " + type + " bylo umístěno na Letiště Václava Havla Praha.");
+            } else {
+                alert("Nemáte dostatek peněz na nákup tohoto typu letadla.");
+            }
+        }
 
         // List of airports
         var airports = [
-            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
-            { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {} },
-            { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {} },
-            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80, passengers: {} },
-            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} }
+            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true, passengers: {}, airplanes: [] },
+            { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {}, airplanes: [] },
+            { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {}, airplanes: [] },
+            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80, passengers: {}, airplanes: [] },
+            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {}, airplanes: [] }
         ];
 
-        // List of passengers
-        var passengers = [];
-
-        // Function to add airport markers to the map
-        function addAirportMarkers() {
-            airports.forEach(function(airport) {
-                var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
-
-                if (!airport.unlocked) {
-                    marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
-                } else {
-                    marker.bindPopup(generatePopupContent(airport));
-                }
-
-                airport.marker = marker;
-            });
-        }
-
-        // Function to unlock an airport
-        function unlockAirport(name) {
-            var airport = airports.find(a => a.name === name);
-            if (money >= airport.cost) {
-                money -= airport.cost;
-                airport.unlocked = true;
-                updateMoneyDisplay();
-                airport.marker.bindPopup(generatePopupContent(airport)).openPopup();
-            } else {
-                alert("Nemáte dostatek peněz k odemknutí tohoto letiště!");
-            }
-        }
-
-        // Function to generate passengers
-        function generatePassengers() {
-            airports.forEach(function(airport) {
-                if (airport.unlocked) {
-                    var destination = getRandomDestination(airport.name);
-                    var passenger = { from: airport.name, to: destination };
-                    passengers.push(passenger);
-
-                    if (!airport.passengers[destination]) {
-                        airport.passengers[destination] = 0;
-                    }
-                    airport.passengers[destination]++;
-                    updatePopupContent(airport);
-                }
-            });
-        }
-
-        // Function to get a random destination from the unlocked airports
-        function getRandomDestination(exclude) {
-            var unlockedAirports = airports.filter(a => a.unlocked && a.name !== exclude);
-            if (unlockedAirports.length === 0) return "Žádná dostupná destinace";
-            var randomIndex = Math.floor(Math.random() * unlockedAirports.length);
-            return unlockedAirports[randomIndex].name;
-        }
-
-        // Function to generate popup content for an airport
-        function generatePopupContent(airport) {
-            var content = "<b>" + airport.name + "</b><br>";
-            for (var destination in airport.passengers) {
-                if (airport.passengers.hasOwnProperty(destination)) {
-                    content += destination + ": " + airport.passengers[destination] + "<br>";
-                }
-            }
-            return content;
-        }
-
-        // Function to update the popup content for an airport
-        function updatePopupContent(airport) {
-            airport.marker.setPopupContent(generatePopupContent(airport));
+        // Function to update money display
+        function updateMoneyDisplay() {
+            document.getElementById('money').textContent = "Peněženka: " + money.toLocaleString() + " Kč";
         }
 
         // Initial setup
         updateMoneyDisplay();
-        addAirportMarkers();
-        setInterval(generatePassengers, 60000); // Generate passengers every minute
     </script>
 </body>
 </html>
+
 
 
