@@ -94,7 +94,7 @@
         <div id="map"></div>
         <div class="sidebar">
     <h2>Ovládání</h2>
-    <p id="money" class="money">Peněženka: 10000 Kč</p>
+    <p id="money" class="money">Peněženka: 3000 Kč</p>
     <div id="buy-plane">
         <h3>Koupit letadlo</h3>
         <select id="plane-select">
@@ -124,7 +124,7 @@
     }).addTo(map);
 
     // Initial money
-    var money = 10000;
+    var money = 3000;
 
     // Update money display
     function updateMoneyDisplay() {
@@ -150,12 +150,42 @@
 
     // List of airports
     var airports = [
-        { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
-        { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {} },
-        { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {} },
-        { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80, passengers: {} },
-        { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} },
-        { name: "Letiště Pardubice (PED)", coords: [50.0167719, 15.7250772], unlocked: false, cost: 100, passengers: {} }
+        { name: "Letiště Kolín (LKKO)", coords: [50.0019417, 15.1733306], unlocked: false, cost: 1300, passengers: {} },
+            { name: "Letiště Milovice (LKMILO)", coords: [50.2379322, 14.9097447], unlocked: false, cost: 1500, passengers: {} },
+            { name: "Letiště Mladá Boleslav (LKMB)", coords: [50.3983333, 14.8983333], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Sazená (LKSZ)", coords: [50.3230992, 14.2607631], unlocked: false, cost: 350, passengers: {} },
+            { name: "Letiště Kladno (LKKL)", coords: [50.1127750, 14.0897194], unlocked: false, cost: 350, passengers: {} },
+            { name: "Letiště Benešov (LKBE)", coords: [49.7408333, 14.6447222], unlocked: false, cost: 350, passengers: {} },
+        { name: "Letiště Zbraslavice (LKZB)", coords: [49.8141639, 15.2016639], unlocked: false, cost: 1300, passengers: {} },
+            { name: "Letiště Čáslav (LKCV)", coords: [49.9418489, 15.3812369], unlocked: false, cost: 1500, passengers: {} },
+         { name: "Letiště Václava Havla Praha (PRG)", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
+            { name: "Letiště Berlín-Braniborsko(BER)", coords: [52.3667, 13.5033], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Charlese de Gaulla Paříž(CDG)", coords: [49.0097, 2.5479], unlocked: false, cost: 15000, passengers: {} },
+            { name: "Letiště Schiphol Amsterdam(AMS)", coords: [52.3105, 4.7683], unlocked: false, cost: 14000, passengers: {} },
+            { name: "Letiště Heathrow Londýn(LHR)", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Brno Tuřany(BRQ)", coords: [49.1535236, 16.6920311], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Ostrava(OSR)", coords: [49.6961489, 18.1110528], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Karlovy Vary (KLV)", coords: [50.2033656, 12.9139397], unlocked: false, cost: 200, passengers: {} },
+            { name: "Letiště Drážďany (DRS)", coords: [51.1342992, 13.7694808], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Mnichov (MUC)", coords: [48.3539625, 11.7785925], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Linec (LNZ)", coords: [48.2363750, 14.1877133], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Vídeň (VIE)", coords: [48.1049967, 16.5848986], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Graz (GRZ)", coords: [46.9887481, 15.4400233], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Klagenfurt (KLU)", coords: [46.6434817, 14.3285997], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Innsbruck (INN)", coords: [47.2597258, 11.3418706], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Salzburk (SZG)", coords: [47.7934550, 13.0018306], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Bratislava (BTS)", coords: [48.1722903, 17.2134972], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště České Budějovice (JCL)", coords: [48.9463861, 14.4274972], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Košice (KSC)", coords: [48.6614342, 21.2391397], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Poprad (TAT)", coords: [49.0712142, 20.2472575], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Kraków-Balice (KRK)", coords: [50.0782553, 19.7862536], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Varšava (WAW)", coords: [52.1630650, 20.9708150], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Poznań-Ławica Airport (POZ)", coords: [52.4205639, 16.8317917], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Gdaňsk (GDN)", coords: [54.3762064, 18.4744550], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Hamburk (HAM)", coords: [53.6363622, 9.9945500], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Stuttgart (STR)", coords: [48.6884219, 9.2053925], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Basel-Mulhouse-Freiburg (BSL)", coords: [47.6032369, 7.5243481], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Frankfurt nad Mohanem (FRA)", coords: [50.0229503, 8.5249514], unlocked: false, cost: 10000, passengers: {} },
     ];
 
     // List of planes
@@ -374,7 +404,7 @@
     // Initial setup
     updateMoneyDisplay();
     addAirportMarkers();
-    setInterval(generatePassengers, 3000); // Generate passengers every minute
+    setInterval(generatePassengers, 15000); // Generate passengers every minute
 </script>
 
 
