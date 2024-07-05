@@ -59,6 +59,15 @@
         button:hover {
             background: #005bb5;
         }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -69,8 +78,11 @@
         <div id="map"></div>
         <div class="sidebar">
             <h2>Ovládání</h2>
-            <p>Zde budou ovládací prvky pro hru.</p>
-            <button>Poslat Letadlo</button>
+            <button onclick="unlockNextAirport()">Odemknout Nové Letiště</button>
+            <h3>Odemčená Letiště</h3>
+            <ul id="airport-list">
+                <li>Letiště Václava Havla Praha</li>
+            </ul>
         </div>
     </div>
     <div class="footer">
@@ -86,10 +98,37 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Add a marker for Prague Airport
-        var pragueAirport = L.marker([50.1008, 14.2632]).addTo(map)
-            .bindPopup('Letiště Václava Havla Praha')
-            .openPopup();
+        // List of airports with coordinates and names
+        var airports = [
+            {name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632]},
+            {name: "Letiště Vídeň", coords: [48.1103, 16.5697]},
+            {name: "Letiště Charles de Gaulle Paříž", coords: [49.0097, 2.5479]},
+            {name: "Letiště Frankfurt", coords: [50.0379, 8.5622]},
+            {name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543]}
+        ];
+
+        // Markers for unlocked airports
+        var unlockedAirports = [];
+        unlockedAirports.push(L.marker(airports[0].coords).addTo(map)
+            .bindPopup(airports[0].name));
+
+        // Function to unlock the next airport
+        function unlockNextAirport() {
+            if (unlockedAirports.length < airports.length) {
+                var nextAirport = airports[unlockedAirports.length];
+                var marker = L.marker(nextAirport.coords).addTo(map)
+                    .bindPopup(nextAirport.name);
+                unlockedAirports.push(marker);
+
+                // Add to the list in the sidebar
+                var airportList = document.getElementById("airport-list");
+                var listItem = document.createElement("li");
+                listItem.textContent = nextAirport.name;
+                airportList.appendChild(listItem);
+            } else {
+                alert("Všechna letiště jsou již odemčena!");
+            }
+        }
     </script>
 </body>
 </html>
