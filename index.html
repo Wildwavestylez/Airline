@@ -141,7 +141,7 @@
 
     // Custom icons for planes
     var planeIcons = {
-        mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [100, 100], iconAnchor: [32, 32], popupAnchor: [0, -16] }),
+        mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [100, 100], iconAnchor: [50, 50], popupAnchor: [0, -16] }),
         small: L.icon({ iconUrl: 'https://i.imgur.com/small-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
         medium: L.icon({ iconUrl: 'https://i.imgur.com/medium-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
         large: L.icon({ iconUrl: 'https://i.imgur.com/large-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
@@ -349,9 +349,9 @@
                 plane.marker.setLatLng(toLatLng);
                 plane.inFlight = false;
 
-                // Calculate earnings
+                 // Calculate earnings
                 var earnings = distance * 3 * plane.passengers;
-                money += earnings;
+                money += Math.round(earnings);
                 updateMoneyDisplay();
                 
                 plane.passengers = 0;
