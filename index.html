@@ -150,13 +150,21 @@
 
     // List of airports
     var airports = [
+        { name: "Letiště Velké Poříčí (LKVP)", coords: [50.4677778, 16.2055556], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Vrchlabí (LKVR)", coords: [50.6242864, 15.6465147], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Broumov (LKBR)", coords: [50.5616239, 16.3422106], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Liberec (LKLB)", coords: [50.7671272, 15.0230761], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Hradčany (LKHRAD)", coords: [50.6194417, 14.7327750], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Česká Lípa (LKCE)", coords: [50.7095317, 14.5668706], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Hodkovice (LKHD)", coords: [50.6572194, 15.0777750], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Mnichovo Hradiště (LKMH)", coords: [50.5399972, 15.0066639], unlocked: false, cost: 8500, passengers: {} },
          { name: "Letiště Podhořany (LKPN)", coords: [49.9391639, 15.5497194], unlocked: false, cost: 13000, passengers: {} },
             { name: "Letiště Chrudim (LKCR)", coords: [49.9354142, 15.7811158], unlocked: false, cost: 8000, passengers: {} },
             { name: "Letiště Hradec Králové (LKHK)", coords: [50.2443344, 15.8461386], unlocked: false, cost: 8500, passengers: {} },
-            { name: "Letiště Hamburk (HAM)", coords: [53.6363622, 9.9945500], unlocked: false, cost: 11000, passengers: {} },
-            { name: "Letiště Stuttgart (STR)", coords: [48.6884219, 9.2053925], unlocked: false, cost: 9000, passengers: {} },
-             { name: "Letiště Basel-Mulhouse-Freiburg (BSL)", coords: [47.6032369, 7.5243481], unlocked: false, cost: 9500, passengers: {} },
-            { name: "Letiště Frankfurt nad Mohanem (FRA)", coords: [50.0229503, 8.5249514], unlocked: false, cost: 10000, passengers: {} },
+            { name: "Letiště Jaroměř (LKJA)", coords: [50.3313861, 15.9538861], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Dvůr Králové (LKDK)", coords: [50.4143281, 15.8373064], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Nové Město (LKNM)", coords: [50.3641639, 16.1136083], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Náchod (LKNACH)", coords: [50.4129672, 16.1218878], unlocked: false, cost: 10000, passengers: {} },
         { name: "Letiště Kolín (LKKO)", coords: [50.0019417, 15.1733306], unlocked: false, cost: 1300, passengers: {} },
             { name: "Letiště Milovice (LKMILO)", coords: [50.2379322, 14.9097447], unlocked: false, cost: 1500, passengers: {} },
             { name: "Letiště Mladá Boleslav (LKMB)", coords: [50.3983333, 14.8983333], unlocked: false, cost: 2000, passengers: {} },
@@ -374,7 +382,7 @@
         var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
 
         var currentStep = 0;
-        var totalSteps = 100;
+        var totalSteps = 1000;
         var distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
         var travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
         var stepInterval = travelTime / totalSteps;
