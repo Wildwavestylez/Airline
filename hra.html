@@ -131,18 +131,28 @@
 
         // Custom icon for planes
         var planeIcon = L.icon({
-            iconUrl: 'https://i.imgur.com/At7sP7j.png',
+            iconUrl: 'https://i.imgur.com/J3HCP0L.png',
             iconSize: [32, 32],
             iconAnchor: [16, 16]
         });
 
         // List of airports
         var airports = [
-            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
-            { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {} },
-            { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {} },
-            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80, passengers: {} },
-            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} }
+            { name: "Letiště Václava Havla Praha (PRG)", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
+            { name: "Letiště Berlín-Braniborsko(BER)", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Charlese de Gaulla Paříž(CDG)", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {} },
+            { name: "Letiště Schiphol Amsterdam(AMS)", coords: [52.3105, 4.7683], unlocked: false, cost: 80, passengers: {} },
+            { name: "Letiště Heathrow Londýn(LHR)", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Brno Tuřany(BRQ)", coords: [49.1535236, 16.6920311], unlocked: false, cost: 10, passengers: {} },
+            { name: "Letiště Ostrava(OSR)", coords: [49.6961489, 18.1110528], unlocked: false, cost: 20, passengers: {} },
+            { name: "Letiště Karlovy Vary (KLV)", coords: [50.2033656, 12.9139397], unlocked: false, cost: 30, passengers: {} },
+            { name: "Letiště Drážďany (DRS)", coords: [51.1342992, 13.7694808], unlocked: false, cost: 40, passengers: {} },
+            { name: "Letiště Mnichov (MUC)", coords: [48.3539625, 11.7785925], unlocked: false, cost: 70, passengers: {} },
+             { name: "Letiště Linec (LNZ)", coords: [48.2363750, 14.1877133], unlocked: false, cost: 80, passengers: {} },
+            { name: "Letiště Vídeň (VIE)", coords: [48.1049967, 16.5848986], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Graz (GRZ)", coords: [46.9887481, 15.4400233], unlocked: false, cost: 10, passengers: {} },
+            { name: "Letiště Klagenfurt (KLU)", coords: [46.6434817, 14.3285997], unlocked: false, cost: 20, passengers: {} },
+            { name: "Letiště Innsbruck (INN)", coords: [47.2597258, 11.3418706], unlocked: false, cost: 30, passengers: {} },
         ];
 
         // List of passengers
