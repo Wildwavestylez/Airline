@@ -131,11 +131,11 @@
 
         // List of airports
         var airports = [
-            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true },
-            { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50 },
-            { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70 },
-            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80 },
-            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100 }
+            { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
+            { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {} },
+            { name: "Letiště Schiphol Amsterdam", coords: [52.3105, 4.7683], unlocked: false, cost: 80, passengers: {} },
+            { name: "Letiště Heathrow Londýn", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} }
         ];
 
         // List of passengers
@@ -149,7 +149,7 @@
                 if (!airport.unlocked) {
                     marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
                 } else {
-                    marker.bindPopup(airport.name);
+                    marker.bindPopup(generatePopupContent(airport));
                 }
 
                 airport.marker = marker;
@@ -163,7 +163,7 @@
                 money -= airport.cost;
                 airport.unlocked = true;
                 updateMoneyDisplay();
-                airport.marker.bindPopup(airport.name).openPopup();
+                airport.marker.bindPopup(generatePopupContent(airport)).openPopup();
             } else {
                 alert("Nemáte dostatek peněz k odemknutí tohoto letiště!");
             }
@@ -176,7 +176,12 @@
                     var destination = getRandomDestination(airport.name);
                     var passenger = { from: airport.name, to: destination };
                     passengers.push(passenger);
-                    updatePassengerList();
+
+                    if (!airport.passengers[destination]) {
+                        airport.passengers[destination] = 0;
+                    }
+                    airport.passengers[destination]++;
+                    updatePopupContent(airport);
                 }
             });
         }
@@ -189,16 +194,20 @@
             return unlockedAirports[randomIndex].name;
         }
 
-        // Function to update the passenger list display
-        function updatePassengerList() {
-            var passengerListElement = document.getElementById('passenger-list');
-            passengerListElement.innerHTML = '';
-            passengers.forEach(function(passenger) {
-                var listItem = document.createElement('li');
-                listItem.className = 'passenger-item';
-                listItem.textContent = "Z: " + passenger.from + " Do: " + passenger.to;
-                passengerListElement.appendChild(listItem);
-            });
+        // Function to generate popup content for an airport
+        function generatePopupContent(airport) {
+            var content = "<b>" + airport.name + "</b><br>";
+            for (var destination in airport.passengers) {
+                if (airport.passengers.hasOwnProperty(destination)) {
+                    content += destination + ": " + airport.passengers[destination] + "<br>";
+                }
+            }
+            return content;
+        }
+
+        // Function to update the popup content for an airport
+        function updatePopupContent(airport) {
+            airport.marker.setPopupContent(generatePopupContent(airport));
         }
 
         // Initial setup
@@ -208,4 +217,5 @@
     </script>
 </body>
 </html>
+
 
