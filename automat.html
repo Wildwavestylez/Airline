@@ -354,7 +354,8 @@
     return content;
 }
 
-    function showPlanePopup(plane) {
+
+   function showPlanePopup(plane) {
     plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
     setTimeout(function() {
         plane.marker.closePopup();
@@ -379,8 +380,8 @@ function automateFlight(plane) {
     if (!plane.automated || plane.inFlight) return;
 
     var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
-    
-    // Remove the last destination from the list of available airports if it's the only option
+
+    // Remove the last destination from the list of available airports if there are more than 1 available
     if (availableAirports.length > 1 && plane.destination) {
         availableAirports = availableAirports.filter(a => a.name !== plane.destination);
     }
@@ -400,6 +401,7 @@ function automateFlight(plane) {
         }
     });
 }
+
 
 
     
@@ -430,7 +432,8 @@ function sendPlane(registration) {
 }
 
 
-  function flyPlane(plane, fromAirport, toAirport) {
+
+ function flyPlane(plane, fromAirport, toAirport) {
     var planeMarker = plane.marker;
     var fromLatLng = L.latLng(fromAirport.coords);
     var toLatLng = L.latLng(toAirport.coords);
@@ -477,6 +480,7 @@ function sendPlane(registration) {
         currentStep++;
     }, stepInterval);
 }
+
 
 
 
