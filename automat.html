@@ -333,90 +333,83 @@
         return registration;
     }
 
-    function toggleAutomation(registration) {
-    var plane = planes.find(p => p.registration === registration);
-    plane.automated = !plane.automated;
-    plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-
-    if (plane.automated) {
-        automateFlight(plane);
-    }
-}
-
-    function automateFlight(plane) {
-    if (!plane.automated || plane.inFlight) {
-        return;
-    }
-
-    var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
-    var availableDestinations = airports.filter(a => a.unlocked && a.name !== fromAirport.name);
-
-    if (availableDestinations.length > 0) {
-        var randomDestination = availableDestinations[Math.floor(Math.random() * availableDestinations.length)];
-        var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[randomDestination.name] || 0);
-        plane.passengers = passengersToLoad;
-        fromAirport.passengers[randomDestination.name] = (fromAirport.passengers[randomDestination.name] || 0) - passengersToLoad;
-
-        updatePopupContent(fromAirport);
-        plane.destination = randomDestination.name;
-        plane.inFlight = true;
-
-        flyPlane(plane, fromAirport, randomDestination);
-        plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-    } else {
-        setTimeout(function() {
-            automateFlight(plane);
-        }, 5000); // Retry after 5 seconds if no destinations available
-    }
-}
-
-
-    function generatePlanePopupContent(plane) {
-    var content = "<b>Letadlo " + plane.registration + "</b><br>";
-    content += "Kapacita: " + plane.capacity + " cestujících<br>";
-    content += "Dolet: " + plane.range + " km<br>";
+   function generatePlanePopupContent(plane) {
+    var content = "<b>Letadlo: " + plane.registration + "</b><br>";
+    content += "Kapacita: " + plane.capacity + "<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
+    content += "Destinace: " + (plane.destination ? plane.destination : "Žádná") + "<br>";
+    content += "Cestující: " + plane.passengers + "<br>";
+
     if (!plane.inFlight) {
-        content += "Čekající pasažéři: " + plane.passengers + "<br>";
-        if (!plane.automated) {
-            content += "<select id='destination-select-" + plane.registration + "'>";
-            airports.forEach(function(airport) {
-                if (airport.unlocked && airport.name !== plane.marker.getPopup().getContent().match(/<b>(.*?)<\/b>/)[1]) {
-                    content += "<option value='" + airport.name + "'>" + airport.name + " (" + (airport.passengers[plane.registration] || 0) + ")</option>";
-                }
-            });
-            content += "</select><br>";
-            content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button><br>";
-        }
-        content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Vypnout" : "Zapnout") + " automatický mód</button>";
+        content += "<select id='destination-select-" + plane.registration + "'>";
+        airports.forEach(function(airport) {
+            if (airport.name !== plane.marker.getPopup().getContent().split(":")[1].trim()) {
+                content += "<option value='" + airport.name + "'>" + airport.name + "</option>";
+            }
+        });
+        content += "</select><br>";
+        content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button><br>";
+        content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Zastavit" : "Automatizovat") + "</button>";
     }
     return content;
 }
-    
-    // Function to send a plane to a selected destination
-    function sendPlane(registration) {
-        var plane = planes.find(p => p.registration === registration);
-        var select = document.getElementById('destination-select-' + registration);
-        var destination = select.value;
-        var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+function toggleAutomation(registration) {
+    var plane = planes.find(p => p.registration === registration);
+    if (plane) {
+        plane.automated = !plane.automated;
+        plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
 
-        if (plane && fromAirport.passengers[destination] > 0) {
-            var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
-            plane.passengers = passengersToLoad;
-            fromAirport.passengers[destination] -= passengersToLoad;
-            updatePopupContent(fromAirport);
-
-            plane.destination = destination;
-            plane.inFlight = true;
-
-            var toAirport = airports.find(a => a.name === destination);
-            flyPlane(plane, fromAirport, toAirport);
-
-            plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-        } else {
-            alert("Není dostatek pasažérů pro tuto destinaci!");
+        if (plane.automated && !plane.inFlight) {
+            automateFlight(plane);
         }
     }
+}
+
+function automateFlight(plane) {
+    if (!plane.automated || plane.inFlight) return;
+
+    var availableAirports = airports.filter(a => a.coords[0] !== plane.marker.getLatLng().lat && a.coords[1] !== plane.marker.getLatLng().lng);
+    if (availableAirports.length > 0) {
+        var randomIndex = Math.floor(Math.random() * availableAirports.length);
+        var randomDestination = availableAirports[randomIndex].name;
+        plane.destination = randomDestination;
+
+        sendPlane(plane.registration);
+    }
+
+    // Recheck for automation after flight
+    plane.marker.on('popupopen', function() {
+        if (plane.automated && !plane.inFlight) {
+            setTimeout(() => automateFlight(plane), 5000); // Adjust delay as needed
+        }
+    });
+}
+    
+   // Update sendPlane function to account for automation
+function sendPlane(registration) {
+    var plane = planes.find(p => p.registration === registration);
+    var select = document.getElementById('destination-select-' + registration);
+    var destination = select ? select.value : plane.destination; // Use selected value or plane's current destination
+
+    var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+
+    if (plane && fromAirport.passengers[destination] > 0) {
+        var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
+        plane.passengers = passengersToLoad;
+        fromAirport.passengers[destination] -= passengersToLoad;
+        updatePopupContent(fromAirport);
+
+        plane.destination = destination;
+        plane.inFlight = true;
+
+        var toAirport = airports.find(a => a.name === destination);
+        flyPlane(plane, fromAirport, toAirport);
+
+        plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+    } else {
+        alert("Není dostatek pasažérů pro tuto destinaci!");
+    }
+}
 
    function flyPlane(plane, fromAirport, toAirport) {
     var planeMarker = plane.marker;
@@ -449,11 +442,12 @@
 
             // Update destination airport's popup content
             updatePopupContent(toAirport);
-
-            if (plane.automated) {
-                automateFlight(plane);
-            }
             
+            // Re-check for automation after flight completion
+            if (plane.automated) {
+                setTimeout(() => automateFlight(plane), 5000); // Adjust delay as needed
+            }
+
             return;
         }
         var currentLatLng = L.latLng(
