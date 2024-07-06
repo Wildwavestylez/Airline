@@ -81,7 +81,7 @@
             <button onclick="buyPlane()">Koupit Letadlo</button>
         </div>
         <div class="info">
-            <p id="money">Peněženka: 3000 Kč</p>
+            <p id="money">Peněženka: 10000 Kč</p>
         </div>
     </div>
 
@@ -97,7 +97,7 @@
     }).addTo(map);
 
     // Initial money
-    var money = 3000;
+    var money = 10000;
 
     // Update money display
     function updateMoneyDisplay() {
@@ -125,7 +125,17 @@
 
     // List of airports
     var airports = [
-          { name: "Letiště Plasy (LKPS)", coords: [49.9202750, 13.3769417], unlocked: false, cost: 7000, passengers: {} },
+             { name: "Letiště Chomutov (LKCH)", coords: [50.4688861, 13.4680528], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Teplice (LKTEPL)", coords: [50.6208306, 13.8105528], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Ústí nad Labem (LKUL)", coords: [50.6997194, 13.9697194], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Bautzen", coords: [51.1914644, 14.5128539], unlocked: false, cost: 2000, passengers: {} },
+            { name: "letiště Frýdlant", coords: [50.9235542, 15.1157800], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Kamenz airfield (EDCM)", coords: [51.2968319, 14.1263547], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Flugplatz Brauna", coords: [51.2864428, 14.0615325], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Schwarzheide/Schipkau airfield (EDBZ)", coords: [51.4877497, 13.8796803], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Tábor (LKTA)", coords: [49.3911083, 14.7083306], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Bechyně - (LKBC)", coords: [48.9463861, 14.4274972], unlocked: false, cost: 500, passengers: {} },
+            { name: "Letiště Plasy (LKPS)", coords: [49.9202750, 13.3769417], unlocked: false, cost: 7000, passengers: {} },
             { name: "Letiště Cheb (LKCB)", coords: [50.0661111, 12.4113889], unlocked: false, cost: 3000, passengers: {} },
             { name: "Letiště Mariánské Lázně (LKMR)", coords: [49.9241319, 12.7235278], unlocked: false, cost: 500, passengers: {} },
              { name: "Letiště Kříženec (LKKRIZ)", coords: [49.8705556, 12.7725000], unlocked: false, cost: 4000, passengers: {} },
