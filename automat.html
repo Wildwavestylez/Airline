@@ -81,7 +81,7 @@
             <button onclick="buyPlane()">Koupit Letadlo</button>
         </div>
         <div class="info">
-            <p id="money">Peněženka: 11000 Kč</p>
+            <p id="money">Peněženka: 10000 Kč</p>
         </div>
     </div>
 
@@ -97,7 +97,7 @@
     }).addTo(map);
 
     // Initial money
-    var money = 11000;
+    var money = 10000;
 
     // Update money display
     function updateMoneyDisplay() {
@@ -333,7 +333,7 @@
         return registration;
     }
 
-  function generatePlanePopupContent(plane) {
+ function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo: " + plane.registration + "</b><br>";
     content += "Kapacita: " + plane.capacity + "<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
@@ -343,7 +343,7 @@
     if (!plane.inFlight) {
         content += "<select id='destination-select-" + plane.registration + "'>";
         airports.forEach(function(airport) {
-            if (!plane.marker.getLatLng().equals(airport.coords)) {
+            if (!plane.marker.getLatLng().equals(airport.coords) && airport.unlocked) {
                 content += "<option value='" + airport.name + "'>" + airport.name + "</option>";
             }
         });
@@ -353,6 +353,7 @@
     }
     return content;
 }
+
 
 function toggleAutomation(registration) {
     var plane = planes.find(p => p.registration === registration);
@@ -369,7 +370,7 @@ function toggleAutomation(registration) {
 function automateFlight(plane) {
     if (!plane.automated || plane.inFlight) return;
 
-    var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords));
+    var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
     if (availableAirports.length > 0) {
         var randomIndex = Math.floor(Math.random() * availableAirports.length);
         var randomDestination = availableAirports[randomIndex].name;
@@ -385,6 +386,7 @@ function automateFlight(plane) {
         }
     });
 }
+
     
    // Update sendPlane function to account for automation
 function sendPlane(registration) {
