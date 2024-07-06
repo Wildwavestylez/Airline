@@ -130,7 +130,7 @@
 
         // Custom icons for planes
         var planeIcons = {
-            mini: L.icon({ iconUrl: 'https://i.imgur.com/dU2KpHP.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
+            mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [100, 100], iconAnchor: [50, 50], popupAnchor: [0, -16] }),
             small: L.icon({ iconUrl: 'https://i.imgur.com/small-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
             medium: L.icon({ iconUrl: 'https://i.imgur.com/medium-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
             large: L.icon({ iconUrl: 'https://i.imgur.com/large-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
@@ -253,50 +253,51 @@
             }
         }
 
-        // Function to generate the popup content of a plane
         function generatePlanePopupContent(plane) {
-            var content = "<strong>Letadlo " + plane.registration + "</strong><br>";
-            content += "Kapacita: " + plane.capacity + "<br>";
-            content += "Dolet: " + plane.range + " km<br>";
-            content += "Rychlost: " + plane.speed + " km/h<br>";
-            if (!plane.inFlight) {
-                content += "<select id='destination-select-" + plane.registration + "'>";
-                var currentAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
-                for (var destination in currentAirport.passengers) {
-                    if (currentAirport.passengers[destination] > 0) {
-                        content += "<option value='" + destination + "'>" + destination + " (" + currentAirport.passengers[destination] + ")</option>";
-                    }
-                }
-                content += "</select><br>";
-                content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button>";
-            }
-            return content;
-        }
-
-        // Function to send a plane to a selected destination
-        function sendPlane(registration) {
-            var plane = planes.find(p => p.registration === registration);
-            var select = document.getElementById('destination-select-' + registration);
-            var destination = select.value;
-            var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
-
-            if (plane && fromAirport.passengers[destination] > 0) {
-                var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
-                plane.passengers = passengersToLoad;
-                fromAirport.passengers[destination] -= passengersToLoad;
-                updatePopupContent(fromAirport);
-
-                plane.destination = destination;
-                plane.inFlight = true;
-
-                var toAirport = airports.find(a => a.name === destination);
-                flyPlane(plane, fromAirport, toAirport);
-
-                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-            } else {
-                alert("Není dostatek pasažérů pro tuto destinaci!");
+    var content = "<strong>Letadlo " + plane.registration + "</strong><br>";
+    content += "Kapacita: " + plane.capacity + "<br>";
+    content += "Dolet: " + plane.range + " km<br>";
+    content += "Rychlost: " + plane.speed + " km/h<br>";
+    if (!plane.inFlight) {
+        content += "<select id='destination-select-" + plane.registration + "'>";
+        var currentAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+        for (var destination in currentAirport.passengers) {
+            if (currentAirport.passengers[destination] > 0) {
+                content += "<option value='" + destination + "'>" + destination + " (" + currentAirport.passengers[destination] + ")</option>";
             }
         }
+        content += "</select><br>";
+        content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button>";
+    }
+    console.log("generatePlanePopupContent: ", plane.registration, content);
+    return content;
+}
+
+function sendPlane(registration) {
+    console.log("sendPlane called for: ", registration);
+    var plane = planes.find(p => p.registration === registration);
+    var select = document.getElementById('destination-select-' + registration);
+    var destination = select.value;
+    var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+
+    if (plane && fromAirport.passengers[destination] > 0) {
+        var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
+        plane.passengers = passengersToLoad;
+        fromAirport.passengers[destination] -= passengersToLoad;
+        updatePopupContent(fromAirport);
+
+        plane.destination = destination;
+        plane.inFlight = true;
+
+        var toAirport = airports.find(a => a.name === destination);
+        flyPlane(plane, fromAirport, toAirport);
+
+        plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+    } else {
+        alert("Není dostatek pasažérů pro tuto destinaci!");
+    }
+}
+
 
         // Function to animate a plane from one airport to another
         function flyPlane(plane, fromAirport, toAirport) {
@@ -308,7 +309,7 @@
             var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
 
             var currentStep = 0;
-            var totalSteps = 100;
+            var totalSteps = 1000;
             var distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
             var travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
             var stepInterval = travelTime / totalSteps;
@@ -345,7 +346,7 @@
         // Initial setup
         updateMoneyDisplay();
         addAirportMarkers();
-        setInterval(generatePassengers, 60000); // Generate passengers every minute
+        setInterval(generatePassengers, 10000); // Generate passengers every minute
     </script>
 </body>
 </html>
