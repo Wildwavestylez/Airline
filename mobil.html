@@ -14,16 +14,29 @@
         }
 
         #map {
-            height: 50%;
+            height: 85%;
         }
 
         .sidebar {
-            height: 50%;
+            height: 15%;
             overflow-y: auto;
             padding: 10px;
             box-sizing: border-box;
             background-color: #f4f4f4;
         }
+
+            .sell-plane-icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+    }
+
+    .popup-content {
+        position: relative;
+    }
 
         .menu {
             display: flex;
@@ -45,25 +58,27 @@
             margin-bottom: 20px;
         }
 
-        .sell-icon {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            cursor: pointer;
-        }
-
-        .popup-content {
-            position: relative;
-        }
-
         @media (max-width: 768px) {
             #map {
-                height: 40%;
+                height: 60%;
             }
 
             .sidebar {
-                height: 60%;
+                height: 40%;
             }
+
+                .sell-plane-icon {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+    }
+
+    .popup-content {
+        position: relative;
+    }
 
             .menu {
                 flex-direction: column;
@@ -83,6 +98,7 @@
             <select id="plane-select">
                 <option value="mini">Mini Letadlo (1000 Kč)</option>
                 <option value="small">Malé Letadlo (10000 Kč)</option>
+                <option value="Dornier">Dornier 328 (30000 Kč)</option>
                 <option value="medium">Střední Letadlo (50000 Kč)</option>
                 <option value="large">Velké Letadlo (150000 Kč)</option>
                 <option value="jumbo">Velkokapacitní Letadlo (500000 Kč)</option>
@@ -95,171 +111,371 @@
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-        let map = L.map('map').setView([50.0755, 14.4378], 5);
-        let planeIcon = L.icon({
-            iconUrl: 'https://i.imgur.com/dU2KpHP.png',
-            iconSize: [32, 32]
+
+<script>
+    // Initialize the map and set its view to Prague
+    var map = L.map('map').setView([50.0755, 14.4378], 5);
+
+    // Add the OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Initial money
+    var money = 50000;
+
+    // Update money display
+    function updateMoneyDisplay() {
+        document.getElementById('money').textContent = "Peněženka: " + money + " Kč";
+    }
+
+    // Custom icon for airports
+    var airportIcon = L.icon({
+        iconUrl: 'https://i.imgur.com/dU2KpHP.png',
+        iconSize: [64, 64], // size of the icon
+        iconAnchor: [32, 32], // point of the icon which will correspond to marker's location
+        popupAnchor: [0, -16] // point from which the popup should open relative to the iconAnchor
+    });
+
+    // Custom icons for planes
+    var planeIcons = {
+        mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [100, 100], iconAnchor: [50, 50], popupAnchor: [0, -16] }),
+        small: L.icon({ iconUrl: 'https://i.imgur.com/0shfhy4.png', iconSize: [120, 120], iconAnchor: [60, 60], popupAnchor: [0, -16] }),
+        Dornier: L.icon({ iconUrl: 'https://i.imgur.com/Q6JNu8E.png', iconSize: [120, 120], iconAnchor: [60, 60], popupAnchor: [0, -16] }),
+        medium: L.icon({ iconUrl: 'https://i.imgur.com/medium-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
+        large: L.icon({ iconUrl: 'https://i.imgur.com/large-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
+        jumbo: L.icon({ iconUrl: 'https://i.imgur.com/jumbo-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] })
+    };
+
+    // List of airports
+    var airports = [
+          { name: "Letiště Plasy (LKPS)", coords: [49.9202750, 13.3769417], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Cheb (LKCB)", coords: [50.0661111, 12.4113889], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Mariánské Lázně (LKMR)", coords: [49.9241319, 12.7235278], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Kříženec (LKKRIZ)", coords: [49.8705556, 12.7725000], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Tachov (LKTD)", coords: [49.7972194, 12.7063861], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Žatec Macerka (LKZD)", coords: [50.3173706, 13.5126497], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Slaný (LKSN)", coords: [50.2166639, 14.0886083], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Rakovník (LKRK)", coords: [50.0941639, 13.6888861], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Raná (LKRA)", coords: [50.4038861, 13.7519417], unlocked: false, cost: 8500, passengers: {} },
+         { name: "Letiště Praha Letňany (LKLT)", coords: [50.1313861, 14.5255528], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Praha Točná (LKTC)", coords: [49.9854383, 14.4264211], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Hosín (LKHS)", coords: [49.0399972, 14.4949972], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Strakonice (LKST)", coords: [49.2516639, 13.8927750], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Strunkovice (LKSR)", coords: [49.0824972, 14.0758306], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Blatná (LKBL)", coords: [49.4312472, 13.7996083], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Plzeň Líně (LKLN)", coords: [49.6752750, 13.2744417], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Příbram (LKPM)", coords: [49.7199972, 14.1002750], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Praha Vodochody (LKVO)", coords: [50.2166639, 14.3955528], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Roudnice (LKRO)", coords: [50.4105528, 14.2261083], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Most (LKMO)", coords: [50.5249972, 13.6830528], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Panenský Týnec (LKPC)", coords: [50.3063861, 13.9341639], unlocked: false, cost: 8000, passengers: {} },
+        { name: "Letiště Velké Poříčí (LKVP)", coords: [50.4677778, 16.2055556], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Vrchlabí (LKVR)", coords: [50.6242864, 15.6465147], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Broumov (LKBR)", coords: [50.5616239, 16.3422106], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Liberec (LKLB)", coords: [50.7671272, 15.0230761], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Hradčany (LKHRAD)", coords: [50.6194417, 14.7327750], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Česká Lípa (LKCE)", coords: [50.7095317, 14.5668706], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Hodkovice (LKHD)", coords: [50.6572194, 15.0777750], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Mnichovo Hradiště (LKMH)", coords: [50.5399972, 15.0066639], unlocked: false, cost: 8500, passengers: {} },
+         { name: "Letiště Podhořany (LKPN)", coords: [49.9391639, 15.5497194], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Chrudim (LKCR)", coords: [49.9354142, 15.7811158], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Hradec Králové (LKHK)", coords: [50.2443344, 15.8461386], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Jaroměř (LKJA)", coords: [50.3313861, 15.9538861], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Dvůr Králové (LKDK)", coords: [50.4143281, 15.8373064], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Nové Město (LKNM)", coords: [50.3641639, 16.1136083], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Náchod (LKNACH)", coords: [50.4129672, 16.1218878], unlocked: false, cost: 10000, passengers: {} },
+        { name: "Letiště Kolín (LKKO)", coords: [50.0019417, 15.1733306], unlocked: false, cost: 1300, passengers: {} },
+            { name: "Letiště Milovice (LKMILO)", coords: [50.2379322, 14.9097447], unlocked: false, cost: 1500, passengers: {} },
+            { name: "Letiště Mladá Boleslav (LKMB)", coords: [50.3983333, 14.8983333], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Sazená (LKSZ)", coords: [50.3230992, 14.2607631], unlocked: false, cost: 350, passengers: {} },
+            { name: "Letiště Kladno (LKKL)", coords: [50.1127750, 14.0897194], unlocked: false, cost: 350, passengers: {} },
+            { name: "Letiště Benešov (LKBE)", coords: [49.7408333, 14.6447222], unlocked: false, cost: 350, passengers: {} },
+        { name: "Letiště Zbraslavice (LKZB)", coords: [49.8141639, 15.2016639], unlocked: false, cost: 1300, passengers: {} },
+            { name: "Letiště Čáslav (LKCV)", coords: [49.9418489, 15.3812369], unlocked: false, cost: 1500, passengers: {} },
+         { name: "Letiště Václava Havla Praha (PRG)", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
+            { name: "Letiště Berlín-Braniborsko(BER)", coords: [52.3667, 13.5033], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Charlese de Gaulla Paříž(CDG)", coords: [49.0097, 2.5479], unlocked: false, cost: 15000, passengers: {} },
+            { name: "Letiště Schiphol Amsterdam(AMS)", coords: [52.3105, 4.7683], unlocked: false, cost: 14000, passengers: {} },
+            { name: "Letiště Heathrow Londýn(LHR)", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Brno Tuřany(BRQ)", coords: [49.1535236, 16.6920311], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Ostrava(OSR)", coords: [49.6961489, 18.1110528], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Karlovy Vary (KLV)", coords: [50.2033656, 12.9139397], unlocked: false, cost: 200, passengers: {} },
+            { name: "Letiště Drážďany (DRS)", coords: [51.1342992, 13.7694808], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Mnichov (MUC)", coords: [48.3539625, 11.7785925], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Linec (LNZ)", coords: [48.2363750, 14.1877133], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Vídeň (VIE)", coords: [48.1049967, 16.5848986], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Graz (GRZ)", coords: [46.9887481, 15.4400233], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Klagenfurt (KLU)", coords: [46.6434817, 14.3285997], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Innsbruck (INN)", coords: [47.2597258, 11.3418706], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Salzburk (SZG)", coords: [47.7934550, 13.0018306], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Bratislava (BTS)", coords: [48.1722903, 17.2134972], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště České Budějovice (JCL)", coords: [48.9463861, 14.4274972], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Košice (KSC)", coords: [48.6614342, 21.2391397], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Poprad (TAT)", coords: [49.0712142, 20.2472575], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Kraków-Balice (KRK)", coords: [50.0782553, 19.7862536], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Varšava (WAW)", coords: [52.1630650, 20.9708150], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Poznań-Ławica Airport (POZ)", coords: [52.4205639, 16.8317917], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Gdaňsk (GDN)", coords: [54.3762064, 18.4744550], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Hamburk (HAM)", coords: [53.6363622, 9.9945500], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Stuttgart (STR)", coords: [48.6884219, 9.2053925], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Basel-Mulhouse-Freiburg (BSL)", coords: [47.6032369, 7.5243481], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Frankfurt nad Mohanem (FRA)", coords: [50.0229503, 8.5249514], unlocked: false, cost: 10000, passengers: {} },
+    ];
+
+    // List of planes
+    var planes = [];
+
+    // Plane types
+    var planeTypes = {
+        mini: { name: "Mini Letadlo", capacity: 4, range: 500, speed: 600, cost: 1000, icon: planeIcons.mini },
+        small: { name: "Malé Letadlo", capacity: 14, range: 1200, speed: 850, cost: 10000, icon: planeIcons.small },
+         Dornier: { name: "Dornier 328", capacity: 30, range: 1500, speed: 1000, cost: 30000, icon: planeIcons.Dornier },
+        medium: { name: "Střední Letadlo", capacity: 70, range: 2000, speed: 3500, cost: 50000, icon: planeIcons.medium },
+        large: { name: "Velké Letadlo", capacity: 150, range: 5000, speed: 5000, cost: 150000, icon: planeIcons.large },
+        jumbo: { name: "Velkokapacitní Letadlo", capacity: 300, range: 15000, speed: 7500, cost: 500000, icon: planeIcons.jumbo }
+    };
+
+    // Function to add airport markers to the map
+    function addAirportMarkers() {
+        airports.forEach(function(airport) {
+            var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
+
+            if (!airport.unlocked) {
+                marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
+            } else {
+                marker.bindPopup(generatePopupContent(airport));
+            }
+
+            airport.marker = marker;
         });
-        let airports = [
-            { name: 'Praha', coords: [50.0755, 14.4378], passengers: {} },
-            { name: 'Berlin', coords: [52.5200, 13.4050], passengers: {} },
-            { name: 'London', coords: [51.5074, -0.1278], passengers: {} }
-        ];
-        let planes = [];
-        let money = 50000;
+    }
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18
-        }).addTo(map);
-
-        function updateMoneyDisplay() {
-            document.getElementById('money').innerText = 'Peněženka: ' + Math.round(money) + ' Kč';
+    // Function to unlock an airport
+    function unlockAirport(name) {
+        var airport = airports.find(a => a.name === name);
+        if (money >= airport.cost) {
+            money -= airport.cost;
+            airport.unlocked = true;
+            updateMoneyDisplay();
+            airport.marker.bindPopup(generatePopupContent(airport)).openPopup();
+        } else {
+            alert("Nemáte dostatek peněz k odemknutí tohoto letiště!");
         }
+    }
 
-        function addAirportMarkers() {
-            airports.forEach(airport => {
-                let marker = L.marker(airport.coords).addTo(map)
-                    .bindPopup(generateAirportPopupContent(airport));
-                airport.marker = marker;
-            });
-        }
+    // Function to generate passengers
+    function generatePassengers() {
+        airports.forEach(function(airport) {
+            if (airport.unlocked) {
+                var destination = getRandomDestination(airport.name);
+                var passenger = { from: airport.name, to: destination };
 
-        function generateAirportPopupContent(airport) {
-            let content = '<b>' + airport.name + '</b><br>';
-            for (let destination in airport.passengers) {
-                if (airport.passengers[destination] > 0) {
-                    content += destination + ': ' + airport.passengers[destination] + '<br>';
+                if (!airport.passengers[destination]) {
+                    airport.passengers[destination] = 0;
                 }
+                airport.passengers[destination]++;
+                updatePopupContent(airport);
             }
-            return content;
-        }
+        });
+    }
 
-        function generatePlanePopupContent(plane) {
-            let content = '<div class="popup-content">';
-            content += 'Letadlo: ' + plane.registration + '<br>';
-            content += 'Kapacita: ' + plane.capacity + '<br>';
-            content += 'Pasažéři: ' + plane.passengers + '<br>';
-            content += '<select id="destination-select-' + plane.registration + '">';
-            airports.forEach(airport => {
-                if (airport.name !== plane.destination) {
-                    content += '<option value="' + airport.name + '">' + airport.name + '</option>';
-                }
-            });
-            content += '</select><br>';
-            content += '<button onclick="sendPlane(\'' + plane.registration + '\')">Odeslat</button>';
-            content += '<img src="https://i.imgur.com/dU2KpHP.png" class="sell-icon" onclick="confirmSellPlane(\'' + plane.registration + '\')" title="Prodat letadlo">';
-            content += '</div>';
-            return content;
-        }
+    // Function to get a random destination from the unlocked airports
+    function getRandomDestination(exclude) {
+        var unlockedAirports = airports.filter(a => a.unlocked && a.name !== exclude);
+        if (unlockedAirports.length === 0) return "Žádná dostupná destinace";
+        var randomIndex = Math.floor(Math.random() * unlockedAirports.length);
+        return unlockedAirports[randomIndex].name;
+    }
 
-        function buyPlane() {
-            let select = document.getElementById('plane-select');
-            let type = select.value;
-            let cost = { mini: 1000, small: 10000, medium: 50000, large: 150000, jumbo: 500000 };
-            let capacity = { mini: 4, small: 30, medium: 70, large: 150, jumbo: 300 };
-            let speed = { mini: 2500, small: 2500, medium: 3500, large: 5000, jumbo: 7500 };
-            if (money >= cost[type]) {
-                money -= cost[type];
+    // Function to generate popup content for an airport
+    function generatePopupContent(airport) {
+        var content = "<b>" + airport.name + "</b><br>";
+        for (var destination in airport.passengers) {
+            if (airport.passengers.hasOwnProperty(destination)) {
+                content += destination + ": " + airport.passengers[destination] + "<br>";
+            }
+        }
+        return content;
+    }
+
+    // Function to update the popup content for an airport
+    function updatePopupContent(airport) {
+        airport.marker.setPopupContent(generatePopupContent(airport));
+    }
+
+    // Function to buy a plane
+    function buyPlane() {
+        var select = document.getElementById('plane-select');
+        var selectedPlaneType = select.value;
+        var planeType = planeTypes[selectedPlaneType];
+
+        if (money >= planeType.cost) {
+            money -= planeType.cost;
+            updateMoneyDisplay();
+
+            // Create new plane
+            var plane = {
+                type: planeType.name,
+                capacity: planeType.capacity,
+                range: planeType.range,
+                speed: planeType.speed,
+                marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map),
+                passengers: 0,
+                destination: null,
+                inFlight: false,
+                registration: generateRegistration()
+            };
+
+            // Bind popup with destination selection to the plane marker
+            plane.marker.bindPopup(generatePlanePopupContent(plane));
+
+            planes.push(plane);
+        } else {
+            alert("Nemáte dostatek peněz na nákup tohoto letadla!");
+        }
+    }
+
+    // Function to generate a unique registration number for a plane
+    function generateRegistration() {
+        var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var registration = 'OK-';
+        for (var i = 0; i < 3; i++) {
+            registration += letters.charAt(Math.floor(Math.random() * letters.length));
+        }
+        return registration;
+    }
+
+   // Function to generate the popup content for planes
+function generatePlanePopupContent(plane) {
+    let content = `<div class="popup-content">
+        <h3>${plane.name}</h3>
+        <p>Kapacita: ${plane.capacity}</p>
+        <p>Dolet: ${plane.range} km</p>
+        <p>Rychlost: ${plane.speed} km/h</p>
+        <img src="sell_icon_url" class="sell-plane-icon" onclick="confirmSellPlane('${plane.registration}')">
+    `;
+
+    if (plane.inFlight) {
+        content += `<p>Letadlo je ve vzduchu</p>`;
+    } else {
+        content += `<select id="destination-select-${plane.registration}">
+            <option value="" disabled selected>Vyberte destinaci</option>`;
+        airports.forEach(airport => {
+            if (airport.name !== plane.marker.getPopup().getContent()) {
+                content += `<option value="${airport.name}">${airport.name}</option>`;
+            }
+        });
+        content += `</select><br>`;
+        content += `<button onclick="sendPlane('${plane.registration}')">Odeslat</button>`;
+    }
+
+    content += `</div>`;
+    return content;
+}
+
+// Function to confirm selling the plane
+function confirmSellPlane(registration) {
+    const confirmSell = confirm("Opravdu chcete prodat toto letadlo?");
+    if (confirmSell) {
+        sellPlane(registration);
+    }
+}
+
+// Function to sell the plane
+function sellPlane(registration) {
+    const planeIndex = planes.findIndex(p => p.registration === registration);
+    if (planeIndex !== -1) {
+        const plane = planes[planeIndex];
+        const sellPrice = plane.price * 0.65;
+        money += Math.round(sellPrice);
+        updateMoneyDisplay();
+        
+        map.removeLayer(plane.marker);
+        planes.splice(planeIndex, 1);
+    }
+}
+
+    // Function to send a plane to a selected destination
+    function sendPlane(registration) {
+        var plane = planes.find(p => p.registration === registration);
+        var select = document.getElementById('destination-select-' + registration);
+        var destination = select.value;
+        var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+
+        if (plane && fromAirport.passengers[destination] > 0) {
+            var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
+            plane.passengers = passengersToLoad;
+            fromAirport.passengers[destination] -= passengersToLoad;
+            updatePopupContent(fromAirport);
+
+            plane.destination = destination;
+            plane.inFlight = true;
+
+            var toAirport = airports.find(a => a.name === destination);
+            flyPlane(plane, fromAirport, toAirport);
+
+            plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+        } else {
+            alert("Není dostatek pasažérů pro tuto destinaci!");
+        }
+    }
+
+    // Function to animate a plane from one airport to another
+    function flyPlane(plane, fromAirport, toAirport) {
+        var planeMarker = plane.marker;
+        var fromLatLng = L.latLng(fromAirport.coords);
+        var toLatLng = L.latLng(toAirport.coords);
+
+        var planePath = [fromLatLng, toLatLng];
+        var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
+
+        var currentStep = 0;
+        var totalSteps = 1000;
+        var distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
+        var travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
+        var stepInterval = travelTime / totalSteps;
+
+        var flightInterval = setInterval(function() {
+            if (currentStep >= totalSteps) {
+                clearInterval(flightInterval);
+                map.removeLayer(polyline);
+                plane.marker.setLatLng(toLatLng);
+                plane.inFlight = false;
+
+                 // Calculate earnings
+                var earnings = distance * 3 * plane.passengers;
+                money += Math.round(earnings);
                 updateMoneyDisplay();
-                let registration = 'OK-' + Math.random().toString(36).substr(2, 3).toUpperCase();
-                let planeMarker = L.marker(airports[0].coords, { icon: planeIcon }).addTo(map);
-                let plane = {
-                    registration: registration,
-                    capacity: capacity[type],
-                    speed: speed[type],
-                    passengers: 0,
-                    inFlight: false,
-                    marker: planeMarker,
-                    destination: null
-                };
-                planes.push(plane);
+                
+                plane.passengers = 0;
                 plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-            } else {
-                alert('Nemáte dostatek peněz na nákup letadla.');
+
+                // Update destination airport's popup content
+                updatePopupContent(toAirport);
+                
+                return;
             }
-        }
+            var currentLatLng = L.latLng(
+                fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * (currentStep / totalSteps),
+                fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * (currentStep / totalSteps)
+            );
+            planeMarker.setLatLng(currentLatLng);
+            currentStep++;
+        }, stepInterval);
+    }
 
-        function updatePopupContent(airport) {
-            airport.marker.setPopupContent(generateAirportPopupContent(airport));
-        }
+    // Initial setup
+    updateMoneyDisplay();
+    addAirportMarkers();
+    setInterval(generatePassengers, 6000); // Generate passengers every minute
+</script>
 
-        function sendPlane(registration) {
-            let plane = planes.find(p => p.registration === registration);
-            let select = document.getElementById('destination-select-' + registration);
-            let destination = select.value;
-            let fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
-            if (plane && fromAirport.passengers[destination] > 0) {
-                let passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
-                plane.passengers = passengersToLoad;
-                fromAirport.passengers[destination] -= passengersToLoad;
-                updatePopupContent(fromAirport);
-                plane.destination = destination;
-                plane.inFlight = true;
-                let toAirport = airports.find(a => a.name === destination);
-                flyPlane(plane, fromAirport, toAirport);
-                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-            } else {
-                alert('Není dostatek pasažérů pro tuto destinaci!');
-            }
-        }
 
-        function flyPlane(plane, fromAirport, toAirport) {
-            let planeMarker = plane.marker;
-            let fromLatLng = L.latLng(fromAirport.coords);
-            let toLatLng = L.latLng(toAirport.coords);
-            let planePath = [fromLatLng, toLatLng];
-            let polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
-            let currentStep = 0;
-            let totalSteps = 100;
-            let distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
-            let travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
-            let stepInterval = travelTime / totalSteps;
 
-            let flightInterval = setInterval(function() {
-                if (currentStep >= totalSteps) {
-                    clearInterval(flightInterval);
-                    map.removeLayer(polyline);
-                    plane.inFlight = false;
-                    plane.passengers = 0;
-                    plane.destination = null;
-                    plane.marker.setLatLng(toLatLng);
-                    let earnings = distance * plane.passengers * 3;
-                    money += earnings;
-                    updateMoneyDisplay();
-                    plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-                    return;
-                }
-                let currentLatLng = L.latLng(
-                    fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * (currentStep / totalSteps),
-                    fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * (currentStep / totalSteps)
-                );
-                plane.marker.setLatLng(currentLatLng);
-                currentStep++;
-            }, stepInterval);
-        }
 
-        function confirmSellPlane(registration) {
-            if (confirm('Opravdu chcete prodat toto letadlo?')) {
-                sellPlane(registration);
-            }
-        }
 
-        function sellPlane(registration) {
-            let planeIndex = planes.findIndex(p => p.registration === registration);
-            if (planeIndex > -1) {
-                let plane = planes[planeIndex];
-                let cost = { mini: 1000, small: 10000, medium: 50000, large: 150000, jumbo: 500000 };
-                let planeType = Object.keys(cost).find(type => cost[type] * 0.65 === Math.round(plane.capacity / 4) * 1000 * 0.65);
-                let salePrice = cost[planeType] * 0.65;
-                money += salePrice;
-                updateMoneyDisplay();
-                map.removeLayer(plane.marker);
-                planes.splice(planeIndex, 1);
-            }
-        }
-
-        addAirportMarkers();
-    </script>
+</body>
+</html>
 </body>
 </html>
