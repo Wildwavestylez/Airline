@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letadlová Hra</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #map {
+            height: 50%;
+        }
+
+        .sidebar {
+            height: 50%;
+            overflow-y: auto;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+
+        .menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .menu select {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .menu button {
+            flex-shrink: 0;
+        }
+
+        .info {
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            #map {
+                height: 40%;
+            }
+
+            .sidebar {
+                height: 60%;
+            }
+
+            .menu {
+                flex-direction: column;
+            }
+
+            .menu select, .menu button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="sidebar">
+        <div class="menu">
+            <select id="plane-select">
+                <option value="mini">Mini Letadlo (1000 Kč)</option>
+                <option value="small">Malé Letadlo (10000 Kč)</option>
+                <option value="medium">Střední Letadlo (50000 Kč)</option>
+                <option value="large">Velké Letadlo (150000 Kč)</option>
+                <option value="jumbo">Velkokapacitní Letadlo (500000 Kč)</option>
+            </select>
+            <button onclick="buyPlane()">Koupit Letadlo</button>
+        </div>
+        <div class="info">
+            <p id="money">Peněženka: 10000 Kč</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([50.0755, 14.4378], 6); // Prague coordinates
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        var money = 10000;
+        var airports = [
+            { name: 'Praha', coords: [50.0755, 14.4378], passengers: {} },
+            { name: 'Berlín', coords: [52.5200, 13.4050], passengers: {} },
+            { name: 'Londýn', coords: [51.5074, -0.1278], passengers: {} }
+        ];
+
+        var planes = [];
+        var planeIcons = {
+            mini: L.icon({ iconUrl: 'https://i.imgur.com/dU2KpHP.png', iconSize: [32, 32] }),
+            small: L.icon({ iconUrl: 'https://i.imgur.com/dU2KpHP.png', iconSize: [32, 32] }),
+            medium: L.icon({ iconUrl: 'https://i.imgur.com/dU2KpHP.png', iconSize: [32, 32] }),
+            large: L.icon({ iconUrl: 'https://i.imgur.com/dU2KpHP.png', iconSize: [32, 32] }),
+            jumbo: L.icon({ iconUrl: 'https://i.imgur.com/dU2KpHP.png', iconSize: [32, 32] })
+        };
+
+        function updateMoneyDisplay() {
+            document.getElementById('money').innerText = 'Peněženka: ' + Math.round(money) + ' Kč';
+        }
+
+        function buyPlane() {
+            var planeType = document.getElementById('plane-select').value;
+            var cost = {
+                mini: 1000,
+                small: 10000,
+                medium: 50000,
+                large: 150000,
+                jumbo: 500000
+            }[planeType];
+
+            if (money >= cost) {
+                money -= cost;
+                updateMoneyDisplay();
+                addPlane(planeType);
+            } else {
+                alert('Nedostatek peněz!');
+            }
+        }
+
+        function addPlane(type) {
+            var registration = 'OK-' + Math.random().toString(36).substring(2, 5).toUpperCase();
+            var plane = {
+                type: type,
+                capacity: { mini: 4, small: 30, medium: 70, large: 150, jumbo: 300 }[type],
+                speed: { mini: 500, small: 2500, medium: 3500, large: 5000, jumbo: 7500 }[type],
+                marker: L.marker([50.0755, 14.4378], { icon: planeIcons[type] }).addTo(map),
+                registration: registration,
+                inFlight: false,
+                passengers: 0,
+                autoPilot: false,
+                destination: null
+            };
+
+            plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+            planes.push(plane);
+        }
+
+        function generatePlanePopupContent(plane) {
+            var content = '<b>' + plane.registration + '</b><br>';
+            content += 'Kapacita: ' + plane.capacity + '<br>';
+            content += 'Rychlost: ' + plane.speed + ' km/h<br>';
+            content += '<select id="destination-select-' + plane.registration + '">';
+            content += '<option value="">Vyberte destinaci</option>';
+            airports.forEach(function(airport) {
+                if (plane.marker.getLatLng().equals(airport.coords)) {
+                    for (var destination in airport.passengers) {
+                        if (airport.passengers[destination] > 0) {
+                            content += '<option value="' + destination + '">' + destination + ' (' + airport.passengers[destination] + ')</option>';
+                        }
+                    }
+                }
+            });
+            content += '</select><br>';
+            content += '<button onclick="sendPlane(\'' + plane.registration + '\')">Odeslat</button><br>';
+            content += '<button onclick="toggleAutoPilot(\'' + plane.registration + '\')">' + (plane.autoPilot ? 'Vypnout' : 'Zapnout') + ' automatický let</button>';
+            return content;
+        }
+
+        function sendPlane(registration) {
+            var plane = planes.find(p => p.registration === registration);
+            var select = document.getElementById('destination-select-' + registration);
+            var destination = select.value;
+            var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+
+            if (plane && fromAirport.passengers[destination] > 0) {
+                var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
+                plane.passengers = passengersToLoad;
+                fromAirport.passengers[destination] -= passengersToLoad;
+                updatePopupContent(fromAirport);
+
+                plane.destination = destination;
+                plane.inFlight = true;
+
+                var toAirport = airports.find(a => a.name === destination);
+                flyPlane(plane, fromAirport, toAirport);
+
+                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+            } else {
+                alert('Není dostatek pasažérů pro tuto destinaci!');
+            }
+        }
+
+        function flyPlane(plane, fromAirport, toAirport) {
+            var planeMarker = plane.marker;
+            var fromLatLng = L.latLng(fromAirport.coords);
+            var toLatLng = L.latLng(toAirport.coords);
+
+            var planePath = [fromLatLng, toLatLng];
+            var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
+
+            var currentStep = 0;
+            var totalSteps = 100;
+            var distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
+            var travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
+            var stepInterval = travelTime / totalSteps;
+
+            var flightInterval = setInterval(function() {
+                if (currentStep >= totalSteps) {
+                    clearInterval(flightInterval);
+                    map.removeLayer(polyline);
+                    plane.inFlight = false;
+                    plane.passengers = 0;
+
+                    var earnings = distance * plane.passengers * 3;
+                    money += earnings;
+                    updateMoneyDisplay();
+
+                    plane.marker.setLatLng(toLatLng);
+                    plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+                } else {
+                    var currentLatLng = L.latLng(
+                        fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * (currentStep / totalSteps),
+                        fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * (currentStep / totalSteps)
+                    );
+                    planeMarker.setLatLng(currentLatLng);
+                    currentStep++;
+                }
+            }, stepInterval);
+        }
+
+        function updatePopupContent(airport) {
+            airport.passengers = {};
+            planes.forEach(function(plane) {
+                var currentAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+                if (currentAirport) {
+                    for (var destination in currentAirport.passengers) {
+                        if (currentAirport.passengers[destination] > 0) {
+                            plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleAutoPilot(registration) {
+            var plane = planes.find(p => p.registration === registration);
+            if (plane) {
+                plane.autoPilot = !plane.autoPilot;
+                if (plane.autoPilot && !plane.inFlight) {
+                    startAutoPilot(plane);
+                }
+                plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+            }
+        }
+
+        function startAutoPilot(plane) {
+            if (plane.autoPilot) {
+                var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+                var availableDestinations = Object.keys(fromAirport.passengers).filter(destination => fromAirport.passengers[destination] > 0);
+                if (availableDestinations.length > 0) {
+                    var randomIndex = Math.floor(Math.random() * availableDestinations.length);
+                    var destination = availableDestinations[randomIndex];
+                    sendPlane(plane.registration);
+                }
+                setTimeout(function() {
+                    startAutoPilot(plane);
+                }, 5000); // Wait for 5 seconds before next check
+            }
+        }
+
+        setInterval(function() {
+            airports.forEach(function(airport) {
+                var totalPassengers = 0;
+                for (var destination in airport.passengers) {
+                    totalPassengers += airport.passengers[destination];
+                }
+                if (totalPassengers < 10) { // Limit to avoid too many passengers
+                    var randomAirport = airports[Math.floor(Math.random() * airports.length)];
+                    if (!airport.passengers[randomAirport.name]) {
+                        airport.passengers[randomAirport.name] = 0;
+                    }
+                    airport.passengers[randomAirport.name]++;
+                }
+                updatePopupContent(airport);
+            });
+        }, 3000); // Generate passengers every minute
+    </script>
+</body>
+</html>
