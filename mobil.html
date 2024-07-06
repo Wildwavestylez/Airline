@@ -236,18 +236,19 @@
                 updateMoneyDisplay();
 
                 var plane = {
-                    type: planeDetails.type,
-                    capacity: planeDetails.capacity,
-                    range: planeDetails.range,
-                    speed: planeDetails.speed,
-                    cost: planeDetails.cost,
-                    registration: 'OK-' + Math.random().toString(36).substr(2, 3).toUpperCase(),
-                    marker: L.marker([50.1008, 14.2632], { icon: planeIcons[planeDetails.type] }).addTo(map)
-                        .bindPopup(generatePlanePopupContent(plane)),
-                    inFlight: false,
-                    passengers: 0,
-                    destination: null
-                };
+    type: planeDetails.type,
+    capacity: planeDetails.capacity,
+    range: planeDetails.range,
+    speed: planeDetails.speed,
+    cost: planeDetails.cost,
+    registration: 'OK-' + Math.random().toString(36).substr(2, 3).toUpperCase(),
+    marker: L.marker([50.1008, 14.2632], { icon: planeIcons[planeDetails.type] }).addTo(map)
+        .bindPopup(generatePlanePopupContent(plane)),
+    inFlight: false,
+    passengers: 0,
+    destination: null
+};
+console.log("Plane added: ", plane);
 
                 planes.push(plane);
             } else {
