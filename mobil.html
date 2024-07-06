@@ -87,7 +87,7 @@
         <div id="menu">
             <h2>Hra s letadly</h2>
             <div class="section">
-                <div id="money">Peněženka: 3000 Kč</div>
+                <div id="money">Peněženka: 100 Kč</div>
             </div>
             <div class="section">
                 <h3>Koupit letadlo</h3>
@@ -98,7 +98,7 @@
                     <option value="large">Velké Letadlo - 150000 Kč</option>
                     <option value="jumbo">Velkokapacitní Letadlo - 500000 Kč</option>
                 </select>
-                <button id="buy-plane-btn">Koupit</button>
+                <button onclick="buyPlane()">Koupit</button>
             </div>
         </div>
     </div>
@@ -113,7 +113,7 @@
         }).addTo(map);
 
         // Initial money
-        var money = 3000;
+        var money = 100;
 
         // Update money display
         function updateMoneyDisplay() {
@@ -130,7 +130,7 @@
 
         // Custom icons for planes
         var planeIcons = {
-            mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [100, 100], iconAnchor: [50, 50], popupAnchor: [0, -16] }),
+            mini: L.icon({ iconUrl: 'https://i.imgur.com/dU2KpHP.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
             small: L.icon({ iconUrl: 'https://i.imgur.com/small-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
             medium: L.icon({ iconUrl: 'https://i.imgur.com/medium-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
             large: L.icon({ iconUrl: 'https://i.imgur.com/large-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
@@ -139,8 +139,6 @@
 
         // List of airports
         var airports = [
-            { name: "Letiště Praha Letňany (LKLT)", coords: [50.1313861, 14.5255528], unlocked: false, cost: 200, passengers: {} },
-            { name: "Letiště Praha Točná (LKTC)", coords: [49.9854383, 14.4264211], unlocked: false, cost: 600, passengers: {} },
             { name: "Letiště Václava Havla Praha", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
             { name: "Letiště Berlín-Braniborsko", coords: [52.3667, 13.5033], unlocked: false, cost: 50, passengers: {} },
             { name: "Letiště Charlese de Gaulla Paříž", coords: [49.0097, 2.5479], unlocked: false, cost: 70, passengers: {} },
@@ -186,7 +184,7 @@
         function generateAirportPopupContent(airport) {
             var content = "<strong>" + airport.name + "</strong><br>";
             if (!airport.unlocked) {
-                content += "<button class='unlock-airport-btn' data-airport='" + airport.name + "'>Odemknout za " + airport.cost + " Kč</button>";
+                content += "<button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>";
             } else {
                 content += "<strong>Čekající pasažéři:</strong><br>";
                 for (var destination in airport.passengers) {
@@ -270,7 +268,7 @@
                     }
                 }
                 content += "</select><br>";
-                content += "<button class='send-plane-btn' data-plane='" + plane.registration + "'>Odeslat</button>";
+                content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button>";
             }
             return content;
         }
@@ -347,29 +345,7 @@
         // Initial setup
         updateMoneyDisplay();
         addAirportMarkers();
-        setInterval(generatePassengers, 10000); // Generate passengers every minute
-
-        // Event listeners for buttons (including touch events)
-        document.getElementById('buy-plane-btn').addEventListener('click', buyPlane);
-        document.getElementById('buy-plane-btn').addEventListener('touchstart', buyPlane);
-
-        document.body.addEventListener('click', function(event) {
-            if (event.target.classList.contains('unlock-airport-btn')) {
-                unlockAirport(event.target.dataset.airport);
-            } else if (event.target.classList.contains('send-plane-btn')) {
-                sendPlane(event.target.dataset.plane);
-            }
-        });
-
-        document.body.addEventListener('touchstart', function(event) {
-            if (event.target.classList.contains('unlock-airport-btn')) {
-                unlockAirport(event.target.dataset.airport);
-            } else if (event.target.classList.contains('send-plane-btn')) {
-                sendPlane(event.target.dataset.plane);
-            }
-        });
+        setInterval(generatePassengers, 60000); // Generate passengers every minute
     </script>
 </body>
 </html>
-
-
