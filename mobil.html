@@ -25,19 +25,6 @@
             background-color: #f4f4f4;
         }
 
-            .sell-plane-icon {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        cursor: pointer;
-        width: 20px;
-        height: 20px;
-    }
-
-    .popup-content {
-        position: relative;
-    }
-
         .menu {
             display: flex;
             justify-content: space-between;
@@ -67,19 +54,6 @@
                 height: 40%;
             }
 
-                .sell-plane-icon {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        cursor: pointer;
-        width: 20px;
-        height: 20px;
-    }
-
-    .popup-content {
-        position: relative;
-    }
-
             .menu {
                 flex-direction: column;
             }
@@ -106,7 +80,7 @@
             <button onclick="buyPlane()">Koupit Letadlo</button>
         </div>
         <div class="info">
-            <p id="money">Peněženka: 50000 Kč</p>
+            <p id="money">Peněženka: 3000 Kč</p>
         </div>
     </div>
 
@@ -122,7 +96,7 @@
     }).addTo(map);
 
     // Initial money
-    var money = 50000;
+    var money = 3000;
 
     // Update money display
     function updateMoneyDisplay() {
@@ -346,55 +320,27 @@
         return registration;
     }
 
-   // Function to generate the popup content for planes
-function generatePlanePopupContent(plane) {
-    let content = `<div class="popup-content">
-        <h3>${plane.name}</h3>
-        <p>Kapacita: ${plane.capacity}</p>
-        <p>Dolet: ${plane.range} km</p>
-        <p>Rychlost: ${plane.speed} km/h</p>
-        <img src="sell_icon_url" class="sell-plane-icon" onclick="confirmSellPlane('${plane.registration}')">
-    `;
-
-    if (plane.inFlight) {
-        content += `<p>Letadlo je ve vzduchu</p>`;
-    } else {
-        content += `<select id="destination-select-${plane.registration}">
-            <option value="" disabled selected>Vyberte destinaci</option>`;
-        airports.forEach(airport => {
-            if (airport.name !== plane.marker.getPopup().getContent()) {
-                content += `<option value="${airport.name}">${airport.name}</option>`;
-            }
-        });
-        content += `</select><br>`;
-        content += `<button onclick="sendPlane('${plane.registration}')">Odeslat</button>`;
+    // Function to generate popup content for a plane
+    function generatePlanePopupContent(plane) {
+        var content = "<b>" + plane.type + " (" + plane.registration + ")</b><br>";
+        content += "Kapacita: " + plane.capacity + " pasažérů<br>";
+        content += "Dolet: " + plane.range + " km<br>";
+        content += "Rychlost: " + plane.speed + " km/h<br>";
+        if (plane.inFlight) {
+            content += "Status: Na cestě do " + plane.destination + "<br>";
+        } else {
+            content += "Status: Připraven k letu<br>";
+            content += "<select id='destination-select-" + plane.registration + "'>";
+            airports.forEach(function(airport) {
+                if (airport.unlocked) {
+                    content += "<option value='" + airport.name + "'>" + airport.name + "</option>";
+                }
+            });
+            content += "</select><br>";
+            content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button>";
+        }
+        return content;
     }
-
-    content += `</div>`;
-    return content;
-}
-
-// Function to confirm selling the plane
-function confirmSellPlane(registration) {
-    const confirmSell = confirm("Opravdu chcete prodat toto letadlo?");
-    if (confirmSell) {
-        sellPlane(registration);
-    }
-}
-
-// Function to sell the plane
-function sellPlane(registration) {
-    const planeIndex = planes.findIndex(p => p.registration === registration);
-    if (planeIndex !== -1) {
-        const plane = planes[planeIndex];
-        const sellPrice = plane.price * 0.65;
-        money += Math.round(sellPrice);
-        updateMoneyDisplay();
-        
-        map.removeLayer(plane.marker);
-        planes.splice(planeIndex, 1);
-    }
-}
 
     // Function to send a plane to a selected destination
     function sendPlane(registration) {
@@ -468,14 +414,12 @@ function sellPlane(registration) {
     // Initial setup
     updateMoneyDisplay();
     addAirportMarkers();
-    setInterval(generatePassengers, 6000); // Generate passengers every minute
+    setInterval(generatePassengers, 4000); // Generate passengers every minute
 </script>
 
 
 
 
 
-</body>
-</html>
 </body>
 </html>
