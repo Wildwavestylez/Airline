@@ -87,7 +87,7 @@
         <div id="menu">
             <h2>Hra s letadly</h2>
             <div class="section">
-                <div id="money">Peněženka: 100 Kč</div>
+                <div id="money">Peněženka: 3000 Kč</div>
             </div>
             <div class="section">
                 <h3>Koupit letadlo</h3>
@@ -113,7 +113,7 @@
         }).addTo(map);
 
         // Initial money
-        var money = 100;
+        var money = 3000;
 
         // Update money display
         function updateMoneyDisplay() {
@@ -130,6 +130,8 @@
 
         // Custom icons for planes
         var planeIcons = {
+             { name: "Letiště Praha Letňany (LKLT)", coords: [50.1313861, 14.5255528], unlocked: false, cost: 200, passengers: {} },
+            { name: "Letiště Praha Točná (LKTC)", coords: [49.9854383, 14.4264211], unlocked: false, cost: 600, passengers: {} },
             mini: L.icon({ iconUrl: 'https://i.imgur.com/J3HCP0L.png', iconSize: [100, 100], iconAnchor: [50, 50], popupAnchor: [0, -16] }),
             small: L.icon({ iconUrl: 'https://i.imgur.com/small-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
             medium: L.icon({ iconUrl: 'https://i.imgur.com/medium-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
