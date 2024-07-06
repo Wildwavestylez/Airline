@@ -371,6 +371,12 @@ function automateFlight(plane) {
     if (!plane.automated || plane.inFlight) return;
 
     var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
+    
+    // Remove the last destination from the list of available airports if it's the only option
+    if (availableAirports.length > 1 && plane.destination) {
+        availableAirports = availableAirports.filter(a => a.name !== plane.destination);
+    }
+
     if (availableAirports.length > 0) {
         var randomIndex = Math.floor(Math.random() * availableAirports.length);
         var randomDestination = availableAirports[randomIndex].name;
@@ -386,6 +392,7 @@ function automateFlight(plane) {
         }
     });
 }
+
 
     
    // Update sendPlane function to account for automation
@@ -413,6 +420,7 @@ function sendPlane(registration) {
         alert("Není dostatek pasažérů pro tuto destinaci!");
     }
 }
+
   function flyPlane(plane, fromAirport, toAirport) {
     var planeMarker = plane.marker;
     var fromLatLng = L.latLng(fromAirport.coords);
