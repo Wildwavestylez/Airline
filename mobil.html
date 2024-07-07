@@ -551,6 +551,29 @@ function sendPlane(registration) {
     }
 }
 
+    function getRandomLockedAirport() {
+    var lockedAirports = airports.filter(function(airport) {
+        return !airport.unlocked;
+    });
+    if (lockedAirports.length === 0) {
+        return null; // Žádné zamčené letiště k dispozici
+    }
+    var randomIndex = Math.floor(Math.random() * lockedAirports.length);
+    return lockedAirports[randomIndex];
+}
+
+    function offerUnlockRandomAirport() {
+    var randomAirport = getRandomLockedAirport();
+    if (randomAirport) {
+        var unlockOffer = confirm("Chcete odemknout letiště " + randomAirport.name + " za " + randomAirport.cost + " Kč?");
+        if (unlockOffer) {
+            unlockAirport(randomAirport.name);
+        }
+    }
+}
+// Interval pro nabídnutí odemknutí letiště každých 5 minut (300000 ms)
+setInterval(offerUnlockRandomAirport, 300000);
+
 
 
  function flyPlane(plane, fromAirport, toAirport) {
