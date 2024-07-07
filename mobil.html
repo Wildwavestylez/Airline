@@ -383,7 +383,7 @@ function generateAirportPopupContent(airport) {
 function updateAirportMarkerVisibility() {
     var currentZoom = map.getZoom();
     airports.forEach(function(airport) {
-        if (currentZoom > 9) {
+        if (currentZoom > 8) {
             if (!map.hasLayer(airport.marker)) {
                 map.addLayer(airport.marker);
             }
