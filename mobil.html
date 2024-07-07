@@ -360,7 +360,7 @@
         return unlockedAirports[randomIndex].name;
     }
 
-   function generateAirportPopupContent(airport) {
+  function generateAirportPopupContent(airport) {
     var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
     content += "Pasažéři čekající na odlet:<br>";
     for (var destination in airport.passengers) {
@@ -371,6 +371,7 @@
     content += "</div>";
     return content;
 }
+
 
 
     // Function to update the popup content for an airport
