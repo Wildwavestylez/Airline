@@ -309,17 +309,17 @@
     };
 
  
-        function addAirportMarkers() {
-            airports.forEach(function(airport) {
-                var marker = L.marker(airport.coords).addTo(map);
-                if (!airport.unlocked) {
-                    marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
-                } else {
-                    marker.bindPopup(generateAirportPopupContent(airport));
-                }
-                airport.marker = marker;
-            });
+       function addAirportMarkers() {
+    airports.forEach(function(airport) {
+        var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
+        if (!airport.unlocked) {
+            marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
+        } else {
+            marker.bindPopup(generateAirportPopupContent(airport));
         }
+        airport.marker = marker;
+    });
+}
 
     // Function to unlock an airport
     function unlockAirport(name) {
