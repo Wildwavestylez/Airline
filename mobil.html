@@ -32,6 +32,12 @@
             margin-bottom: 20px;
         }
 
+        .popup-scroll {
+    max-height: 200px; /* Nastavte výšku podle potřeby */
+    overflow-y: auto;
+}
+
+
         .menu select {
             flex: 1;
             margin-right: 10px;
@@ -53,6 +59,12 @@
             .sidebar {
                 height: 20%;
             }
+
+            .popup-scroll {
+    max-height: 200px; /* Nastavte výšku podle potřeby */
+    overflow-y: auto;
+}
+
 
             .menu {
                 flex-direction: column;
@@ -348,21 +360,28 @@
         return unlockedAirports[randomIndex].name;
     }
 
-    // Function to generate popup content for an airport
-    function generatePopupContent(airport) {
-        var content = "<b>" + airport.name + "</b><br>";
-        for (var destination in airport.passengers) {
-            if (airport.passengers.hasOwnProperty(destination)) {
-                content += destination + ": " + airport.passengers[destination] + "<br>";
-            }
+   function generateAirportPopupContent(airport) {
+    var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
+    content += "Pasažéři čekající na odlet:<br>";
+    for (var destination in airport.passengers) {
+        if (airport.passengers[destination] > 0) {
+            content += destination + ": " + airport.passengers[destination] + "<br>";
         }
-        return content;
     }
+    content += "</div>";
+    return content;
+}
+
 
     // Function to update the popup content for an airport
     function updatePopupContent(airport) {
-        airport.marker.setPopupContent(generatePopupContent(airport));
+    var content = generateAirportPopupContent(airport);
+    var popup = airport.marker.getPopup();
+    if (popup) {
+        popup.setContent(content);
     }
+}
+
 
     // Function to buy a plane
     function buyPlane() {
