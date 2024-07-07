@@ -308,20 +308,18 @@
         jumbo: { name: "Airbus 380", capacity: 540, range: 15000, speed: 2500, cost: 500000, icon: planeIcons.jumbo }
     };
 
-    // Function to add airport markers to the map
-    function addAirportMarkers() {
-        airports.forEach(function(airport) {
-            var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
-
-            if (!airport.unlocked) {
-                marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
-            } else {
-                marker.bindPopup(generatePopupContent(airport));
-            }
-
-            airport.marker = marker;
-        });
-    }
+ 
+        function addAirportMarkers() {
+            airports.forEach(function(airport) {
+                var marker = L.marker(airport.coords).addTo(map);
+                if (!airport.unlocked) {
+                    marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
+                } else {
+                    marker.bindPopup(generateAirportPopupContent(airport));
+                }
+                airport.marker = marker;
+            });
+        }
 
     // Function to unlock an airport
     function unlockAirport(name) {
@@ -360,29 +358,27 @@
         return unlockedAirports[randomIndex].name;
     }
 
-  function generateAirportPopupContent(airport) {
-    var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
-    content += "Pasažéři čekající na odlet:<br>";
-    for (var destination in airport.passengers) {
-        if (airport.passengers[destination] > 0) {
-            content += destination + ": " + airport.passengers[destination] + "<br>";
+ function generateAirportPopupContent(airport) {
+            var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
+            content += "Pasažéři čekající na odlet:<br>";
+            for (var destination in airport.passengers) {
+                if (airport.passengers[destination] > 0) {
+                    content += destination + ": " + airport.passengers[destination] + "<br>";
+                }
+            }
+            content += "</div>";
+            return content;
         }
-    }
-    content += "</div>";
-    return content;
-}
 
 
 
-    // Function to update the popup content for an airport
     function updatePopupContent(airport) {
-    var content = generateAirportPopupContent(airport);
-    var popup = airport.marker.getPopup();
-    if (popup) {
-        popup.setContent(content);
-    }
-}
-
+            var content = generateAirportPopupContent(airport);
+            var popup = airport.marker.getPopup();
+            if (popup) {
+                popup.setContent(content);
+            }
+        }
 
     // Function to buy a plane
     function buyPlane() {
