@@ -439,7 +439,7 @@ function sendPlane(registration) {
     var toLatLng = L.latLng(toAirport.coords);
 
     var planePath = [fromLatLng, toLatLng];
-    var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
+    var polyline = L.polyline(planePath, { color: '#0000FF00' }).addTo(map);
 
     var currentStep = 0;
     var totalSteps = 1000;
