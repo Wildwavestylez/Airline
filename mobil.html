@@ -309,7 +309,8 @@
     };
 
  
-       function addAirportMarkers() {
+       // Funkce pro přidání markerů letišť na mapu
+function addAirportMarkers() {
     airports.forEach(function(airport) {
         var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
         if (!airport.unlocked) {
@@ -358,17 +359,33 @@
         return unlockedAirports[randomIndex].name;
     }
 
- function generateAirportPopupContent(airport) {
-            var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
-            content += "Pasažéři čekající na odlet:<br>";
-            for (var destination in airport.passengers) {
-                if (airport.passengers[destination] > 0) {
-                    content += destination + ": " + airport.passengers[destination] + "<br>";
-                }
-            }
-            content += "</div>";
-            return content;
+ // Funkce pro vytvoření obsahu pop-up okna letiště
+function generateAirportPopupContent(airport) {
+    var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
+    content += "Pasažéři čekající na odlet:<br>";
+    for (var destination in airport.passengers) {
+        if (airport.passengers[destination] > 0) {
+            content += destination + ": " + airport.passengers[destination] + "<br>";
         }
+    }
+    content += "</div>";
+    return content;
+}
+
+// Event listener pro změnu zoomu
+map.on('zoomend', function() {
+    var zoomLevel = map.getZoom();
+    airports.forEach(function(airport) {
+        if (zoomLevel < 10) {
+            map.removeLayer(airport.marker);
+        } else {
+            map.addLayer(airport.marker);
+        }
+    });
+});
+
+// Inicializace letišť na mapě
+addAirportMarkers();
 
 
 
