@@ -93,7 +93,7 @@
             <button onclick="buyPlane()">Koupit Letadlo</button>
         </div>
         <div class="info">
-            <p id="money">Peněženka: 11000 Kč</p>
+            <p id="money">Peněženka: 10000 Kč</p>
         </div>
     </div>
 
@@ -109,7 +109,7 @@
     }).addTo(map);
 
     // Initial money
-    var money = 11000;
+    var money = 10000;
 
     // Update money display
     function updateMoneyDisplay() {
@@ -371,22 +371,28 @@ function generateAirportPopupContent(airport) {
     content += "</div>";
     return content;
 }
-
-// Event listener pro změnu zoomu
-map.on('zoomend', function() {
-    var zoomLevel = map.getZoom();
+// Funkce pro nastavení viditelnosti markerů letišť
+function updateAirportMarkerVisibility() {
+    var currentZoom = map.getZoom();
     airports.forEach(function(airport) {
-        if (zoomLevel < 10) {
-            map.removeLayer(airport.marker);
+        if (currentZoom > 9) {
+            if (!map.hasLayer(airport.marker)) {
+                map.addLayer(airport.marker);
+            }
         } else {
-            map.addLayer(airport.marker);
+            if (map.hasLayer(airport.marker)) {
+                map.removeLayer(airport.marker);
+            }
         }
     });
-});
+}
 
 // Inicializace letišť na mapě
 addAirportMarkers();
+updateAirportMarkerVisibility();
 
+// Přidání listeneru na změnu zoomu mapy
+map.on('zoomend', updateAirportMarkerVisibility);
 
 
     function updatePopupContent(airport) {
@@ -593,7 +599,7 @@ function sendPlane(registration) {
     // Initial setup
     updateMoneyDisplay();
     addAirportMarkers();
-    setInterval(generatePassengers, 300); // Generate passengers every minute
+    setInterval(generatePassengers, 30); // Generate passengers every minute
 </script>
 
 
