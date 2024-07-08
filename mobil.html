@@ -600,7 +600,7 @@ function generatePlanePopupContent(plane) {
     content += "</select><br>";
     
     content += "<button onclick='flyPlane(\"" + plane.id + "\")'>Odeslat</button><br>";
-    content += "<button onclick='toggleAutoFly(\"" + plane.id + "\")'>" + (plane.autoFly ? "Zrušit automatické lety" : "Automatické lety") + "</button>";
+    content += "<button onclick='toggleAutomation(registration)(\"" + plane.id + "\")'>" + (plane.autoFly ? "Zrušit automatické lety" : "Automatické lety") + "</button>";
     
     return content;
 }
