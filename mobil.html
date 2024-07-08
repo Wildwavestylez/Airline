@@ -701,7 +701,7 @@ setInterval(offerUnlockRandomAirport, 60000);
     var polyline = L.polyline(planePath, { color: '#0000FF00' }).addTo(map);
 
     var currentStep = 0;
-    var totalSteps = 1000;
+    var totalSteps = 50000;
     var distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
     var travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
     var stepInterval = travelTime / totalSteps;
