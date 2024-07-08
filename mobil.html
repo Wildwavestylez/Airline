@@ -137,6 +137,43 @@
 
     // List of airports
     var airports = [
+           { name: "Letiště Neapol (NAP)", coords: [40.8839922, 14.2845456], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Letiště Katánie (CTA)", coords: [37.4672425, 15.0675683], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Malta (MLA)", coords: [35.8474100, 14.4922872], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Palermo (PMO)", coords: [38.1765169, 13.0916433], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Trapani (TPS)", coords: [37.9130089, 12.4926219], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Cagliari (CAG)", coords: [39.2505831, 9.0573125], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Sarajevo (SJJ)", coords: [43.8253475, 18.3331550], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Ljubljana (LJU)", coords: [46.2224744, 14.4638478], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Vilnius (VNO)", coords: [54.6348361, 25.2903142], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Riga (RIX)", coords: [56.9222397, 23.9726433], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Tallinn (TLL)", coords: [59.4143881, 24.8368386], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Helsinky-Vantaa (HEL)", coords: [60.3218156, 24.9473611], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Oslo (OSL)", coords: [60.1978653, 11.0996753], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Göteborg (GOT)", coords: [57.6624147, 12.2877628], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Kodaň (CPH)", coords: [55.6091281, 12.6509822], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Stockholm-Arlanda (ARN)", coords: [59.6467919, 17.9370442], unlocked: false, cost: 10000, passengers: {} },
+             { name: "Letiště Stockholm-Bromma (BMA)", coords: [59.3545289, 17.9448094], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Kiruna (KRN)", coords: [67.8200558, 20.3330822], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Ivalo (IVL)", coords: [68.6062078, 27.4197217], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Alta (ALF)", coords: [69.9771631, 23.3595189], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Tromsø (TOS)", coords: [69.6818725, 18.9154175], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Bodø (BOO)", coords: [67.2643861, 14.3477492], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Trondheim (TRD)", coords: [63.4547661, 10.9251333], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Bergen (BGO)", coords: [60.2965594, 5.2198114], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Stavanger (SVG)", coords: [58.8809767, 5.6226300], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Kristiansand (KRS)", coords: [58.2041436, 8.0832717], unlocked: false, cost: 500, passengers: {} },
+            { name: "Letiště Aalborg (AAL)", coords: [57.0864353, 9.8679819], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Brusel (BRU)", coords: [50.9008997, 4.4809647], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Lucemburk (LUX)", coords: [49.6263714, 6.2094033], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště London Stansted (STN)", coords: [51.8869650, 0.2441928], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Birmingham (BHX)", coords: [52.4541772, 1.7438789], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Manchester (MAN)", coords: [53.3503419, 2.2803694], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště London Luton (LTN)", coords: [51.8781017, 0.3664256], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Bristol (BRS)", coords: [51.3829700, 2.7186239], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště London Gatwick (LGW)", coords: [51.1541081, 0.1823117], unlocked: false, cost: 8500, passengers: {} },
+         { name: "Letiště East Midlands (EMA)", coords: [52.8280867, 1.3326694], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Glasgow (GLA)", coords: [55.8705558, 4.4357039], unlocked: false, cost: 6000, passengers: {} },
             { name: "Letiště Korfu (CFU)", coords: [39.6019011, 19.9140364], unlocked: false, cost: 4500, passengers: {} },
              { name: "Letiště Sofie (SOF)", coords: [42.6955647, 23.4142083], unlocked: false, cost: 7000, passengers: {} },
             { name: "Letiště Bukurešť (OTP)", coords: [44.5683389, 26.1025339], unlocked: false, cost: 3000, passengers: {} },
@@ -651,7 +688,7 @@ function sendPlane(registration) {
     }
 }
 // Interval pro nabídnutí odemknutí letiště každých 5 minut (300000 ms)
-setInterval(offerUnlockRandomAirport, 300000);
+setInterval(offerUnlockRandomAirport, 150000);
 
 
 
