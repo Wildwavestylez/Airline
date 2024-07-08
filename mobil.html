@@ -527,42 +527,37 @@ map.on('zoomend', updateAirportMarkerVisibility);
             }
         }
 
-  // Function to buy a plane
-function buyPlane() {
-    var select = document.getElementById('plane-select');
-    var selectedPlaneType = select.value;
-    var planeType = planeTypes[selectedPlaneType];
+    // Function to buy a plane
+    function buyPlane() {
+        var select = document.getElementById('plane-select');
+        var selectedPlaneType = select.value;
+        var planeType = planeTypes[selectedPlaneType];
 
-    if (money >= planeType.cost) {
-        money -= planeType.cost;
-        updateMoneyDisplay();
+        if (money >= planeType.cost) {
+            money -= planeType.cost;
+            updateMoneyDisplay();
 
-        // Create new plane
-        var plane = {
-            type: planeType.name,
-            capacity: planeType.capacity,
-            range: planeType.range,
-            speed: planeType.speed,
-            marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map),
-            passengers: 0,
-            destination: null,
-            inFlight: false,
-            registration: generateRegistration(),
-            automated: false,
-            totalDistanceFlown: 0
-        };
+            // Create new plane
+            var plane = {
+                type: planeType.name,
+                capacity: planeType.capacity,
+                range: planeType.range,
+                speed: planeType.speed,
+                marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map),
+                passengers: 0,
+                destination: null,
+                inFlight: false,
+                registration: generateRegistration()
+            };
 
-        plane.marker.bindPopup(generatePlanePopupContent(plane));
-        planes.push(plane);
-    } else {
-        alert("Nemáte dostatek peněz na koupi tohoto letadla!");
+            // Bind popup with destination selection to the plane marker
+            plane.marker.bindPopup(generatePlanePopupContent(plane));
+
+            planes.push(plane);
+        } else {
+            alert("Nemáte dostatek peněz na nákup tohoto letadla!");
+        }
     }
-}
-
-
-
-
-
 
     // Function to generate a unique registration number for a plane
     function generateRegistration() {
@@ -574,33 +569,26 @@ function buyPlane() {
         return registration;
     }
 
-function generatePlanePopupContent(plane) {
+ function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo: " + plane.registration + "</b><br>";
-    content += "Typ: " + plane.type + "<br>";
     content += "Kapacita: " + plane.capacity + "<br>";
-    content += "Dolet: " + plane.range + " km<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
-    content += "Nalétané kilometry: " + Math.round(plane.totalDistanceFlown) + " km<br>";
-    
-    if (plane.inFlight) {
-        content += "Letí z: " + plane.startAirport + " do: " + plane.destinationAirport + "<br>";
-    }
+    content += "Destinace: " + (plane.destination ? plane.destination : "Žádná") + "<br>";
+    content += "Cestující: " + plane.passengers + "<br>";
 
-    content += "<select id='destination-" + plane.registration + "'>";
-    airports.forEach(function(airport) {
-        if (airport.unlocked && airport.name !== plane.startAirport) {
-            content += "<option value='" + airport.name + "'>" + airport.name + "</option>";
-        }
-    });
-    content += "</select><br>";
-    
-    content += "<button onclick='flyPlane(\"" + plane.registration + "\")'>Odeslat</button><br>";
-    content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Zrušit automatické lety" : "Automatické lety") + "</button>";
-    
+    if (!plane.inFlight) {
+        content += "<select id='destination-select-" + plane.registration + "'>";
+        airports.forEach(function(airport) {
+            if (!plane.marker.getLatLng().equals(airport.coords) && airport.unlocked) {
+                content += "<option value='" + airport.name + "'>" + airport.name + "</option>";
+            }
+        });
+        content += "</select><br>";
+        content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button><br>";
+        content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Zastavit" : "Automatizovat") + "</button>";
+    }
     return content;
 }
-
-
 
 
    function showPlanePopup(plane) {
@@ -700,60 +688,56 @@ function sendPlane(registration) {
     }
 }
 // Interval pro nabídnutí odemknutí letiště každých 5 minut (300000 ms)
-setInterval(offerUnlockRandomAirport, 6000);
+setInterval(offerUnlockRandomAirport, 60000);
 
 
 
-// Function to fly a plane to a selected destination
-function flyPlane(registration) {
-    var plane = planes.find(p => p.registration === registration);
-    var select = document.getElementById('destination-' + plane.registration);
-    var selectedDestination = select.value;
+ function flyPlane(plane, fromAirport, toAirport) {
+    var planeMarker = plane.marker;
+    var fromLatLng = L.latLng(fromAirport.coords);
+    var toLatLng = L.latLng(toAirport.coords);
 
-    if (plane && selectedDestination) {
-        var fromAirport = airports.find(a => a.name === plane.startAirport);
-        var toAirport = airports.find(a => a.name === selectedDestination);
+    var planePath = [fromLatLng, toLatLng];
+    var polyline = L.polyline(planePath, { color: '#0000FF00' }).addTo(map);
 
-        if (toAirport) {
-            var fromLatLng = L.latLng(fromAirport.coords);
-            var toLatLng = L.latLng(toAirport.coords);
+    var currentStep = 0;
+    var totalSteps = 50000;
+    var distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
+    var travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
+    var stepInterval = travelTime / totalSteps;
 
-            plane.inFlight = true;
-            plane.destinationAirport = toAirport.name;
+    var flightInterval = setInterval(function() {
+        if (currentStep >= totalSteps) {
+            clearInterval(flightInterval);
+            map.removeLayer(polyline);
+            plane.marker.setLatLng(toLatLng);
+            plane.inFlight = false;
 
-            var planePath = [fromLatLng, toLatLng];
-            var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
+            // Calculate earnings
+            var earnings = distance * 3 * plane.passengers;
+            money += Math.round(earnings);
+            updateMoneyDisplay();
+            
+            plane.passengers = 0;
+            showPlanePopup(plane); // Použijeme novou funkci
 
-            var currentStep = 0;
-            var totalSteps = 50000;
-            var stepInterval = setInterval(function() {
-                if (currentStep >= totalSteps) {
-                    clearInterval(stepInterval);
-                    map.removeLayer(plane.marker);
-                    map.removeLayer(polyline);
-                    plane.marker = L.marker(toAirport.coords, { icon: plane.type.icon }).addTo(map);
-                    plane.startAirport = toAirport.name;
-                    plane.inFlight = false;
-                    plane.totalDistanceFlown += L.latLng(fromLatLng).distanceTo(toLatLng) / 1000; // Convert to km
+            // Update destination airport's popup content
+            updatePopupContent(toAirport);
+            
+            // Re-check for automation after flight completion
+            if (plane.automated) {
+                setTimeout(() => automateFlight(plane), 5000); // Adjust delay as needed
+            }
 
-                    // Earn money for successful flight
-                    var distance = L.latLng(fromLatLng).distanceTo(toLatLng) / 1000; // Convert to km
-                    var earnings = Math.round(distance * plane.passengers * 3);
-                    money += earnings;
-                    updateMoneyDisplay();
-
-                    plane.marker.bindPopup(generatePlanePopupContent(plane));
-                } else {
-                    var currentLatLng = L.latLng(
-                        fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * (currentStep / totalSteps),
-                        fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * (currentStep / totalSteps)
-                    );
-                    plane.marker.setLatLng(currentLatLng);
-                    currentStep++;
-                }
-            }, 1000 / plane.speed); // Adjust speed accordingly
+            return;
         }
-    }
+        var currentLatLng = L.latLng(
+            fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * (currentStep / totalSteps),
+            fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * (currentStep / totalSteps)
+        );
+        planeMarker.setLatLng(currentLatLng);
+        currentStep++;
+    }, stepInterval);
 }
 
 
