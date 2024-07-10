@@ -32,6 +32,12 @@
             margin-bottom: 20px;
         }
 
+        .popup-scroll {
+    max-height: 200px; /* Nastavte výšku podle potřeby */
+    overflow-y: auto;
+}
+
+
         .menu select {
             flex: 1;
             margin-right: 10px;
@@ -54,6 +60,12 @@
                 height: 20%;
             }
 
+            .popup-scroll {
+    max-height: 200px; /* Nastavte výšku podle potřeby */
+    overflow-y: auto;
+}
+
+
             .menu {
                 flex-direction: column;
             }
@@ -75,8 +87,8 @@
                 <option value="Dornier">Dornier 328 (10000 Kč)</option>
                  <option value="Embraer">Embraer 175 (25000 Kč)</option>
                 <option value="medium">Embraer 195 (50000 Kč)</option>
-                <option value="large">Velké Letadlo (150000 Kč)</option>
-                <option value="jumbo">Velkokapacitní Letadlo (500000 Kč)</option>
+                <option value="large">Boeing 737 (150000 Kč)</option>
+                <option value="jumbo">Airbus A380 (500000 Kč)</option>
             </select>
             <button onclick="buyPlane()">Koupit Letadlo</button>
         </div>
@@ -119,12 +131,283 @@
         Dornier: L.icon({ iconUrl: 'https://i.imgur.com/Q6JNu8E.png', iconSize: [120, 120], iconAnchor: [60, 60], popupAnchor: [0, -16] }),
         Embraer: L.icon({ iconUrl: 'https://i.imgur.com/2Nv654w.png', iconSize: [120, 120], iconAnchor: [60, 60], popupAnchor: [0, -16] }),
         medium: L.icon({ iconUrl: 'https://i.imgur.com/8mK5EgZ.png', iconSize: [120, 120], iconAnchor: [60, 60], popupAnchor: [0, -16] }),
-        large: L.icon({ iconUrl: 'https://i.imgur.com/large-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] }),
-        jumbo: L.icon({ iconUrl: 'https://i.imgur.com/jumbo-icon.png', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] })
+        large: L.icon({ iconUrl: 'https://i.imgur.com/y2GuDhk.png', iconSize: [120, 120], iconAnchor: [60, 60], popupAnchor: [0, -16] }),
+        jumbo: L.icon({ iconUrl: 'https://i.imgur.com/2tZZT6Z.png', iconSize: [120, 120], iconAnchor: [60, 60], popupAnchor: [0, -16] })
     };
 
     // List of airports
     var airports = [
+           { name: "Letiště Bojkovice (LKBOJK)", coords: [49.0303617, 17.8179253], unlocked: false, cost: 79000, passengers: {} },
+             { name: "Letiště Borovník (LKBORO)", coords: [49.3580306, 16.2429972], unlocked: false, cost: 59500, passengers: {} },
+            { name: "Letiště Boršice (LKBORS)", coords: [49.0520342, 17.3673597], unlocked: false, cost: 70000, passengers: {} },
+         { name: "Letiště Budíškovice (LKBUDI)", coords: [49.0755694, 15.5465111], unlocked: false, cost: 20000, passengers: {} },
+               { name: "Letiště Bystřice nad Pernštejnem (LKBYST)", coords: [49.5227750, 16.2322194], unlocked: false, cost: 2000, passengers: {} },
+              { name: "Letiště Částkovice (LKCAST)", coords: [49.4093297, 15.1441375], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Čebín (LKCEBI)", coords: [49.3188139, 16.4967806], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Česká Třebová (LKCTRE)", coords: [49.9101625, 16.4552689], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Český Dub (LKCDUB)", coords: [50.6780528, 14.9997194], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Dětřichov Oáza (LKDETR)", coords: [49.7291639, 17.1180528], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Doudleby (LKDOUD)", coords: [48.8849983, 14.4863892], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Druzcov U Lípy (LKDRUZ)", coords: [50.7280528, 14.9247194], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Hatě Excalibur (LKEXCA)", coords: [48.7616361, 16.0553167], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Hať u Hlučína (LKHATH)", coords: [49.9501111, 18.2648056], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Hláska (LKHLAS)", coords: [49.0668472, 14.2413028], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Horní Přím (LKPRIM)", coords: [50.2293222, 15.7032389], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Hory (LKHORY)", coords: [50.2169417, 12.7769417], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Chornice (LKCHOR)", coords: [49.6861694, 16.7299111], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Choteč (LKCHOT)", coords: [50.4337700, 15.5305581], unlocked: false, cost: 11000, passengers: {} },
+             { name: "Letiště Chvojenec (LKCHVO)", coords: [50.1087069, 15.9272431], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Košice u Tábora (LKKOSI)", coords: [49.3180556, 14.7491667], unlocked: false, cost: 15000, passengers: {} },
+            { name: "Letiště Kotvrdovice (LKKOTV)", coords: [49.3639694, 16.7852747], unlocked: false, cost: 14000, passengers: {} },
+            { name: "Letiště Kozmice (LKKOZY)", coords: [49.9133333, 18.1641667], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Kraví Hora (LKKRAV)", coords: [48.9169444, 16.8413889], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Jiřičky (LKJIRI)", coords: [49.5522194, 15.1555528], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Kunětice (LKKUNE)", coords: [50.0682389, 15.8122833], unlocked: false, cost: 200, passengers: {} },
+            { name: "Letiště Letovice (LKLETO)", coords: [49.5466639, 16.5986083], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Lochousice (LKLOCH)", coords: [49.6750881, 13.0986822], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Lomnice nad Popelkou (LKLOMN)", coords: [50.5399972, 15.3880528], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Loučeň (LKLOUC)", coords: [50.2791667, 15.0611111], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Miroslav (LKMIRO))", coords: [48.9313861, 16.2986083], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Místek (LKMIST)", coords: [49.6511611, 18.3464306], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Moravský Beroun (LKMBER)", coords: [49.7860806, 17.4862194], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Žihobce (LKNAPA)", coords: [49.1987583, 13.5999778], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Nová Včelnice (LKNVCE)", coords: [49.2672222, 15.0777778], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Nučice (LKNUCI)", coords: [49.9511083, 14.8702472], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Ostrov (LKOSTR)", coords: [50.3365389, 12.9697650], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Pěnčín (LKPENC)", coords: [49.5684422, 16.9988292], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Plešnice (LKPLES)", coords: [49.7720156, 13.1611750], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Polepy (LKPOLE)", coords: [50.5203831, 14.2724144], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Radovesice (LKRADO)", coords: [50.4090000, 14.0840278], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Rohozec (LKROHO)", coords: [49.9819417, 15.3927750], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Sázava (LKSAZA)", coords: [49.8877778, 14.9394444], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Sazomín (LKSAZO)", coords: [49.5086111, 15.9711111], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Slezská Harta (LKHART)", coords: [49.9087517, 17.5359089], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Slušovice (LKSLUS)", coords: [49.2590611, 17.8133000], unlocked: false, cost: 10000, passengers: {} },
+              { name: "Letiště Strážnice (LKSTRZ)", coords: [48.8877750, 17.2944417], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Studenec (LKSTUD)", coords: [50.5494444, 15.5361111], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Šumvald (LKSUMV)", coords: [49.8453981, 17.1382922], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Terezín (LKTERE)", coords: [50.5195583, 14.1558778], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Třebihošť (LKTRBH)", coords: [50.4353667, 15.6930194], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Záhoří (LKZAHO)", coords: [49.4663861, 17.6652750], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Nové Zámky (LZNZ)", coords: [47.9617381, 18.1851186], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Trebišov (LZTR)", coords: [48.6368914, 21.7594322], unlocked: false, cost: 10000, passengers: {} },
+                     { name: "Letiště Spišská Nová Ves (LZSV)", coords: [48.9414731, 20.5306003], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Ružomberok (LZRU)", coords: [49.0851014, 19.3677867], unlocked: false, cost: 15000, passengers: {} },
+            { name: "Letiště Senica (LZSE)", coords: [48.6574089, 17.3301958], unlocked: false, cost: 14000, passengers: {} },
+            { name: "Flugplatz Kapfenberg (LOGK)", coords: [47.4579617, 15.3325172], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Maribor (MBX)", coords: [46.4783692, 15.6853803], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Celje (JCJ)", coords: [46.2454022, 15.2231172], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Ptuj (LJPT)", coords: [46.4265564, 15.9876522], unlocked: false, cost: 200, passengers: {} },
+            { name: "Letiště Murska Sobota (LJMS)", coords: [46.6270950, 16.1752650], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Slovenj Gradec (LJSG)", coords: [46.4719567, 15.1176156], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Portorož (POW)", coords: [45.4724036, 13.6161150], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Gorizia (LIPG)", coords: [45.9069694, 13.6009550], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Pula (PUY)", coords: [44.8956722, 13.9189606], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Rijeka (RJK)", coords: [45.2167858, 14.5709681], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Osijek (OSI)", coords: [45.4608764, 18.8170619], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Tuzla (TZL)", coords: [44.4625583, 18.7244431], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Mostar (OMO)", coords: [43.2818886, 17.8438828], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Ancona/Falconara (AOI)", coords: [43.6171622, 13.3648578], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Firenze (FLR)", coords: [43.8092872, 11.1991206], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Brindisi – Salento (BDS)", coords: [40.6616050, 17.9485775], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Lamezia Terme (SUF)", coords: [38.9064428, 16.2421069], unlocked: false, cost: 5000, passengers: {} },
+{ name: "Letiště Neapol (NAP)", coords: [40.8839922, 14.2845456], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Letiště Katánie (CTA)", coords: [37.4672425, 15.0675683], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Malta (MLA)", coords: [35.8474100, 14.4922872], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Palermo (PMO)", coords: [38.1765169, 13.0916433], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Trapani (TPS)", coords: [37.9130089, 12.4926219], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Cagliari (CAG)", coords: [39.2505831, 9.0573125], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Sarajevo (SJJ)", coords: [43.8253475, 18.3331550], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Ljubljana (LJU)", coords: [46.2224744, 14.4638478], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Vilnius (VNO)", coords: [54.6348361, 25.2903142], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Riga (RIX)", coords: [56.9222397, 23.9726433], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Tallinn (TLL)", coords: [59.4143881, 24.8368386], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Helsinky-Vantaa (HEL)", coords: [60.3218156, 24.9473611], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Oslo (OSL)", coords: [60.1978653, 11.0996753], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Göteborg (GOT)", coords: [57.6624147, 12.2877628], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Kodaň (CPH)", coords: [55.6091281, 12.6509822], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Stockholm-Arlanda (ARN)", coords: [59.6467919, 17.9370442], unlocked: false, cost: 10000, passengers: {} },
+             { name: "Letiště Stockholm-Bromma (BMA)", coords: [59.3545289, 17.9448094], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Kiruna (KRN)", coords: [67.8200558, 20.3330822], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Ivalo (IVL)", coords: [68.6062078, 27.4197217], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Alta (ALF)", coords: [69.9771631, 23.3595189], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Tromsø (TOS)", coords: [69.6818725, 18.9154175], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Bodø (BOO)", coords: [67.2643861, 14.3477492], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Trondheim (TRD)", coords: [63.4547661, 10.9251333], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Bergen (BGO)", coords: [60.2965594, 5.2198114], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Stavanger (SVG)", coords: [58.8809767, 5.6226300], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Kristiansand (KRS)", coords: [58.2041436, 8.0832717], unlocked: false, cost: 500, passengers: {} },
+            { name: "Letiště Aalborg (AAL)", coords: [57.0864353, 9.8679819], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Brusel (BRU)", coords: [50.9008997, 4.4809647], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Lucemburk (LUX)", coords: [49.6263714, 6.2094033], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště London Stansted (STN)", coords: [51.8869650, 0.2441928], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Birmingham (BHX)", coords: [52.4541772, -1.7438789], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Manchester (MAN)", coords: [53.3503419, -2.2803694], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště London Luton (LTN)", coords: [51.8781017, -0.3664256], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Bristol (BRS)", coords: [51.3829700, -2.7186239], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště London Gatwick (LGW)", coords: [51.1541081, -0.1823117], unlocked: false, cost: 8500, passengers: {} },
+         { name: "Letiště East Midlands (EMA)", coords: [52.8280867, -1.3326694], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Glasgow (GLA)", coords: [55.8705558, -4.4357039], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Korfu (CFU)", coords: [39.6019011, 19.9140364], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Sofie (SOF)", coords: [42.6955647, 23.4142083], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Bukurešť (OTP)", coords: [44.5683389, 26.1025339], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Varna (VAR)", coords: [43.2339358, 27.8233417], unlocked: false, cost: 500, passengers: {} },
+            { name: "Letiště Oradea (OMR)", coords: [47.0268697, 21.9027053], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Záhřeb (ZAG)", coords: [45.7402719, 16.0722475], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Benátky (VCE)", coords: [45.5035386, 12.3425797], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Treviso (TSF)", coords: [45.6490897, 12.1966847], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Bologna (BLQ)", coords: [44.5344306, 11.2884575], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Nice (NCE)", coords: [43.6598153, 7.2137461], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Řím-Fiumicino (FCO)", coords: [41.8153911, 12.2264847], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Řím Ciampino (CIA)", coords: [41.7995469, 12.5912711], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Olbia (OLB)", coords: [40.8993767, 9.5177453], unlocked: false, cost: 8500, passengers: {} },
+         { name: "Letiště Alghero-Fertilia (AHO)", coords: [40.6327106, 8.2883758], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Menorca (MAH)", coords: [39.8629864, 4.2206072], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Palma de Mallorca (PMI)", coords: [39.5532244, 2.7290308], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Barcelona (BCN)", coords: [41.2969439, 2.0790472], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Alicante-Elche (ALC)", coords: [38.2844178, -0.5657531], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Málaga (AGP)", coords: [36.6785444, -4.4996756], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Lisabon-Portela (LIS)", coords: [38.7809542, -9.1319006], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Porto (OPO)", coords: [41.2488303, -8.6810372], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Adolfa Suáreze (MAD)", coords: [40.4952269, -3.5733731], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Bilbao (BIO)", coords: [43.3017206, -2.9191297], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Girona (GRO)", coords: [41.9044947, 2.7624261], unlocked: false, cost: 13000, passengers: {} },
+             { name: "Letiště Lipsko/Halle (LEJ)", coords: [51.4211900, 12.2295858], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Köln/Bonn (CGN)", coords: [50.8677817, 7.1389608], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Memmingen (FMM)", coords: [47.9888242, 10.2350722], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Karlsruhe/Baden-Baden (FKB)", coords: [48.7787136, 8.0819714], unlocked: false, cost: 73500, passengers: {} },
+            { name: "Letiště Münster/Osnabrück (FMO)", coords: [52.1342178, 7.6829214], unlocked: false, cost: 85000, passengers: {} },
+             { name: "Letiště Nürnberg (NUE)", coords: [49.4982683, 11.0781064], unlocked: false, cost: 813000, passengers: {} },
+            { name: "Letiště Saarbrücken (SCN)", coords: [49.2165733, 7.1119172], unlocked: false, cost: 88000, passengers: {} },
+            { name: "Letiště Paříž-Orly (ORY)", coords: [48.7300594, 2.3678311], unlocked: false, cost: 788500, passengers: {} },
+            { name: "Letiště Nantes (NTE)", coords: [47.1518408, -1.6084619], unlocked: false, cost: 511000, passengers: {} },
+            { name: "Letiště Lyon (LYS)", coords: [45.7244269, 5.0865150], unlocked: false, cost: 79000, passengers: {} },
+             { name: "Letiště Milano Malpensa (MXP)", coords: [45.6296272, 8.7235475], unlocked: false, cost: 59500, passengers: {} },
+            { name: "Letiště Linate (LIN)", coords: [45.4442050, 9.2778328], unlocked: false, cost: 70000, passengers: {} },
+         { name: "Letiště Bergamo Orio al Serio (BGY)", coords: [45.6709297, 9.6987556], unlocked: false, cost: 20000, passengers: {} },
+               { name: "Letiště Zürich (ZRH)", coords: [47.4633881, 8.5533661], unlocked: false, cost: 2000, passengers: {} },
+              { name: "Letiště Budapešť (BUD)", coords: [47.4352731, 19.2535106], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Debrecín (DEB)", coords: [47.4886969, 21.6118675], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Bělehrad (BEG)", coords: [44.8182556, 20.3023594], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Split (SPU)", coords: [43.5396572, 16.3016875], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Zadar (ZAD)", coords: [44.1001750, 15.3574881], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Dubrovník (DBV)", coords: [42.5614933, 18.2643364], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Tivat (TIV)", coords: [42.4037250, 18.7248292], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Podgorica (TGD)", coords: [42.3592053, 19.2499264], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Tirana (TIA)", coords: [41.4140797, 19.7196481], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Skopje (SKP)", coords: [41.9617364, 21.6218436], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Soluň (SKG)", coords: [40.5198019, 22.9740867], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Atény (ATH)", coords: [37.9372533, 23.9546217], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Chania (CHQ)", coords: [35.5296433, 24.1480056], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Heraklion (HER)", coords: [35.3370581, 25.1809719], unlocked: false, cost: 11000, passengers: {} },
+             { name: "Letiště Spišská Nová Ves (LZSV)", coords: [48.9414731, 20.5306003], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Svidník (LZSK)", coords: [49.3327511, 21.5694753], unlocked: false, cost: 15000, passengers: {} },
+            { name: "Letiště Žilina (ILZ)", coords: [49.2333939, 18.6143453], unlocked: false, cost: 14000, passengers: {} },
+            { name: "Letisko Trnava Kopánka (LZTR)", coords: [48.3996094, 17.6122611], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Katowice (KTW)", coords: [50.4759986, 19.0849164], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Wroclaw (WRO)", coords: [51.1032611, 16.8837667], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Rzeszów-Jasionka (RZE)", coords: [50.1114817, 22.0184358], unlocked: false, cost: 200, passengers: {} },
+            { name: "Letiště Łódź (LCJ)", coords: [51.1342992, 13.7694808], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Varšava-Modlin (WMI)", coords: [52.4508856, 20.6489881], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Bydhošť (BZG)", coords: [53.0976769, 17.9787833], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Nový Bydžov sever - ULBYDS", coords: [50.2672194, 15.4705528], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Szczecin-Goleniów (SZZ)", coords: [53.5843894, 14.9059444], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Lublin (LUZ)", coords: [51.2382458, 22.7067517], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Zielona Góra (IEG)", coords: [52.1387061, 15.7972872], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Radom (RDO)", coords: [51.3890264, 21.2146117], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Szczytno (SZY)", coords: [53.4807256, 20.9374981], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Vilshofen (EDMV)", coords: [48.6351006, 13.1949103], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Barth (BBH)", coords: [54.3396517, 12.7126264], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Braunschweig (BWE)", coords: [52.3191200, 10.5600944], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Bremen (BRE)", coords: [53.0453419, 8.7896417], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Cuxhaven (FCN)", coords: [53.7721469, 8.6622764], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Dortmund (DTM)", coords: [51.5169072, 7.6097178], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Düsseldorf (DUS)", coords: [51.2872306, 6.7620625], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Erfurt (ERF)", coords: [50.9792725, 10.9586467], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Friedrichshafen (FDN)", coords: [47.6711272, 9.5109811], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Hannover (HAJ)", coords: [52.4614408, 9.6872367], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Frankfurt Hahn (HHN)", coords: [49.9446333, 7.2612103], unlocked: false, cost: 10000, passengers: {} },
+              { name: "Letiště Martin (LZMA)", coords: [49.0643292, 18.9509394], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Nitra (LZNI)", coords: [48.2796314, 18.1334394], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Nové Zámky (LZNZ)", coords: [47.9617381, 18.1851186], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Piešťany (PZY)", coords: [48.6220100, 17.8280119], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Prievidza (LZPE)", coords: [48.7666317, 18.5888247], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Partizánske (LZPT)", coords: [48.6203431, 18.3341053], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Dubnica nad Váhom (LZDB)", coords: [48.9969028, 18.1908989], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Sliač (SLD)", coords: [48.6379611, 19.1356575], unlocked: false, cost: 10000, passengers: {} },
+                     { name: "Letiště Vlašim (LKVL)", coords: [49.7275806, 14.8797500], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Vyškov (LKVY)", coords: [49.3002750, 17.0252750], unlocked: false, cost: 15000, passengers: {} },
+            { name: "Letiště Zábřeh (LKZA)", coords: [49.9277919, 18.0778358], unlocked: false, cost: 14000, passengers: {} },
+            { name: "Letiště Zlín (LKZL)", coords: [49.1983306, 17.5177750], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Znojmo (LKZN)", coords: [48.8177750, 16.0658306], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Bánov (LKBANO)", coords: [48.9834722, 17.7044667], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Bitozeves (LKBITO)", coords: [50.3726861, 13.6339361], unlocked: false, cost: 200, passengers: {} },
+            { name: "Letiště Bobrová (LKBOBR)", coords: [49.4954528, 16.1019944], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Boleradice (LKBOLE)", coords: [48.9619417, 16.8316639], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Borek (LKBORE)", coords: [50.2108306, 14.6574972], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Bořitov (LKBORI)", coords: [49.4361083, 16.5941639], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Brťov (LKBRTO)", coords: [49.4109078, 16.4994697], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Budíškovice (LKBUDI)", coords: [49.0755694, 15.5465111], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Budkovice (LKBUDK)", coords: [49.0785053, 16.3567053], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Bynovec (LKBYNO)", coords: [50.8219858, 14.2717003], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Chrášťany (LKCHRA)", coords: [50.0586639, 14.9231917], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Chřibská (LKCHRI)", coords: [50.8580528, 14.4669417], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Kaplice (LKKAPL)", coords: [48.7188606, 14.4503556], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Kropáčova Vrutice (LKKRPY)", coords: [50.3274056, 14.6635472], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Nymburk (LKNYMB)", coords: [50.1691219, 15.0522222], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Opava (LKOPAV)", coords: [49.9405556, 17.9861111], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Rabí (LKRABI)", coords: [49.2751833, 13.6278611], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Říčany (LKRICA)", coords: [49.9744389, 14.6498306], unlocked: false, cost: 800, passengers: {} },
+            { name: "Letiště Štětí (LKSTET)", coords: [50.4647242, 14.4062478], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Trutnov (LKTRUT)", coords: [50.5674564, 15.8653822], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Třebíč (LKTREB)", coords: [49.1983306, 15.9030528], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Důlky (LKDULK)", coords: [50.0765611, 15.4036694], unlocked: false, cost: 10000, passengers: {} },
+                    { name: "Letiště Kunovice (LKKU)", coords: [49.0294417, 17.4397194], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Přerov (LKPO)", coords: [49.4258306, 17.4047194], unlocked: false, cost: 15000, passengers: {} },
+            { name: "Letiště Vysoké Mýto (LKVM)", coords: [49.9269417, 16.1858306], unlocked: false, cost: 14000, passengers: {} },
+            { name: "Letiště Bohuňovice (LKBO)", coords: [49.6705475, 17.2945986], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Břeclav (LKBA)", coords: [48.7905181, 16.8925033], unlocked: false, cost: 50, passengers: {} },
+            { name: "Letiště Hořovice (LKHV)", coords: [49.8480556, 13.8938889], unlocked: false, cost: 100, passengers: {} },
+            { name: "Letiště Hranice (LKHN)", coords: [49.5461083, 17.7044417], unlocked: false, cost: 200, passengers: {} },
+            { name: "Letiště Klatovy (LKKT)", coords: [49.4183381, 13.3218608], unlocked: false, cost: 2500, passengers: {} },
+            { name: "Letiště Krnov (LKKR)", coords: [50.0762697, 17.6912181], unlocked: false, cost: 12000, passengers: {} },
+             { name: "Letiště Kroměříž (LKKM)", coords: [49.2856367, 17.4152406], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Letiště Křižanov (LKKA)", coords: [49.3683306, 16.1161083], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Kyjov (LKKY)", coords: [48.9799972, 17.1247194], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Luhačovice (LKLU)", coords: [49.0923394, 17.7250594], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Letkov (LKPL)", coords: [49.7232678, 13.4522086], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Medlánky (LKCM)", coords: [49.2374486, 16.5545917], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Mikulovice (LKMI)", coords: [50.3018008, 17.2973417], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Moravská Třebová (LKMK)", coords: [49.7983306, 16.6877750], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Olomouc (LKOL)", coords: [49.5876894, 17.2099267], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Polička (LKPA)", coords: [49.7384778, 16.2581567], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Prostějov (LKPJ)", coords: [49.4477750, 17.1338861], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Rokycany (LKRY)", coords: [49.7519444, 13.5897222], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Staňkov (LKSA)", coords: [49.5666639, 13.0486083], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Stichovice (LKSB)", coords: [49.4874989, 17.0523233], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Šumperk (LKSU)", coords: [49.9602353, 17.0174639], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Tachov (LKTD)", coords: [49.7972194, 12.7063861], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Ústí nad Orlicí (LKUO)", coords: [49.9786083, 16.4263861], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Toužim (LKTO)", coords: [50.0863861, 12.9527750], unlocked: false, cost: 10000, passengers: {} },
+         { name: "Letiště Erpužice (LKER)", coords: [49.8027750, 13.0380528], unlocked: false, cost: 2000, passengers: {} },
+               { name: "Letiště Bubovice (LKBU)", coords: [49.9744417, 14.1780528], unlocked: false, cost: 1200, passengers: {} },
+              { name: "Letiště Soběslav (LKSO)", coords: [49.2454919, 14.7130175], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Písek Krašovice (LKPK)", coords: [49.3394417, 14.1138861], unlocked: false, cost: 6000, passengers: {} },
+            { name: "Letiště Frymburk (LKFRYM)", coords: [48.6987075, 14.1974114], unlocked: false, cost: 6500, passengers: {} },
+            { name: "Letiště Kramolín (LKKRAM)", coords: [48.9150536, 14.7263900], unlocked: false, cost: 4500, passengers: {} },
+             { name: "Letiště Jindřichův Hradec (LKJH)", coords: [49.1507378, 14.9716869], unlocked: false, cost: 7000, passengers: {} },
+            { name: "Letiště Jihlava (LKJI)", coords: [49.4195953, 15.6355003], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Letiště Havlíčkův Brod (LKHB)", coords: [49.5972289, 15.5495428], unlocked: false, cost: 500, passengers: {} },
+             { name: "Letiště Polná (LKPOL)", coords: [49.4841694, 15.6980361], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Letiště Přibyslav (LKPI)", coords: [49.5806167, 15.7630572], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Pardubice (PED)", coords: [50.0167719, 15.7250772], unlocked: false, cost: 5000, passengers: {} },
+             { name: "Letiště Libáň (LKLIBA)", coords: [50.3705144, 15.2011289], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Jičín (LKJC)", coords: [50.4299653, 15.3330481], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Pacov (LKPV)", coords: [49.4183008, 14.9992556], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Chotěboř (LKCT)", coords: [49.6858306, 15.6761083], unlocked: false, cost: 11000, passengers: {} },
+            { name: "Letiště Kejžlice (LKKEJZ)", coords: [49.5919575, 15.4015169], unlocked: false, cost: 9000, passengers: {} },
+             { name: "Letiště Skuteč (LKSK)", coords: [49.8277750, 16.0058306], unlocked: false, cost: 9500, passengers: {} },
+            { name: "Letiště Žamberk (LKZM)", coords: [50.0838861, 16.4438861], unlocked: false, cost: 10000, passengers: {} },
              { name: "Letiště Chomutov (LKCH)", coords: [50.4688861, 13.4680528], unlocked: false, cost: 2500, passengers: {} },
             { name: "Letiště Teplice (LKTEPL)", coords: [50.6208306, 13.8105528], unlocked: false, cost: 12000, passengers: {} },
              { name: "Letiště Ústí nad Labem (LKUL)", coords: [50.6997194, 13.9697194], unlocked: false, cost: 1000, passengers: {} },
@@ -141,29 +424,29 @@
              { name: "Letiště Kříženec (LKKRIZ)", coords: [49.8705556, 12.7725000], unlocked: false, cost: 4000, passengers: {} },
             { name: "Letiště Tachov (LKTD)", coords: [49.7972194, 12.7063861], unlocked: false, cost: 3500, passengers: {} },
             { name: "Letiště Žatec Macerka (LKZD)", coords: [50.3173706, 13.5126497], unlocked: false, cost: 5000, passengers: {} },
-             { name: "Letiště Slaný (LKSN)", coords: [50.2166639, 14.0886083], unlocked: false, cost: 13000, passengers: {} },
+             { name: "Letiště Slaný (LKSN)", coords: [50.2166639, 14.0886083], unlocked: false, cost: 1300, passengers: {} },
             { name: "Letiště Rakovník (LKRK)", coords: [50.0941639, 13.6888861], unlocked: false, cost: 8000, passengers: {} },
             { name: "Letiště Raná (LKRA)", coords: [50.4038861, 13.7519417], unlocked: false, cost: 8500, passengers: {} },
-         { name: "Letiště Praha Letňany (LKLT)", coords: [50.1313861, 14.5255528], unlocked: false, cost: 2000, passengers: {} },
-            { name: "Letiště Praha Točná (LKTC)", coords: [49.9854383, 14.4264211], unlocked: false, cost: 6000, passengers: {} },
+         { name: "Letiště Praha Letňany (LKLT)", coords: [50.1313861, 14.5255528], unlocked: false, cost: 500, passengers: {} },
+            { name: "Letiště Praha Točná (LKTC)", coords: [49.9854383, 14.4264211], unlocked: false, cost: 600, passengers: {} },
             { name: "Letiště Hosín (LKHS)", coords: [49.0399972, 14.4949972], unlocked: false, cost: 6500, passengers: {} },
             { name: "Letiště Strakonice (LKST)", coords: [49.2516639, 13.8927750], unlocked: false, cost: 4500, passengers: {} },
              { name: "Letiště Strunkovice (LKSR)", coords: [49.0824972, 14.0758306], unlocked: false, cost: 7000, passengers: {} },
             { name: "Letiště Blatná (LKBL)", coords: [49.4312472, 13.7996083], unlocked: false, cost: 3000, passengers: {} },
             { name: "Letiště Plzeň Líně (LKLN)", coords: [49.6752750, 13.2744417], unlocked: false, cost: 500, passengers: {} },
              { name: "Letiště Příbram (LKPM)", coords: [49.7199972, 14.1002750], unlocked: false, cost: 4000, passengers: {} },
-            { name: "Letiště Praha Vodochody (LKVO)", coords: [50.2166639, 14.3955528], unlocked: false, cost: 3500, passengers: {} },
+            { name: "Letiště Praha Vodochody (LKVO)", coords: [50.2166639, 14.3955528], unlocked: false, cost: 700, passengers: {} },
             { name: "Letiště Roudnice (LKRO)", coords: [50.4105528, 14.2261083], unlocked: false, cost: 5000, passengers: {} },
              { name: "Letiště Most (LKMO)", coords: [50.5249972, 13.6830528], unlocked: false, cost: 13000, passengers: {} },
-            { name: "Letiště Panenský Týnec (LKPC)", coords: [50.3063861, 13.9341639], unlocked: false, cost: 8000, passengers: {} },
+            { name: "Letiště Panenský Týnec (LKPC)", coords: [50.3063861, 13.9341639], unlocked: false, cost: 1400, passengers: {} },
         { name: "Letiště Velké Poříčí (LKVP)", coords: [50.4677778, 16.2055556], unlocked: false, cost: 3000, passengers: {} },
             { name: "Letiště Vrchlabí (LKVR)", coords: [50.6242864, 15.6465147], unlocked: false, cost: 500, passengers: {} },
              { name: "Letiště Broumov (LKBR)", coords: [50.5616239, 16.3422106], unlocked: false, cost: 4000, passengers: {} },
             { name: "Letiště Liberec (LKLB)", coords: [50.7671272, 15.0230761], unlocked: false, cost: 3500, passengers: {} },
             { name: "Letiště Hradčany (LKHRAD)", coords: [50.6194417, 14.7327750], unlocked: false, cost: 5000, passengers: {} },
              { name: "Letiště Česká Lípa (LKCE)", coords: [50.7095317, 14.5668706], unlocked: false, cost: 13000, passengers: {} },
-            { name: "Letiště Hodkovice (LKHD)", coords: [50.6572194, 15.0777750], unlocked: false, cost: 8000, passengers: {} },
-            { name: "Letiště Mnichovo Hradiště (LKMH)", coords: [50.5399972, 15.0066639], unlocked: false, cost: 8500, passengers: {} },
+            { name: "Letiště Hodkovice (LKHD)", coords: [50.6572194, 15.0777750], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Letiště Mnichovo Hradiště (LKMH)", coords: [50.5399972, 15.0066639], unlocked: false, cost: 1800, passengers: {} },
          { name: "Letiště Podhořany (LKPN)", coords: [49.9391639, 15.5497194], unlocked: false, cost: 13000, passengers: {} },
             { name: "Letiště Chrudim (LKCR)", coords: [49.9354142, 15.7811158], unlocked: false, cost: 8000, passengers: {} },
             { name: "Letiště Hradec Králové (LKHK)", coords: [50.2443344, 15.8461386], unlocked: false, cost: 8500, passengers: {} },
@@ -175,12 +458,12 @@
             { name: "Letiště Milovice (LKMILO)", coords: [50.2379322, 14.9097447], unlocked: false, cost: 1500, passengers: {} },
             { name: "Letiště Mladá Boleslav (LKMB)", coords: [50.3983333, 14.8983333], unlocked: false, cost: 2000, passengers: {} },
             { name: "Letiště Sazená (LKSZ)", coords: [50.3230992, 14.2607631], unlocked: false, cost: 350, passengers: {} },
-            { name: "Letiště Kladno (LKKL)", coords: [50.1127750, 14.0897194], unlocked: false, cost: 350, passengers: {} },
+            { name: "Letiště Kladno (LKKL)", coords: [50.1127750, 14.0897194], unlocked: true, passengers: {} },
             { name: "Letiště Benešov (LKBE)", coords: [49.7408333, 14.6447222], unlocked: false, cost: 350, passengers: {} },
         { name: "Letiště Zbraslavice (LKZB)", coords: [49.8141639, 15.2016639], unlocked: false, cost: 1300, passengers: {} },
             { name: "Letiště Čáslav (LKCV)", coords: [49.9418489, 15.3812369], unlocked: false, cost: 1500, passengers: {} },
          { name: "Letiště Václava Havla Praha (PRG)", coords: [50.1008, 14.2632], unlocked: true, passengers: {} },
-            { name: "Letiště Berlín-Braniborsko(BER)", coords: [52.3667, 13.5033], unlocked: false, cost: 13000, passengers: {} },
+            { name: "Letiště Berlín-Brandenburg (BER)", coords: [52.3667, 13.5033], unlocked: false, cost: 13000, passengers: {} },
             { name: "Letiště Charlese de Gaulla Paříž(CDG)", coords: [49.0097, 2.5479], unlocked: false, cost: 15000, passengers: {} },
             { name: "Letiště Schiphol Amsterdam(AMS)", coords: [52.3105, 4.7683], unlocked: false, cost: 14000, passengers: {} },
             { name: "Letiště Heathrow Londýn(LHR)", coords: [51.4700, -0.4543], unlocked: false, cost: 100, passengers: {} },
@@ -219,24 +502,23 @@
          Dornier: { name: "Dornier 328", capacity: 30, range: 1500, speed: 1000, cost: 10000, icon: planeIcons.Dornier },
         Embraer: { name: "Embraer 175", capacity: 75, range: 2200, speed: 1300, cost: 25000, icon: planeIcons.Embraer },
         medium: { name: "Embraer 195", capacity: 100, range: 2600, speed: 1600, cost: 50000, icon: planeIcons.medium },
-        large: { name: "Velké Letadlo", capacity: 150, range: 5000, speed: 5000, cost: 150000, icon: planeIcons.large },
-        jumbo: { name: "Velkokapacitní Letadlo", capacity: 300, range: 15000, speed: 7500, cost: 500000, icon: planeIcons.jumbo }
+        large: { name: "Boeing 737", capacity: 170, range: 5000, speed: 2000, cost: 150000, icon: planeIcons.large },
+        jumbo: { name: "Airbus 380", capacity: 540, range: 15000, speed: 2500, cost: 500000, icon: planeIcons.jumbo }
     };
 
-    // Function to add airport markers to the map
-    function addAirportMarkers() {
-        airports.forEach(function(airport) {
-            var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
-
-            if (!airport.unlocked) {
-                marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
-            } else {
-                marker.bindPopup(generatePopupContent(airport));
-            }
-
-            airport.marker = marker;
-        });
-    }
+ 
+       // Funkce pro přidání markerů letišť na mapu
+function addAirportMarkers() {
+    airports.forEach(function(airport) {
+        var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
+        if (!airport.unlocked) {
+            marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
+        } else {
+            marker.bindPopup(generateAirportPopupContent(airport));
+        }
+        airport.marker = marker;
+    });
+}
 
     // Function to unlock an airport
     function unlockAirport(name) {
@@ -275,54 +557,83 @@
         return unlockedAirports[randomIndex].name;
     }
 
-    // Function to generate popup content for an airport
-    function generatePopupContent(airport) {
-        var content = "<b>" + airport.name + "</b><br>";
-        for (var destination in airport.passengers) {
-            if (airport.passengers.hasOwnProperty(destination)) {
-                content += destination + ": " + airport.passengers[destination] + "<br>";
+ // Funkce pro vytvoření obsahu pop-up okna letiště
+function generateAirportPopupContent(airport) {
+    var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
+    content += "Pasažéři čekající na odlet:<br>";
+    for (var destination in airport.passengers) {
+        if (airport.passengers[destination] > 0) {
+            content += destination + ": " + airport.passengers[destination] + "<br>";
+        }
+    }
+    content += "</div>";
+    return content;
+}
+// Funkce pro nastavení viditelnosti markerů letišť
+function updateAirportMarkerVisibility() {
+    var currentZoom = map.getZoom();
+    airports.forEach(function(airport) {
+        if (currentZoom > 8) {
+            if (!map.hasLayer(airport.marker)) {
+                map.addLayer(airport.marker);
+            }
+        } else {
+            if (map.hasLayer(airport.marker)) {
+                map.removeLayer(airport.marker);
             }
         }
-        return content;
-    }
+    });
+}
 
-    // Function to update the popup content for an airport
+// Inicializace letišť na mapě
+addAirportMarkers();
+updateAirportMarkerVisibility();
+
+// Přidání listeneru na změnu zoomu mapy
+map.on('zoomend', updateAirportMarkerVisibility);
+
+
     function updatePopupContent(airport) {
-        airport.marker.setPopupContent(generatePopupContent(airport));
-    }
+            var content = generateAirportPopupContent(airport);
+            var popup = airport.marker.getPopup();
+            if (popup) {
+                popup.setContent(content);
+            }
+        }
 
     // Function to buy a plane
-    function buyPlane() {
-        var select = document.getElementById('plane-select');
-        var selectedPlaneType = select.value;
-        var planeType = planeTypes[selectedPlaneType];
+function buyPlane() {
+    var select = document.getElementById('plane-select');
+    var selectedPlaneType = select.value;
+    var planeType = planeTypes[selectedPlaneType];
 
-        if (money >= planeType.cost) {
-            money -= planeType.cost;
-            updateMoneyDisplay();
+    if (money >= planeType.cost) {
+        money -= planeType.cost;
+        updateMoneyDisplay();
 
-            // Create new plane
-            var plane = {
-                type: planeType.name,
-                capacity: planeType.capacity,
-                range: planeType.range,
-                speed: planeType.speed,
-                marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map),
-                passengers: 0,
-                destination: null,
-                inFlight: false,
-                registration: generateRegistration()
-            };
+        // Create new plane
+        var plane = {
+            type: planeType.name,
+            capacity: planeType.capacity,
+            range: planeType.range,
+            speed: planeType.speed,
+            marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map),
+            passengers: 0,
+            destination: null,
+            inFlight: false,
+            registration: generateRegistration(),
+            from: "", // Nově přidáno
+            totalDistance: 0 // Nově přidáno
+        };
 
-            // Bind popup with destination selection to the plane marker
-            plane.marker.bindPopup(generatePlanePopupContent(plane));
+        // Bind popup with destination selection to the plane marker
+        plane.marker.bindPopup(generatePlanePopupContent(plane));
 
-            planes.push(plane);
-        } else {
-            alert("Nemáte dostatek peněz na nákup tohoto letadla!");
-        }
+        planes.push(plane);
+    } else {
+        alert("Nemáte dostatek peněz na nákup tohoto letadla!");
     }
-
+}
     // Function to generate a unique registration number for a plane
     function generateRegistration() {
         var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -333,12 +644,14 @@
         return registration;
     }
 
- function generatePlanePopupContent(plane) {
+function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo: " + plane.registration + "</b><br>";
     content += "Kapacita: " + plane.capacity + "<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
+    content += "Odkud: " + plane.from + "<br>"; // Nově přidáno
     content += "Destinace: " + (plane.destination ? plane.destination : "Žádná") + "<br>";
     content += "Cestující: " + plane.passengers + "<br>";
+    content += "Nalétané kilometry: " + plane.totalDistance.toFixed(2) + " km<br>"; // Nově přidáno
 
     if (!plane.inFlight) {
         content += "<select id='destination-select-" + plane.registration + "'>";
@@ -353,6 +666,8 @@
     }
     return content;
 }
+
+
 
 
    function showPlanePopup(plane) {
@@ -419,30 +734,57 @@ function sendPlane(registration) {
         fromAirport.passengers[destination] -= passengersToLoad;
         updatePopupContent(fromAirport);
 
+        plane.from = fromAirport.name; // Nově přidáno
         plane.destination = destination;
         plane.inFlight = true;
 
         var toAirport = airports.find(a => a.name === destination);
         flyPlane(plane, fromAirport, toAirport);
 
-        showPlanePopup(plane); // Použijeme novou funkci
+        showPlanePopup(plane);
+
+        // Aktualizace celkové vzdálenosti
+        plane.totalDistance += map.distance(L.latLng(fromAirport.coords), L.latLng(toAirport.coords)) / 1000;
     } else {
         alert("Není dostatek pasažérů pro tuto destinaci!");
     }
 }
 
+    function getRandomLockedAirport() {
+    var lockedAirports = airports.filter(function(airport) {
+        return !airport.unlocked;
+    });
+    if (lockedAirports.length === 0) {
+        return null; // Žádné zamčené letiště k dispozici
+    }
+    var randomIndex = Math.floor(Math.random() * lockedAirports.length);
+    return lockedAirports[randomIndex];
+}
+
+    function offerUnlockRandomAirport() {
+    var randomAirport = getRandomLockedAirport();
+    if (randomAirport) {
+        var unlockOffer = confirm("Chcete odemknout letiště " + randomAirport.name + " za " + randomAirport.cost + " Kč?");
+        if (unlockOffer) {
+            unlockAirport(randomAirport.name);
+        }
+    }
+}
+// Interval pro nabídnutí odemknutí letiště každých 5 minut (300000 ms)
+setInterval(offerUnlockRandomAirport, 60000);
 
 
- function flyPlane(plane, fromAirport, toAirport) {
+
+function flyPlane(plane, fromAirport, toAirport) {
     var planeMarker = plane.marker;
     var fromLatLng = L.latLng(fromAirport.coords);
     var toLatLng = L.latLng(toAirport.coords);
 
     var planePath = [fromLatLng, toLatLng];
-    var polyline = L.polyline(planePath, { color: 'blue' }).addTo(map);
+    var polyline = L.polyline(planePath, { color: '#0000FF00' }).addTo(map);
 
     var currentStep = 0;
-    var totalSteps = 1000;
+    var totalSteps = 5000;
     var distance = map.distance(fromLatLng, toLatLng) / 1000; // in kilometers
     var travelTime = (distance / plane.speed) * 3600 * 1000; // in milliseconds
     var stepInterval = travelTime / totalSteps;
@@ -451,20 +793,23 @@ function sendPlane(registration) {
         if (currentStep >= totalSteps) {
             clearInterval(flightInterval);
             map.removeLayer(polyline);
-            plane.marker.setLatLng(toLatLng);
+            planeMarker.setLatLng(toLatLng);
             plane.inFlight = false;
 
             // Calculate earnings
             var earnings = distance * 3 * plane.passengers;
             money += Math.round(earnings);
             updateMoneyDisplay();
-            
+
+            // Add flown distance to plane
+            plane.distanceFlown = (plane.distanceFlown || 0) + distance;
+
             plane.passengers = 0;
-            showPlanePopup(plane); // Použijeme novou funkci
+            showPlanePopup(plane);
 
             // Update destination airport's popup content
             updatePopupContent(toAirport);
-            
+
             // Re-check for automation after flight completion
             if (plane.automated) {
                 setTimeout(() => automateFlight(plane), 5000); // Adjust delay as needed
@@ -483,11 +828,10 @@ function sendPlane(registration) {
 
 
 
-
     // Initial setup
     updateMoneyDisplay();
     addAirportMarkers();
-    setInterval(generatePassengers, 2000); // Generate passengers every minute
+    setInterval(generatePassengers, 30); // Generate passengers every minute
 </script>
 
 
