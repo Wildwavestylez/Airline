@@ -796,12 +796,15 @@ function flyPlane(plane, fromAirport, toAirport) {
             var earnings = distance * 3 * plane.passengers;
             money += Math.round(earnings);
             updateMoneyDisplay();
-
+            
             plane.passengers = 0;
             showPlanePopup(plane);
 
             // Update destination airport's popup content
             updatePopupContent(toAirport);
+            
+            // Update distance flown
+            plane.distanceFlown += distance;
 
             // Re-check for automation after flight completion
             if (plane.automated) {
@@ -816,12 +819,8 @@ function flyPlane(plane, fromAirport, toAirport) {
         );
         planeMarker.setLatLng(currentLatLng);
         currentStep++;
-
-        // Update distance flown
-        plane.distanceFlown = distance * (currentStep / totalSteps);
     }, stepInterval);
 }
-
 
 
 
