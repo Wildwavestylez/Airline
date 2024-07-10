@@ -789,22 +789,22 @@ function flyPlane(plane, fromAirport, toAirport) {
         if (currentStep >= totalSteps) {
             clearInterval(flightInterval);
             map.removeLayer(polyline);
-            plane.marker.setLatLng(toLatLng);
+            planeMarker.setLatLng(toLatLng);
             plane.inFlight = false;
 
             // Calculate earnings
             var earnings = distance * 3 * plane.passengers;
             money += Math.round(earnings);
             updateMoneyDisplay();
-            
+
+            // Add flown distance to plane
+            plane.distanceFlown = (plane.distanceFlown || 0) + distance;
+
             plane.passengers = 0;
             showPlanePopup(plane);
 
             // Update destination airport's popup content
             updatePopupContent(toAirport);
-            
-            // Update distance flown
-            plane.distanceFlown += distance;
 
             // Re-check for automation after flight completion
             if (plane.automated) {
