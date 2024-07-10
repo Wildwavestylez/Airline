@@ -156,7 +156,7 @@
             { name: "Husinec", coords: [49.0536725, 13.9866311], unlocked: false, cost: 8000, passengers: {} },
             { name: "Prachatice", coords: [49.0127181, 13.9977350], unlocked: false, cost: 8500, passengers: {} },
             { name: "Bavorov", coords: [49.1216594, 14.0783811], unlocked: false, cost: 1500, passengers: {} },
-             { name: "Malenice", coords: [49.1261628, 13.8826925], unlocked: false, cost: 1300, passengers: {} },
+             { name: "Malenice", coords: [49.1261628, 13.8826925], unlocked: false, cost: 800, passengers: {} },
             { name: "Předslavice", coords: [49.1327172, 13.9356986], unlocked: false, cost: 15000, passengers: {} },
             { name: "Strunkovice nad Blanicí", coords: [49.0823097, 14.0574017], unlocked: false, cost: 14000, passengers: {} },
             { name: "Netolice", coords: [49.0489844, 14.1959831], unlocked: false, cost: 100, passengers: {} },
@@ -164,16 +164,16 @@
             { name: "Nahořany", coords: [49.1410406, 13.8292858], unlocked: false, cost: 100, passengers: {} },
             { name: "Chvalšovice", coords: [49.1431847, 13.7581758], unlocked: false, cost: 200, passengers: {} },
             { name: "Dřešín", coords: [49.1608697, 13.7759369], unlocked: false, cost: 2500, passengers: {} },
-            { name: "Letiště Lochousice (LKLOCH)", coords: [49.6750881, 13.0986822], unlocked: false, cost: 12000, passengers: {} },
-             { name: "Letiště Lomnice nad Popelkou (LKLOMN)", coords: [50.5399972, 15.3880528], unlocked: false, cost: 1000, passengers: {} },
-            { name: "Letiště Loučeň (LKLOUC)", coords: [50.2791667, 15.0611111], unlocked: false, cost: 2000, passengers: {} },
-            { name: "Letiště Miroslav (LKMIRO))", coords: [48.9313861, 16.2986083], unlocked: false, cost: 6000, passengers: {} },
-            { name: "Letiště Místek (LKMIST)", coords: [49.6511611, 18.3464306], unlocked: false, cost: 6500, passengers: {} },
-            { name: "Letiště Moravský Beroun (LKMBER)", coords: [49.7860806, 17.4862194], unlocked: false, cost: 4500, passengers: {} },
-             { name: "Letiště Žihobce (LKNAPA)", coords: [49.1987583, 13.5999778], unlocked: false, cost: 7000, passengers: {} },
-            { name: "Letiště Nová Včelnice (LKNVCE)", coords: [49.2672222, 15.0777778], unlocked: false, cost: 3000, passengers: {} },
-            { name: "Letiště Nučice (LKNUCI)", coords: [49.9511083, 14.8702472], unlocked: false, cost: 500, passengers: {} },
-             { name: "Letiště Ostrov (LKOSTR)", coords: [50.3365389, 12.9697650], unlocked: false, cost: 4000, passengers: {} },
+            { name: "Dolany", coords: [49.1162833, 13.8008289], unlocked: false, cost: 800, passengers: {} },
+             { name: "Horosedly", coords: [49.1248406, 13.7910050], unlocked: false, cost: 1000, passengers: {} },
+            { name: "Onšovice", coords: [49.1110000, 13.7748050], unlocked: false, cost: 1400, passengers: {} },
+            { name: "Žár", coords: [49.1156156, 13.7623419], unlocked: false, cost: 2000, passengers: {} },
+            { name: "Nespice", coords: [49.1168206, 13.7463964], unlocked: false, cost: 2200, passengers: {} },
+            { name: "Čábuze", coords: [49.1148056, 13.7117250], unlocked: false, cost: 2500, passengers: {} },
+             { name: "Spůle", coords: [49.1050342, 13.7934306], unlocked: false, cost: 700, passengers: {} },
+            { name: "Zdíkov", coords: [49.0844122, 13.6968017], unlocked: false, cost: 3000, passengers: {} },
+            { name: "Zdíkovec", coords: [49.0967814, 13.6894622], unlocked: false, cost: 500, passengers: {} },
+             { name: "Stachy", coords: [49.1017000, 13.6665489], unlocked: false, cost: 4000, passengers: {} },
             { name: "Letiště Pěnčín (LKPENC)", coords: [49.5684422, 16.9988292], unlocked: false, cost: 3500, passengers: {} },
             { name: "Letiště Plešnice (LKPLES)", coords: [49.7720156, 13.1611750], unlocked: false, cost: 5000, passengers: {} },
              { name: "Letiště Polepy (LKPOLE)", coords: [50.5203831, 14.2724144], unlocked: false, cost: 13000, passengers: {} },
@@ -771,7 +771,7 @@ function sendPlane(registration) {
     }
 }
 // Interval pro nabídnutí odemknutí letiště každých 5 minut (300000 ms)
-setInterval(offerUnlockRandomAirport, 60000);
+setInterval(offerUnlockRandomAirport, 300000);
 
 
 
