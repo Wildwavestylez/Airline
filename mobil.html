@@ -549,13 +549,13 @@ function addAirportMarkers() {
         });
     }
 
-    // Function to get a random destination from the unlocked airports
-    function getRandomDestination(exclude) {
-        var unlockedAirports = airports.filter(a => a.unlocked && a.name !== exclude);
-        if (unlockedAirports.length === 0) return "Žádná dostupná destinace";
-        var randomIndex = Math.floor(Math.random() * unlockedAirports.length);
-        return unlockedAirports[randomIndex].name;
-    }
+    // Funkce pro získání náhodné destinace z odemčených letišť
+function getRandomDestination(exclude) {
+    var unlockedAirports = airports.filter(a => a.unlocked && a.name !== exclude);
+    if (unlockedAirports.length === 0) return "Žádná dostupná destinace";
+    var randomIndex = Math.floor(Math.random() * unlockedAirports.length);
+    return unlockedAirports[randomIndex].name;
+}
 
  // Funkce pro vytvoření obsahu pop-up okna letiště
 function generateAirportPopupContent(airport) {
