@@ -683,17 +683,14 @@ function toggleAutoFly(planeId) {
 }
 
 
-
 function autoFlyPlane(plane) {
     if (!plane.autoFly) return;
 
-    var randomAirport;
-    do {
-        randomAirport = getRandomUnlockedAirport();
-    } while (randomAirport.name === plane.currentLocation);
+    var randomDestination = getRandomDestination(plane.currentLocation);
+    if (randomDestination === "Žádná dostupná destinace") return;
 
     plane.from = plane.currentLocation;
-    plane.to = randomAirport.name;
+    plane.to = randomDestination;
 
     flyPlane(plane.id);
 
