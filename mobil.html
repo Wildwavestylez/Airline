@@ -602,37 +602,37 @@ map.on('zoomend', updateAirportMarkerVisibility);
         }
 
     // Function to buy a plane
-    function buyPlane() {
-        var select = document.getElementById('plane-select');
-        var selectedPlaneType = select.value;
-        var planeType = planeTypes[selectedPlaneType];
+   function buyPlane() {
+    var select = document.getElementById('plane-select');
+    var selectedPlaneType = select.value;
+    var planeType = planeTypes[selectedPlaneType];
 
-        if (money >= planeType.cost) {
-            money -= planeType.cost;
-            updateMoneyDisplay();
+    if (money >= planeType.cost) {
+        money -= planeType.cost;
+        updateMoneyDisplay();
 
-            // Create new plane
-            var plane = {
-                type: planeType.name,
-                capacity: planeType.capacity,
-                range: planeType.range,
-                speed: planeType.speed,
-                marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map),
-                passengers: 0,
-                destination: null,
-                inFlight: false,
-                registration: generateRegistration()
-            };
+        // Create new plane
+        var plane = {
+            type: planeType.name,
+            capacity: planeType.capacity,
+            range: planeType.range,
+            speed: planeType.speed,
+            marker: L.marker([50.1008, 14.2632], { icon: planeType.icon }).addTo(map),
+            passengers: 0,
+            destination: null,
+            inFlight: false,
+            registration: generateRegistration(),
+            distanceFlown: 0 // Inicializace distanceFlown
+        };
 
-            // Bind popup with destination selection to the plane marker
-            plane.marker.bindPopup(generatePlanePopupContent(plane));
+        // Bind popup with destination selection to the plane marker
+        plane.marker.bindPopup(generatePlanePopupContent(plane));
 
-            planes.push(plane);
-        } else {
-            alert("Nemáte dostatek peněz na nákup tohoto letadla!");
-        }
+        planes.push(plane);
+    } else {
+        alert("Nemáte dostatek peněz na nákup tohoto letadla!");
     }
-
+}
     // Function to generate a unique registration number for a plane
     function generateRegistration() {
         var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -647,10 +647,10 @@ function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo: " + plane.registration + "</b><br>";
     content += "Kapacita: " + plane.capacity + "<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
-    content += "Místo odkud letadlo startovalo: " + plane.origin + "<br>"; // Nově přidané
+    content += "Místo odkud letadlo startovalo: " + plane.origin + "<br>";
     content += "Destinace: " + (plane.destination ? plane.destination : "Žádná") + "<br>";
     content += "Cestující: " + plane.passengers + "<br>";
-    content += "Nalétané kilometry: " + plane.distanceFlown.toFixed(2) + " km<br>"; // Nově přidané
+    content += "Nalétané kilometry: " + (plane.distanceFlown ? plane.distanceFlown.toFixed(2) : "0.00") + " km<br>";
 
     if (!plane.inFlight) {
         content += "<select id='destination-select-" + plane.registration + "'>";
