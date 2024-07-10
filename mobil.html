@@ -622,7 +622,8 @@ function buyPlane() {
             destination: null,
             inFlight: false,
             registration: generateRegistration(),
-            distanceFlown: 0  // Initialize distanceFlown to 0
+            from: "", // Nově přidáno
+            totalDistance: 0 // Nově přidáno
         };
 
         // Bind popup with destination selection to the plane marker
@@ -647,10 +648,10 @@ function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo: " + plane.registration + "</b><br>";
     content += "Kapacita: " + plane.capacity + "<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
-    content += "Místo odkud letadlo startovalo: " + plane.origin + "<br>";
+    content += "Odkud: " + plane.from + "<br>"; // Nově přidáno
     content += "Destinace: " + (plane.destination ? plane.destination : "Žádná") + "<br>";
     content += "Cestující: " + plane.passengers + "<br>";
-    content += "Nalétané kilometry: " + (plane.distanceFlown ? plane.distanceFlown.toFixed(2) : "0.00") + " km<br>";
+    content += "Nalétané kilometry: " + plane.totalDistance.toFixed(2) + " km<br>"; // Nově přidáno
 
     if (!plane.inFlight) {
         content += "<select id='destination-select-" + plane.registration + "'>";
@@ -665,6 +666,7 @@ function generatePlanePopupContent(plane) {
     }
     return content;
 }
+
 
 
 
@@ -725,22 +727,24 @@ function sendPlane(registration) {
     var destination = select ? select.value : plane.destination; // Use selected value or plane's current destination
 
     var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
-    
+
     if (plane && fromAirport.passengers[destination] > 0) {
         var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
         plane.passengers = passengersToLoad;
         fromAirport.passengers[destination] -= passengersToLoad;
         updatePopupContent(fromAirport);
 
-        plane.origin = fromAirport.name; // Nově přidané
+        plane.from = fromAirport.name; // Nově přidáno
         plane.destination = destination;
         plane.inFlight = true;
-        plane.distanceFlown = 0; // Nově přidané
 
         var toAirport = airports.find(a => a.name === destination);
         flyPlane(plane, fromAirport, toAirport);
 
         showPlanePopup(plane);
+
+        // Aktualizace celkové vzdálenosti
+        plane.totalDistance += map.distance(L.latLng(fromAirport.coords), L.latLng(toAirport.coords)) / 1000;
     } else {
         alert("Není dostatek pasažérů pro tuto destinaci!");
     }
