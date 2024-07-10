@@ -662,7 +662,8 @@ function generatePlanePopupContent(plane) {
         });
         content += "</select><br>";
         content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button><br>";
-        content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Zastavit" : "Automatizovat") + "</button>";
+        content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Zastavit" : "Automatizovat") + "</button><br>";
+        content += "<button onclick='toggleCleaningMode(\"" + plane.registration + "\")'>" + (plane.cleaningMode ? "Zastavit Cleaning Mode" : "Cleaning Mode") + "</button>"; // Nově přidáno
     }
     return content;
 }
@@ -683,6 +684,9 @@ function toggleAutomation(registration) {
     var plane = planes.find(p => p.registration === registration);
     if (plane) {
         plane.automated = !plane.automated;
+        if (plane.cleaningMode && plane.automated) {
+            plane.cleaningMode = false;
+        }
         plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
 
         if (plane.automated && !plane.inFlight) {
@@ -691,8 +695,23 @@ function toggleAutomation(registration) {
     }
 }
 
+    function toggleCleaningMode(registration) {
+    var plane = planes.find(p => p.registration === registration);
+    if (plane) {
+        plane.cleaningMode = !plane.cleaningMode;
+        if (plane.automated && plane.cleaningMode) {
+            plane.automated = false;
+        }
+        plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
+
+        if (plane.cleaningMode && !plane.inFlight) {
+            automateCleaningFlight(plane);
+        }
+    }
+}
+
 function automateFlight(plane) {
-    if (!plane.automated || plane.inFlight) return;
+    if (!plane.automated || plane.inFlight || plane.cleaningMode) return;
 
     var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
 
@@ -715,6 +734,39 @@ function automateFlight(plane) {
             setTimeout(() => automateFlight(plane), 5000); // Adjust delay as needed
         }
     });
+}
+
+function automateCleaningFlight(plane) {
+    if (!plane.cleaningMode || plane.inFlight || plane.automated) return;
+
+    var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+    var maxPassengerDestination = getMaxPassengerDestination(fromAirport);
+
+    if (maxPassengerDestination) {
+        plane.destination = maxPassengerDestination;
+        sendPlane(plane.registration);
+    }
+
+    // Recheck for cleaning mode after flight
+    plane.marker.on('popupopen', function() {
+        if (plane.cleaningMode && !plane.inFlight) {
+            setTimeout(() => automateCleaningFlight(plane), 5000); // Adjust delay as needed
+        }
+    });
+}
+
+function getMaxPassengerDestination(fromAirport) {
+    var maxPassengers = 0;
+    var maxDestination = null;
+
+    for (var destination in fromAirport.passengers) {
+        if (fromAirport.passengers[destination] > maxPassengers) {
+            maxPassengers = fromAirport.passengers[destination];
+            maxDestination = destination;
+        }
+    }
+
+    return maxDestination;
 }
 
 
