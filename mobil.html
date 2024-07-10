@@ -602,7 +602,7 @@ map.on('zoomend', updateAirportMarkerVisibility);
         }
 
     // Function to buy a plane
-   function buyPlane() {
+function buyPlane() {
     var select = document.getElementById('plane-select');
     var selectedPlaneType = select.value;
     var planeType = planeTypes[selectedPlaneType];
@@ -622,7 +622,7 @@ map.on('zoomend', updateAirportMarkerVisibility);
             destination: null,
             inFlight: false,
             registration: generateRegistration(),
-            distanceFlown: 0 // Inicializace distanceFlown
+            distanceFlown: 0  // Initialize distanceFlown to 0
         };
 
         // Bind popup with destination selection to the plane marker
