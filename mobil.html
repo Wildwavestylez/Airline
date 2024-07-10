@@ -643,7 +643,7 @@ map.on('zoomend', updateAirportMarkerVisibility);
         return registration;
     }
 
- ffunction generatePlanePopupContent(plane) {
+ function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo " + plane.id + " (" + plane.type + ")</b><br>";
     content += "Kapacita: " + plane.capacity + "<br>";
     content += "Dolet: " + plane.range + " km<br>";
