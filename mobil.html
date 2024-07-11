@@ -681,6 +681,7 @@ function generatePlanePopupContent(plane) {
 
 
 
+
 function toggleAutomation(registration) {
     var plane = planes.find(p => p.registration === registration);
     if (plane) {
@@ -767,7 +768,7 @@ function sendPlane(registration) {
         var toAirport = airports.find(a => a.name === destination);
         flyPlane(plane, fromAirport, toAirport);
 
-        showPlanePopup(plane);
+        showPlanePopup(plane); // Zavolání funkce pro zobrazení pop-up okna
 
         // Aktualizace celkové vzdálenosti
         plane.totalDistance += map.distance(L.latLng(fromAirport.coords), L.latLng(toAirport.coords)) / 1000;
@@ -784,6 +785,7 @@ function sendPlane(registration) {
         alert("Není dostatek pasažérů pro tuto destinaci!");
     }
 }
+
 
 
 // Nová funkce pro nalezení destinace s nejvíce čekajícími pasažéry
