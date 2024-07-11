@@ -712,11 +712,12 @@ function toggleCleaningMode(registration) {
     }
 }
 
-    function findAirportWithMostPassengers() {
+    function findAirportWithMostPassengers(currentAirport) {
     var airportWithMostPassengers = null;
     var maxPassengers = 0;
+
     airports.forEach(function(airport) {
-        if (airport.unlocked) {
+        if (airport.unlocked && airport.name !== currentAirport.name) {
             var totalPassengers = Object.values(airport.passengers).reduce((sum, num) => sum + num, 0);
             if (totalPassengers > maxPassengers) {
                 maxPassengers = totalPassengers;
@@ -724,24 +725,18 @@ function toggleCleaningMode(registration) {
             }
         }
     });
+
     return airportWithMostPassengers;
 }
 
 function automateFlight(plane) {
     if (!plane.automated || plane.inFlight) return;
 
-    var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
-
-    // Remove the last destination from the list of available airports if there are more than 1 available
-    if (availableAirports.length > 1 && plane.destination) {
-        availableAirports = availableAirports.filter(a => a.name !== plane.destination);
-    }
-
+    var availableAirports = airports.filter(a => a.unlocked && a.name !== plane.from);
     if (availableAirports.length > 0) {
         var randomIndex = Math.floor(Math.random() * availableAirports.length);
         var randomDestination = availableAirports[randomIndex].name;
         plane.destination = randomDestination;
-
         sendPlane(plane.registration);
     }
 
@@ -752,15 +747,14 @@ function automateFlight(plane) {
         }
     });
 }
-
     // Function for cleaning mode flight
 function cleaningFlight(plane) {
     if (!plane.cleaningMode || plane.inFlight) return;
 
     var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
-    var airportWithMostPassengers = findAirportWithMostPassengers();
+    var airportWithMostPassengers = findAirportWithMostPassengers(fromAirport);
 
-    if (airportWithMostPassengers && airportWithMostPassengers !== fromAirport) {
+    if (airportWithMostPassengers) {
         plane.destination = airportWithMostPassengers.name;
         sendPlane(plane.registration);
     }
