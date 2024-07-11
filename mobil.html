@@ -742,10 +742,16 @@ function automateFlight(plane) {
    // Update sendPlane function to account for automation
 function sendPlane(registration) {
     var plane = planes.find(p => p.registration === registration);
-    var select = document.getElementById('destination-select-' + registration);
-    var destination = select ? select.value : plane.destination; // Use selected value or plane's current destination
-
     var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+
+    // Získání destinace na základě režimu
+    var destination;
+    if (plane.cleaningMode) {
+        destination = findBusiestDestination(fromAirport);
+    } else {
+        var select = document.getElementById('destination-select-' + registration);
+        destination = select ? select.value : plane.destination;
+    }
 
     if (plane && fromAirport.passengers[destination] > 0) {
         var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
@@ -769,17 +775,19 @@ function sendPlane(registration) {
     }
 }
 
+
 // Nová funkce pro nalezení destinace s nejvíce čekajícími pasažéry
 function findBusiestDestinationAndSend(plane) {
     var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
     if (fromAirport) {
-        var busiestDestination = Object.keys(fromAirport.passengers).reduce((a, b) => fromAirport.passengers[a] > fromAirport.passengers[b] ? a : b, null);
+        var busiestDestination = findBusiestDestination(fromAirport);
         if (busiestDestination) {
             plane.destination = busiestDestination;
             sendPlane(plane.registration);
         }
     }
 }
+
 
     function getRandomLockedAirport() {
     var lockedAirports = airports.filter(function(airport) {
