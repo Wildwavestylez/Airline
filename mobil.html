@@ -771,6 +771,15 @@ function sendPlane(registration) {
 
         // Aktualizace celkové vzdálenosti
         plane.totalDistance += map.distance(L.latLng(fromAirport.coords), L.latLng(toAirport.coords)) / 1000;
+
+        // Automatizace letu po přistání
+        plane.marker.on('popupopen', function() {
+            if (plane.cleaningMode && !plane.inFlight) {
+                setTimeout(function() {
+                    findBusiestDestinationAndSend(plane);
+                }, 5000); // Maximální prodleva 5 sekund
+            }
+        });
     } else {
         alert("Není dostatek pasažérů pro tuto destinaci!");
     }
@@ -797,6 +806,13 @@ function findBusiestDestinationAndSend(plane) {
         if (busiestDestination) {
             plane.destination = busiestDestination;
             sendPlane(plane.registration);
+
+            // Naplánování dalšího letu po 5 sekundách
+            setTimeout(function() {
+                if (plane.cleaningMode && !plane.inFlight) {
+                    findBusiestDestinationAndSend(plane);
+                }
+            }, 5000);
         }
     }
 }
