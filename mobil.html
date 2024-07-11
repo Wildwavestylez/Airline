@@ -688,9 +688,7 @@ function toggleAutomation(registration) {
     var plane = planes.find(p => p.registration === registration);
     if (plane) {
         plane.automated = !plane.automated;
-        if (plane.cleaningMode && plane.automated) {
-            plane.cleaningMode = false;
-        }
+        plane.cleaningMode = false;
         plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
 
         if (plane.automated && !plane.inFlight) {
@@ -699,27 +697,26 @@ function toggleAutomation(registration) {
     }
 }
 
+
     function toggleCleaningMode(registration) {
     var plane = planes.find(p => p.registration === registration);
     if (plane) {
         plane.cleaningMode = !plane.cleaningMode;
-        if (plane.automated && plane.cleaningMode) {
-            plane.automated = false;
-        }
+        plane.automated = false;
         plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
 
         if (plane.cleaningMode && !plane.inFlight) {
-            automateCleaningFlight(plane);
+            activateCleaningMode(plane);
         }
     }
 }
 
+
 function automateFlight(plane) {
-    if (!plane.automated || plane.inFlight || plane.cleaningMode) return;
+    if (!plane.automated || plane.inFlight) return;
 
     var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
 
-    // Remove the last destination from the list of available airports if there are more than 1 available
     if (availableAirports.length > 1 && plane.destination) {
         availableAirports = availableAirports.filter(a => a.name !== plane.destination);
     }
@@ -732,32 +729,40 @@ function automateFlight(plane) {
         sendPlane(plane.registration);
     }
 
-    // Recheck for automation after flight
     plane.marker.on('popupopen', function() {
         if (plane.automated && !plane.inFlight) {
-            setTimeout(() => automateFlight(plane), 5000); // Adjust delay as needed
+            setTimeout(() => automateFlight(plane), 5000);
         }
     });
 }
 
-function automateCleaningFlight(plane) {
-    if (!plane.cleaningMode || plane.inFlight || plane.automated) return;
+function activateCleaningMode(plane) {
+    if (!plane.cleaningMode || plane.inFlight) return;
 
-    var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
-    var maxPassengerDestination = getMaxPassengerDestination(fromAirport);
+    var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
+    if (availableAirports.length > 1 && plane.destination) {
+        availableAirports = availableAirports.filter(a => a.name !== plane.destination);
+    }
 
-    if (maxPassengerDestination) {
-        plane.destination = maxPassengerDestination;
+    if (availableAirports.length > 0) {
+        var airportWithMostPassengers = availableAirports.reduce((maxAirport, currentAirport) => {
+            var maxPassengers = Object.values(maxAirport.passengers).reduce((a, b) => a + b, 0);
+            var currentPassengers = Object.values(currentAirport.passengers).reduce((a, b) => a + b, 0);
+            return currentPassengers > maxPassengers ? currentAirport : maxAirport;
+        });
+
+        plane.destination = airportWithMostPassengers.name;
+
         sendPlane(plane.registration);
     }
 
-    // Recheck for cleaning mode after flight
     plane.marker.on('popupopen', function() {
         if (plane.cleaningMode && !plane.inFlight) {
-            setTimeout(() => automateCleaningFlight(plane), 5000); // Adjust delay as needed
+            setTimeout(() => activateCleaningMode(plane), 5000);
         }
     });
 }
+
 
 function getMaxPassengerDestination(fromAirport) {
     var maxPassengers = 0;
