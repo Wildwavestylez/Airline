@@ -661,6 +661,7 @@ function generatePlanePopupContent(plane) {
             }
         });
         content += "</select><br>";
+           content += "<div style='display: flex; justify-content: space-between;'>"; // Flexbox container for buttons
         content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button><br>";
         content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Zastavit" : "Automatizovat") + "</button><br>";
         content += "<button onclick='toggleCleaningMode(\"" + plane.registration + "\")'>" + (plane.cleaningMode ? "Zastavit" : "Cleaning Mode") + "</button>";
