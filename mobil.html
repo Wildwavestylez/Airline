@@ -512,7 +512,7 @@
  
        // Funkce pro přidání markerů letišť na mapu
 function addAirportMarkers() {
-    airports.forEach(function(airport) {
+    airports.forEach(function (airport) {
         var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
         if (!airport.unlocked) {
             marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
@@ -524,17 +524,18 @@ function addAirportMarkers() {
 }
 
     // Function to unlock an airport
-    function unlockAirport(name) {
-        var airport = airports.find(a => a.name === name);
-        if (money >= airport.cost) {
-            money -= airport.cost;
-            airport.unlocked = true;
-            updateMoneyDisplay();
-            airport.marker.bindPopup(generatePopupContent(airport)).openPopup();
-        } else {
-            alert("Nemáte dostatek peněz k odemknutí tohoto letiště!");
-        }
+    // Function to unlock an airport
+function unlockAirport(name) {
+    var airport = airports.find(a => a.name === name);
+    if (money >= airport.cost) {
+        money -= airport.cost;
+        airport.unlocked = true;
+        updateMoneyDisplay();
+        airport.marker.bindPopup(generateAirportPopupContent(airport)).openPopup();
+    } else {
+        alert("Nemáte dostatek peněz k odemknutí tohoto letiště!");
     }
+}
 
     // Function to generate passengers
     function generatePassengers() {
@@ -560,6 +561,7 @@ function addAirportMarkers() {
         return unlockedAirports[randomIndex].name;
     }
 
+// Funkce pro vytvoření obsahu pop-up okna letiště
 function generateAirportPopupContent(airport) {
     // Seřazení destinací podle počtu čekajících cestujících
     var sortedDestinations = Object.entries(airport.passengers)
@@ -602,6 +604,7 @@ var css = `
 var style = document.createElement('style');
 style.appendChild(document.createTextNode(css));
 document.head.appendChild(style);
+
 
 // Funkce pro nastavení viditelnosti markerů letišť
 function updateAirportMarkerVisibility() {
