@@ -575,7 +575,8 @@ function generateAirportPopupContent(airport) {
     var remainingDestinations = sortedDestinations.slice(6)
         .map(entry => `${entry[0]}: ${entry[1]} cestujících`);
 
-    var content = `<div class='popup-scroll'><b>Letiště: ${airport.name}</b><br>`;
+    // Set the max height of the popup and make it scrollable if necessary
+    content = '<div style="max-height: 200px; overflow-y: auto;">' + content + '</div>';<b>Letiště: ${airport.name}</b><br>`;
     content += "Pasažéři čekající na odlet:<br>";
     content += displayedDestinations.join('<br>');
 
