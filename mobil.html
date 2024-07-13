@@ -563,48 +563,28 @@ function unlockAirport(name) {
 
 // Funkce pro vytvoření obsahu pop-up okna letiště
 function generateAirportPopupContent(airport) {
-    // Seřazení destinací podle počtu čekajících cestujících
-    var sortedDestinations = Object.entries(airport.passengers)
-        .sort((a, b) => b[1] - a[1]);
-
-    // Omezení zobrazení na prvních 6 až 7 destinací
-    var displayedDestinations = sortedDestinations.slice(0, 6)
-        .map(entry => `${entry[0]}: ${entry[1]} cestujících`);
-
-    // Zbytek destinací přidáme jako další položky se scrollováním
-    var remainingDestinations = sortedDestinations.slice(6)
-        .map(entry => `${entry[0]}: ${entry[1]} cestujících`);
-
-    // Set the max height of the popup and make it scrollable if necessary
-    content = '<div style="max-height: 200px; overflow-y: auto;">' + content + '</div>';<b>Letiště: ${airport.name}</b><br>`;
+    var content = "<div style='max-height: 200px; overflow-y: auto;'><b>Letiště: " + airport.name + "</b><br>";
     content += "Pasažéři čekající na odlet:<br>";
-    content += displayedDestinations.join('<br>');
 
-    if (remainingDestinations.length > 0) {
-        content += `<div class='extra-destinations'>${remainingDestinations.join('<br>')}</div>`;
-    }
+    // Get destinations and sort by the number of waiting passengers
+    var destinations = Object.keys(airport.passengers)
+        .map(function(destination) {
+            return {
+                name: destination,
+                count: airport.passengers[destination]
+            };
+        })
+        .sort(function(a, b) {
+            return b.count - a.count;
+        });
+
+    destinations.forEach(function(dest) {
+        content += dest.name + ": " + dest.count + "<br>";
+    });
 
     content += "</div>";
     return content;
 }
-
-// Přidáme CSS pro scrollování do pop-up okna
-var css = `
-.popup-scroll {
-    max-height: 200px; /* Adjust as needed */
-    overflow-y: auto;
-}
-.extra-destinations {
-    max-height: 100px; /* Adjust as needed */
-    overflow-y: auto;
-    margin-top: 10px;
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-}
-`;
-var style = document.createElement('style');
-style.appendChild(document.createTextNode(css));
-document.head.appendChild(style);
 
 
 // Funkce pro nastavení viditelnosti markerů letišť
@@ -631,18 +611,57 @@ updateAirportMarkerVisibility();
 map.on('zoomend', updateAirportMarkerVisibility);
 
 
-    function updatePopupContent(airport) {
-    var popupContent = `<b>${airport.name}</b><br>`;
+  function updatePopupContent(airport) {
+    // Get the popup for the airport marker
+    var popup = airport.marker.getPopup();
 
-    // Seřazení destinací podle počtu čekajících cestujících
-    var sortedDestinations = Object.entries(airport.passengers)
-        .sort((a, b) => b[1] - a[1])
-        .map(entry => `<br>${entry[0]}: ${entry[1]} cestujících`);
+    // If there's no popup, create it
+    if (!popup) {
+        popup = L.popup();
+        airport.marker.bindPopup(popup);
+    }
 
-    popupContent += sortedDestinations.join('');
+    // Generate the popup content
+    var content = '<b>' + airport.name + '</b><br>';
+    content += 'Čekající cestující:<br>';
 
-    airport.marker.bindPopup(popupContent);
+    // Get destinations and sort by the number of waiting passengers
+    var destinations = Object.keys(airport.passengers)
+        .map(function(destination) {
+            return {
+                name: destination,
+                count: airport.passengers[destination]
+            };
+        })
+        .sort(function(a, b) {
+            return b.count - a.count;
+        });
+
+    destinations.forEach(function(dest) {
+        content += dest.name + ': ' + dest.count + '<br>';
+    });
+
+    // Set the max height of the popup and make it scrollable if necessary
+    content = '<div style="max-height: 200px; overflow-y: auto;">' + content + '</div>';
+
+    // Update the popup content
+    popup.setContent(content);
+
+    // Open the popup to update its content
+    airport.marker.openPopup();
 }
+
+function updatePassengersCount(airport, destination, count) {
+    airport.passengers[destination] = count;
+    updatePopupContent(airport); // Aktualizace obsahu pop-up okna
+}
+
+    airports.forEach(function(airport) {
+    airport.marker.on('popupopen', function() {
+        updatePopupContent(airport);
+    });
+});
+
 
 
     // Function to buy a plane
