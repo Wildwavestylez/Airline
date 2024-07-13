@@ -594,12 +594,18 @@ map.on('zoomend', updateAirportMarkerVisibility);
 
 
     function updatePopupContent(airport) {
-            var content = generateAirportPopupContent(airport);
-            var popup = airport.marker.getPopup();
-            if (popup) {
-                popup.setContent(content);
-            }
-        }
+    var popupContent = `<b>${airport.name}</b><br>`;
+
+    // Seřazení destinací podle počtu čekajících cestujících
+    var sortedDestinations = Object.entries(airport.passengers)
+        .sort((a, b) => b[1] - a[1])
+        .map(entry => `<br>${entry[0]}: ${entry[1]} cestujících`);
+
+    popupContent += sortedDestinations.join('');
+
+    airport.marker.bindPopup(popupContent);
+}
+
 
     // Function to buy a plane
 function buyPlane() {
