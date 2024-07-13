@@ -745,6 +745,8 @@ function automateFlight(plane) {
    // Update sendPlane function to account for automation
 function sendPlane(registration) {
     var plane = planes.find(p => p.registration === registration);
+    if (!plane || plane.inFlight) return; // Přidáno: zajištění, že letadlo není ve vzduchu
+
     var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
 
     // Získání destinace na základě režimu
@@ -776,9 +778,13 @@ function sendPlane(registration) {
 
         // Automatizace letu po přistání
         plane.marker.on('popupopen', function() {
-            if (plane.cleaningMode && !plane.inFlight) {
+            if ((plane.cleaningMode || plane.automated) && !plane.inFlight) {
                 setTimeout(function() {
-                    findBusiestDestinationAndSend(plane);
+                    if (plane.cleaningMode) {
+                        findBusiestDestinationAndSend(plane);
+                    } else {
+                        automateFlight(plane);
+                    }
                 }, 5000); // Maximální prodleva 5 sekund
             }
         });
@@ -786,6 +792,7 @@ function sendPlane(registration) {
         alert("Není dostatek pasažérů pro tuto destinaci!");
     }
 }
+
 
 
 
@@ -803,22 +810,17 @@ function findBusiestDestination(fromAirport) {
 }
 
 function findBusiestDestinationAndSend(plane) {
-    var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
-    if (fromAirport) {
-        var busiestDestination = findBusiestDestination(fromAirport);
-        if (busiestDestination) {
-            plane.destination = busiestDestination;
-            sendPlane(plane.registration);
+    if (!plane || plane.inFlight) return; // Přidáno: zajištění, že letadlo není ve vzduchu
 
-            // Naplánování dalšího letu po 5 sekundách
-            setTimeout(function() {
-                if (plane.cleaningMode && !plane.inFlight) {
-                    findBusiestDestinationAndSend(plane);
-                }
-            }, 5000);
-        }
+    var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
+    var destination = findBusiestDestination(fromAirport);
+
+    if (destination) {
+        plane.destination = destination;
+        sendPlane(plane.registration);
     }
 }
+
 
 
     function getRandomLockedAirport() {
@@ -864,26 +866,29 @@ function flyPlane(plane, fromAirport, toAirport) {
         if (currentStep >= totalSteps) {
             clearInterval(flightInterval);
             map.removeLayer(polyline);
-            planeMarker.setLatLng(toLatLng);
+            plane.marker.setLatLng(toLatLng);
             plane.inFlight = false;
 
             // Calculate earnings
             var earnings = distance * 3 * plane.passengers;
             money += Math.round(earnings);
             updateMoneyDisplay();
-
-            // Add flown distance to plane
-            plane.distanceFlown = (plane.distanceFlown || 0) + distance;
-
+            
             plane.passengers = 0;
-            showPlanePopup(plane);
+            showPlanePopup(plane); // Zavolání funkce pro zobrazení pop-up okna
 
             // Update destination airport's popup content
             updatePopupContent(toAirport);
-
+            
             // Re-check for automation after flight completion
-            if (plane.automated) {
-                setTimeout(() => automateFlight(plane), 5000); // Adjust delay as needed
+            if (plane.automated || plane.cleaningMode) {
+                setTimeout(function() {
+                    if (plane.cleaningMode) {
+                        findBusiestDestinationAndSend(plane);
+                    } else {
+                        automateFlight(plane);
+                    }
+                }, 5000); // Maximální prodleva 5 sekund
             }
 
             return;
@@ -896,6 +901,7 @@ function flyPlane(plane, fromAirport, toAirport) {
         currentStep++;
     }, stepInterval);
 }
+
 
 
 
