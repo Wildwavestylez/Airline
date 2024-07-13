@@ -560,18 +560,33 @@ function addAirportMarkers() {
         return unlockedAirports[randomIndex].name;
     }
 
- // Funkce pro vytvoření obsahu pop-up okna letiště
 function generateAirportPopupContent(airport) {
     var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
     content += "Pasažéři čekající na odlet:<br>";
-    for (var destination in airport.passengers) {
-        if (airport.passengers[destination] > 0) {
-            content += destination + ": " + airport.passengers[destination] + "<br>";
-        }
+
+    // Seřazení destinací podle počtu čekajících cestujících
+    var sortedDestinations = Object.entries(airport.passengers)
+        .sort((a, b) => b[1] - a[1]);
+
+    // Zobrazení pouze prvních 6 až 7 destinací
+    var visibleDestinations = sortedDestinations.slice(0, 7);
+    visibleDestinations.forEach(entry => {
+        content += entry[0] + ": " + entry[1] + "<br>";
+    });
+
+    // Přidání zbytku destinací s možností scrollování
+    if (sortedDestinations.length > 7) {
+        content += "<div style='max-height: 100px; overflow-y: auto;'>";
+        sortedDestinations.slice(7).forEach(entry => {
+            content += entry[0] + ": " + entry[1] + "<br>";
+        });
+        content += "</div>";
     }
+
     content += "</div>";
     return content;
 }
+
 // Funkce pro nastavení viditelnosti markerů letišť
 function updateAirportMarkerVisibility() {
     var currentZoom = map.getZoom();
