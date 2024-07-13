@@ -561,31 +561,47 @@ function addAirportMarkers() {
     }
 
 function generateAirportPopupContent(airport) {
-    var content = "<div class='popup-scroll'><b>Letiště: " + airport.name + "</b><br>";
-    content += "Pasažéři čekající na odlet:<br>";
-
     // Seřazení destinací podle počtu čekajících cestujících
     var sortedDestinations = Object.entries(airport.passengers)
         .sort((a, b) => b[1] - a[1]);
 
-    // Zobrazení pouze prvních 6 až 7 destinací
-    var visibleDestinations = sortedDestinations.slice(0, 7);
-    visibleDestinations.forEach(entry => {
-        content += entry[0] + ": " + entry[1] + "<br>";
-    });
+    // Omezení zobrazení na prvních 6 až 7 destinací
+    var displayedDestinations = sortedDestinations.slice(0, 6)
+        .map(entry => `${entry[0]}: ${entry[1]} cestujících`);
 
-    // Přidání zbytku destinací s možností scrollování
-    if (sortedDestinations.length > 7) {
-        content += "<div style='max-height: 100px; overflow-y: auto;'>";
-        sortedDestinations.slice(7).forEach(entry => {
-            content += entry[0] + ": " + entry[1] + "<br>";
-        });
-        content += "</div>";
+    // Zbytek destinací přidáme jako další položky se scrollováním
+    var remainingDestinations = sortedDestinations.slice(6)
+        .map(entry => `${entry[0]}: ${entry[1]} cestujících`);
+
+    var content = `<div class='popup-scroll'><b>Letiště: ${airport.name}</b><br>`;
+    content += "Pasažéři čekající na odlet:<br>";
+    content += displayedDestinations.join('<br>');
+
+    if (remainingDestinations.length > 0) {
+        content += `<div class='extra-destinations'>${remainingDestinations.join('<br>')}</div>`;
     }
 
     content += "</div>";
     return content;
 }
+
+// Přidáme CSS pro scrollování do pop-up okna
+var css = `
+.popup-scroll {
+    max-height: 200px; /* Adjust as needed */
+    overflow-y: auto;
+}
+.extra-destinations {
+    max-height: 100px; /* Adjust as needed */
+    overflow-y: auto;
+    margin-top: 10px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+}
+`;
+var style = document.createElement('style');
+style.appendChild(document.createTextNode(css));
+document.head.appendChild(style);
 
 // Funkce pro nastavení viditelnosti markerů letišť
 function updateAirportMarkerVisibility() {
