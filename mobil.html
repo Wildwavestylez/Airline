@@ -36,7 +36,10 @@
     max-height: 200px;
     overflow-y: auto;
 }
-
+       .leaflet-popup-content-wrapper {
+    max-height: 200px; /* Nastavte maximální výšku podle potřeby */
+    overflow-y: auto;
+}
 
         .menu select {
             flex: 1;
@@ -65,7 +68,10 @@
     overflow-y: auto;
 }
 
-
+.leaflet-popup-content-wrapper {
+    max-height: 200px; /* Nastavte maximální výšku podle potřeby */
+    overflow-y: auto;
+}
             .menu {
                 flex-direction: column;
             }
@@ -611,45 +617,25 @@ updateAirportMarkerVisibility();
 map.on('zoomend', updateAirportMarkerVisibility);
 
 
-  function updatePopupContent(airport) {
-    // Get the popup for the airport marker
-    var popup = airport.marker.getPopup();
+ function updatePopupContent(airport) {
+    var content = '<b>' + airport.name + '</b><br/>' +
+                  'Celkem cestujících: ' + Object.values(airport.passengers).reduce((a, b) => a + b, 0) + '<br/>' +
+                  '<b>Destinace a čekající cestující:</b><br/>';
 
-    // If there's no popup, create it
-    if (!popup) {
-        popup = L.popup();
-        airport.marker.bindPopup(popup);
-    }
+    // Získání a seřazení destinací podle počtu čekajících cestujících
+    var destinations = Object.keys(airport.passengers).map(destination => ({
+        name: destination,
+        passengers: airport.passengers[destination]
+    })).sort((a, b) => b.passengers - a.passengers);
 
-    // Generate the popup content
-    var content = '<b>' + airport.name + '</b><br>';
-    content += 'Čekající cestující:<br>';
-
-    // Get destinations and sort by the number of waiting passengers
-    var destinations = Object.keys(airport.passengers)
-        .map(function(destination) {
-            return {
-                name: destination,
-                count: airport.passengers[destination]
-            };
-        })
-        .sort(function(a, b) {
-            return b.count - a.count;
-        });
-
-    destinations.forEach(function(dest) {
-        content += dest.name + ': ' + dest.count + '<br>';
+    // Přidání seřazených destinací do obsahu
+    destinations.forEach(destination => {
+        content += destination.name + ': ' + destination.passengers + ' čekajících<br/>';
     });
 
-    // Set the max height of the popup and make it scrollable if necessary
-    content = '<div style="max-height: 200px; overflow-y: auto;">' + content + '</div>';
-
-    // Update the popup content
-    popup.setContent(content);
-
-    // Open the popup to update its content
-    airport.marker.openPopup();
+    airport.marker.getPopup().setContent(content);
 }
+
 
 function updatePassengersCount(airport, destination, count) {
     airport.passengers[destination] = count;
