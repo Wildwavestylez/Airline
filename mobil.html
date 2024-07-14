@@ -517,6 +517,7 @@
 
  
        // Funkce pro přidání markerů letišť na mapu
+// Funkce pro přidání markerů letišť na mapu
 function addAirportMarkers() {
     airports.forEach(function (airport) {
         var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
@@ -615,7 +616,6 @@ updateAirportMarkerVisibility();
 
 // Přidání listeneru na změnu zoomu mapy
 map.on('zoomend', updateAirportMarkerVisibility);
-
 
  function updatePopupContent(airport) {
     var content = '<b>' + airport.name + '</b><br/>' +
