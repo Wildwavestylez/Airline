@@ -609,6 +609,9 @@ function updateAirportMarkerVisibility() {
     });
 }
 
+// Přidání listeneru na změnu zoomu mapy
+map.on('zoomend', updateAirportMarkerVisibility);
+
 // Inicializace letišť na mapě
 addAirportMarkers();
 updateAirportMarkerVisibility();
