@@ -697,10 +697,10 @@ function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo: " + plane.registration + "</b><br>";
     content += "Kapacita: " + plane.capacity + "<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
+    content += "Start: " + (plane.from ? plane.from : "Neznámé") + "<br>";
     content += "Destinace: " + (plane.destination ? plane.destination : "Žádná") + "<br>";
     content += "Cestující: " + plane.passengers + "<br>";
     content += "Celková vzdálenost: " + plane.totalDistance.toFixed(2) + " km<br>";
-    content += "Z: " + (plane.from ? plane.from : "Neznámé") + "<br>";
     if (!plane.inFlight) {
         content += "<select id='destination-select-" + plane.registration + "'>";
         airports.forEach(function(airport) {
@@ -763,8 +763,6 @@ function automateFlight(plane) {
         plane.destination = randomDestination;
 
         sendPlane(plane.registration);
-    } else {
-        console.error("No available airports found for automation.");
     }
 
     // Recheck for automation after flight
@@ -788,9 +786,12 @@ function sendPlane(registration) {
     if (plane.cleaningMode) {
         destination = findBusiestDestination(fromAirport);
     } else if (plane.automated && !plane.destination) {
+        // If the plane is automated and does not have a destination, pick a random destination
         var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
-        var randomIndex = Math.floor(Math.random() * availableAirports.length);
-        destination = availableAirports[randomIndex].name;
+        if (availableAirports.length > 0) {
+            var randomIndex = Math.floor(Math.random() * availableAirports.length);
+            destination = availableAirports[randomIndex].name;
+        }
     } else {
         var select = document.getElementById('destination-select-' + registration);
         destination = select ? select.value : plane.destination;
@@ -828,7 +829,6 @@ function sendPlane(registration) {
         alert("Není dostatek pasažérů pro tuto destinaci!");
     }
 }
-
 
 
 
