@@ -787,6 +787,7 @@ function automateFlight(plane) {
 }
 
 
+
     
    // Update sendPlane function to account for automation
 function sendPlane(registration) {
@@ -798,23 +799,23 @@ function sendPlane(registration) {
     var destination;
     if (plane.cleaningMode) {
         destination = findBusiestDestination(fromAirport);
-    } else if (plane.automated && !plane.destination) {
-        // If the plane is automated and does not have a destination, pick a random destination
-        var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
-        if (availableAirports.length > 0) {
+    } else {
+        if (plane.automated && !plane.destination) {
+            // Select a random destination for the first flight in automated mode
+            var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
             var randomIndex = Math.floor(Math.random() * availableAirports.length);
             destination = availableAirports[randomIndex].name;
+        } else {
+            var select = document.getElementById('destination-select-' + registration);
+            destination = select ? select.value : plane.destination;
         }
-    } else {
-        var select = document.getElementById('destination-select-' + registration);
-        destination = select ? select.value : plane.destination;
     }
 
     if (plane && fromAirport.passengers[destination] > 0) {
         var passengersToLoad = Math.min(plane.capacity, fromAirport.passengers[destination]);
         plane.passengers = passengersToLoad;
         fromAirport.passengers[destination] -= passengersToLoad;
-        updatePopupContent(fromAirport);
+        updatePopupContent(fromAirport); // Volání funkce po změně počtu cestujících
 
         plane.from = fromAirport.name;
         plane.destination = destination;
