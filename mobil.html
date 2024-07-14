@@ -710,18 +710,14 @@ function generatePlanePopupContent(plane) {
         });
         content += "</select><br>";
         content += "<div style='display: flex; justify-content: space-between;'>"; // Flexbox container for buttons
+
         content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button><br>";
         content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Zastavit" : "Automatizovat") + "</button><br>";
         content += "<button onclick='toggleCleaningMode(\"" + plane.registration + "\")'>" + (plane.cleaningMode ? "Zastavit" : "Čištění") + "</button>";
     }
     return content;
 }
-   function showPlanePopup(plane) {
-    plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
-    setTimeout(function() {
-        plane.marker.closePopup();
-    }, 3000); // Zavření pop-up okna po 3 vteřinách
-}
+
     
 function toggleAutomation(registration) {
     var plane = planes.find(p => p.registration === registration);
@@ -767,6 +763,8 @@ function automateFlight(plane) {
         plane.destination = randomDestination;
 
         sendPlane(plane.registration);
+    } else {
+        console.error("No available airports found for automation.");
     }
 
     // Recheck for automation after flight
@@ -776,6 +774,7 @@ function automateFlight(plane) {
         }
     });
 }
+
 
     
    // Update sendPlane function to account for automation
