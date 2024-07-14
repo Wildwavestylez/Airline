@@ -697,10 +697,10 @@ function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo: " + plane.registration + "</b><br>";
     content += "Kapacita: " + plane.capacity + "<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
-    content += "Nalétané kilometry: " + plane.totalDistance.toFixed(2) + " km<br>";
     content += "Odkud: " + (plane.from ? plane.from : "Neznámé") + "<br>";
     content += "Destinace: " + (plane.destination ? plane.destination : "Žádná") + "<br>";
     content += "Cestující: " + plane.passengers + "<br>";
+    content += "Nalétané kilometry: " + plane.totalDistance.toFixed(2) + " km<br>";
 
     if (!plane.inFlight) {
         content += "<select id='destination-select-" + plane.registration + "'>";
