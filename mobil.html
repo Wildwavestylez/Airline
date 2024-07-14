@@ -517,18 +517,28 @@
 
  
        // Funkce pro přidání markerů letišť na mapu
-function addAirportMarkers() {
-    airports.forEach(function (airport) {
-        var marker = L.marker(airport.coords, { icon: airportIcon }).addTo(map);
-        if (!airport.unlocked) {
-            marker.bindPopup(airport.name + "<br><button onclick='unlockAirport(\"" + airport.name + "\")'>Odemknout za " + airport.cost + " Kč</button>");
+// Funkce pro přidání markerů letišť na mapu
+function updateAirportMarkerVisibility() {
+    var currentZoom = map.getZoom();
+    airports.forEach(function(airport) {
+        if (currentZoom > 8) {
+            if (!map.hasLayer(airport.marker)) {
+                map.addLayer(airport.marker);
+            }
         } else {
-            marker.bindPopup(generateAirportPopupContent(airport));
+            if (map.hasLayer(airport.marker)) {
+                map.removeLayer(airport.marker);
+            }
         }
-        airport.marker = marker;
     });
 }
 
+// Inicializace letišť na mapě
+addAirportMarkers();
+updateAirportMarkerVisibility();
+
+// Přidání listeneru na změnu zoomu mapy
+map.on('zoomend', updateAirportMarkerVisibility);
     // Function to unlock an airport
     // Function to unlock an airport
 function unlockAirport(name) {
