@@ -114,13 +114,6 @@
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Inicializace letišť na mapě
-addAirportMarkers();
-updateAirportMarkerVisibility(); // Přidání inicializační funkce
-
-// Přidání listeneru na změnu zoomu mapy
-map.on('zoomend', updateAirportMarkerVisibility);
-
     // Initial money
     var money = 10000;
 
