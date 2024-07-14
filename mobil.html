@@ -593,8 +593,7 @@ function generateAirportPopupContent(airport) {
 }
 
 
-// Funkce pro nastavení viditelnosti markerů letišť
-// Funkce pro nastavení viditelnosti markerů letišť
+
 function updateAirportMarkerVisibility() {
     var currentZoom = map.getZoom();
     airports.forEach(function(airport) {
@@ -610,12 +609,12 @@ function updateAirportMarkerVisibility() {
     });
 }
 
+// Přidání listeneru na změnu zoomu mapy
+map.on('zoomend', updateAirportMarkerVisibility);
+
 // Inicializace letišť na mapě
 addAirportMarkers();
 updateAirportMarkerVisibility();
-
-// Přidání listeneru na změnu zoomu mapy
-map.on('zoomend', updateAirportMarkerVisibility);
 
 
  function updatePopupContent(airport) {
