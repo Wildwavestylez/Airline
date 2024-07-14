@@ -697,11 +697,10 @@ function generatePlanePopupContent(plane) {
     var content = "<b>Letadlo: " + plane.registration + "</b><br>";
     content += "Kapacita: " + plane.capacity + "<br>";
     content += "Rychlost: " + plane.speed + " km/h<br>";
-    content += "Nalétané kilometry: " + plane.totalDistance.toFixed(2) + " km<br>";
-    content += "Odkud: " + (plane.from ? plane.from : "Neznámé") + "<br>";
     content += "Destinace: " + (plane.destination ? plane.destination : "Žádná") + "<br>";
     content += "Cestující: " + plane.passengers + "<br>";
-
+    content += "Celková vzdálenost: " + plane.totalDistance.toFixed(2) + " km<br>";
+    content += "Z: " + (plane.from ? plane.from : "Neznámé") + "<br>";
     if (!plane.inFlight) {
         content += "<select id='destination-select-" + plane.registration + "'>";
         airports.forEach(function(airport) {
@@ -710,28 +709,20 @@ function generatePlanePopupContent(plane) {
             }
         });
         content += "</select><br>";
-           content += "<div style='display: flex; justify-content: space-between;'>"; // Flexbox container for buttons
+        content += "<div style='display: flex; justify-content: space-between;'>"; // Flexbox container for buttons
         content += "<button onclick='sendPlane(\"" + plane.registration + "\")'>Odeslat</button><br>";
         content += "<button onclick='toggleAutomation(\"" + plane.registration + "\")'>" + (plane.automated ? "Zastavit" : "Automatizovat") + "</button><br>";
-        content += "<button onclick='toggleCleaningMode(\"" + plane.registration + "\")'>" + (plane.cleaningMode ? "Zastavit" : "Cleaning Mode") + "</button>";
+        content += "<button onclick='toggleCleaningMode(\"" + plane.registration + "\")'>" + (plane.cleaningMode ? "Zastavit" : "Čištění") + "</button>";
     }
     return content;
 }
-
-
-
-
-
    function showPlanePopup(plane) {
     plane.marker.bindPopup(generatePlanePopupContent(plane)).openPopup();
     setTimeout(function() {
         plane.marker.closePopup();
     }, 3000); // Zavření pop-up okna po 3 vteřinách
 }
-
-
-
-
+    
 function toggleAutomation(registration) {
     var plane = planes.find(p => p.registration === registration);
     if (plane) {
@@ -771,14 +762,11 @@ function automateFlight(plane) {
     }
 
     if (availableAirports.length > 0) {
-        if (plane.cleaningMode) {
-            findBusiestDestinationAndSend(plane);
-        } else {
-            var randomIndex = Math.floor(Math.random() * availableAirports.length);
-            var randomDestination = availableAirports[randomIndex].name;
-            plane.destination = randomDestination;
-            sendPlane(plane.registration);
-        }
+        var randomIndex = Math.floor(Math.random() * availableAirports.length);
+        var randomDestination = availableAirports[randomIndex].name;
+        plane.destination = randomDestination;
+
+        sendPlane(plane.registration);
     }
 
     // Recheck for automation after flight
@@ -789,19 +777,21 @@ function automateFlight(plane) {
     });
 }
 
-
     
    // Update sendPlane function to account for automation
 function sendPlane(registration) {
     var plane = planes.find(p => p.registration === registration);
-    if (!plane || plane.inFlight) return; // Přidáno: zajištění, že letadlo není ve vzduchu
+    if (!plane || plane.inFlight) return;
 
     var fromAirport = airports.find(a => a.coords[0] === plane.marker.getLatLng().lat && a.coords[1] === plane.marker.getLatLng().lng);
 
-    // Získání destinace na základě režimu
     var destination;
     if (plane.cleaningMode) {
         destination = findBusiestDestination(fromAirport);
+    } else if (plane.automated && !plane.destination) {
+        var availableAirports = airports.filter(a => !plane.marker.getLatLng().equals(a.coords) && a.unlocked);
+        var randomIndex = Math.floor(Math.random() * availableAirports.length);
+        destination = availableAirports[randomIndex].name;
     } else {
         var select = document.getElementById('destination-select-' + registration);
         destination = select ? select.value : plane.destination;
@@ -813,19 +803,17 @@ function sendPlane(registration) {
         fromAirport.passengers[destination] -= passengersToLoad;
         updatePopupContent(fromAirport);
 
-        plane.from = fromAirport.name; // Nově přidáno
+        plane.from = fromAirport.name;
         plane.destination = destination;
         plane.inFlight = true;
 
         var toAirport = airports.find(a => a.name === destination);
         flyPlane(plane, fromAirport, toAirport);
 
-        showPlanePopup(plane); // Zavolání funkce pro zobrazení pop-up okna
+        showPlanePopup(plane);
 
-        // Aktualizace celkové vzdálenosti
         plane.totalDistance += map.distance(L.latLng(fromAirport.coords), L.latLng(toAirport.coords)) / 1000;
 
-        // Automatizace letu po přistání
         plane.marker.on('popupopen', function() {
             if ((plane.cleaningMode || plane.automated) && !plane.inFlight) {
                 setTimeout(function() {
@@ -834,13 +822,14 @@ function sendPlane(registration) {
                     } else {
                         automateFlight(plane);
                     }
-                }, 5000); // Maximální prodleva 5 sekund
+                }, 5000);
             }
         });
     } else {
         alert("Není dostatek pasažérů pro tuto destinaci!");
     }
 }
+
 
 
 
