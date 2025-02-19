@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expanze polygonu</title>
+    <title>Expanze polygonu s korekcí</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <style>
         body, html { margin: 0; padding: 0; height: 100%; }
@@ -21,7 +21,7 @@
             attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
-        let center = [50.0755, 14.4378];
+        let center = [50.0755, 14.4378]; 
 
         let polygonPoints = [
             [center[0] + 0.002, center[1] - 0.002],
@@ -42,53 +42,51 @@
             let latDiff = point[0] - center[0];
             let lngDiff = point[1] - center[1];
             let length = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
-            if (length === 0) return point;
             let scale = distance / length;
             return [point[0] + latDiff * scale, point[1] + lngDiff * scale];
         }
 
-        function getDistance(p1, p2) {
-            return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+        function getAngle(a, b, c) {
+            let ab = [b[0] - a[0], b[1] - a[1]];
+            let bc = [c[0] - b[0], c[1] - b[1]];
+            let dotProduct = ab[0] * bc[0] + ab[1] * bc[1];
+            let magAB = Math.sqrt(ab[0] * ab[0] + ab[1] * ab[1]);
+            let magBC = Math.sqrt(bc[0] * bc[0] + bc[1] * bc[1]);
+            return Math.acos(dotProduct / (magAB * magBC)) * (180 / Math.PI);
         }
 
         function expandPolygon() {
             let center = getCentroid(polygonPoints);
+            let index = Math.floor(Math.random() * polygonPoints.length);
+            let newPoint = movePointAway(polygonPoints[index], center, 0.0027);
 
-            let expandedPoints = [];
-            for (let i = 0; i < polygonPoints.length; i++) {
-                let prevIndex = (i - 1 + polygonPoints.length) % polygonPoints.length;
-                let nextIndex = (i + 1) % polygonPoints.length;
+            let prevIndex = (index - 1 + polygonPoints.length) % polygonPoints.length;
+            let nextIndex = (index + 1) % polygonPoints.length;
+            let angle = getAngle(polygonPoints[prevIndex], polygonPoints[index], polygonPoints[nextIndex]);
 
-                let newPoint = movePointAway(polygonPoints[i], center, 0.0027);
-                let newPrevPoint = movePointAway(polygonPoints[prevIndex], center, 0.0013);
-                let newNextPoint = movePointAway(polygonPoints[nextIndex], center, 0.0013);
-
-                if (getDistance(newPoint, newPrevPoint) < 0.007 && getDistance(newPoint, newNextPoint) < 0.007) {
-                    expandedPoints.push(newPrevPoint);
-                    expandedPoints.push(newPoint);
-                    expandedPoints.push(newNextPoint);
-                } else {
-                    expandedPoints.push(polygonPoints[i]);
-                }
+            if (angle < 30) {
+                console.log("Zabráněno ostrému úhlu, bod nebude posunut.");
+                return;
             }
 
-            polygonPoints = expandedPoints;
+            polygonPoints[index] = newPoint;
 
             for (let i = 0; i < polygonPoints.length; i++) {
                 let p1 = polygonPoints[i];
                 let p2 = polygonPoints[(i + 1) % polygonPoints.length];
-
-                let distance = getDistance(p1, p2);
-                if (distance > 0.009) {
+                
+                let distance = Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+                if (distance > 0.009) { 
                     let midPoint = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
                     polygonPoints.splice(i + 1, 0, midPoint);
+                    break;
                 }
             }
 
             polygon.setLatLngs(polygonPoints);
         }
 
-        setInterval(expandPolygon, 3000); // Zvětšuje polygon každé 3 sekundy
+        setInterval(expandPolygon, 3000);
     </script>
 </body>
 </html>
