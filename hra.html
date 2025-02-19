@@ -22,18 +22,14 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Inicializace mapy
-        let map = L.map('map').setView([49.1087766, 13.8617274], 13); // Praha jako výchozí bod
+        let map = L.map('map').setView([50.0755, 14.4378], 13);
 
-        // Přidání mapových dlaždic
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
-        // Výchozí bod polygonu (startovací špendlík)
-        let center = [49.1087766, 13.8617274]; 
+        let center = [50.0755, 14.4378]; 
 
-        // Výchozí čtverec kolem startovacího bodu (počáteční území)
         let polygonPoints = [
             [center[0] + 0.002, center[1] - 0.002],
             [center[0] + 0.002, center[1] + 0.002],
@@ -41,53 +37,64 @@
             [center[0] - 0.002, center[1] - 0.002]
         ];
 
-        // Vytvoření polygonu
         let polygon = L.polygon(polygonPoints, { color: 'blue' }).addTo(map);
 
-        // Funkce pro získání středu polygonu
         function getCentroid(points) {
             let latSum = 0, lngSum = 0;
             points.forEach(p => { latSum += p[0]; lngSum += p[1]; });
             return [latSum / points.length, lngSum / points.length];
         }
 
-        // Posunutí bodu směrem od středu
         function movePointAway(point, center, distance) {
             let latDiff = point[0] - center[0];
             let lngDiff = point[1] - center[1];
             let length = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+            if (length === 0) return point;
             let scale = distance / length;
             return [point[0] + latDiff * scale, point[1] + lngDiff * scale];
         }
 
-        // Hlavní funkce pro rozšíření polygonu
+        function getDistance(p1, p2) {
+            return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+        }
+
         function expandPolygon() {
             let center = getCentroid(polygonPoints);
 
-            // Náhodně vyber jeden bod k posunutí
+            // Vyber náhodný bod, ale ne hraniční, aby nevznikaly výběžky
             let index = Math.floor(Math.random() * polygonPoints.length);
-            polygonPoints[index] = movePointAway(polygonPoints[index], center, 0.0015); // 300 metrů
 
-            // Zkontroluj délky stran a případně přidej bod
+            let prevIndex = (index - 1 + polygonPoints.length) % polygonPoints.length;
+            let nextIndex = (index + 1) % polygonPoints.length;
+
+            let newPoint = movePointAway(polygonPoints[index], center, 0.0027);
+            let newPrevPoint = movePointAway(polygonPoints[prevIndex], center, 0.0013);
+            let newNextPoint = movePointAway(polygonPoints[nextIndex], center, 0.0013);
+
+            // Pokud jsou sousední body příliš daleko, nepohne se bod moc daleko
+            if (getDistance(newPoint, newPrevPoint) < 0.007 && getDistance(newPoint, newNextPoint) < 0.007) {
+                polygonPoints[index] = newPoint;
+                polygonPoints[prevIndex] = newPrevPoint;
+                polygonPoints[nextIndex] = newNextPoint;
+            }
+
+            // Zkontroluj délky stran a případně přidej nový bod
             for (let i = 0; i < polygonPoints.length; i++) {
                 let p1 = polygonPoints[i];
-                let p2 = polygonPoints[(i + 1) % polygonPoints.length]; // Další bod v pořadí
-                
-                let distance = Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
-                if (distance > 0.005) { // 1 km v stupních zeměpisné šířky
+                let p2 = polygonPoints[(i + 1) % polygonPoints.length];
+
+                let distance = getDistance(p1, p2);
+                if (distance > 0.009) {
                     let midPoint = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
-                    polygonPoints.splice(i + 1, 0, midPoint); // Přidá nový bod mezi
-                    break; // Po přidání jednoho bodu počkej na další iteraci
+                    polygonPoints.splice(i + 1, 0, midPoint);
+                    break;
                 }
             }
 
-            // Aktualizace polygonu na mapě
             polygon.setLatLngs(polygonPoints);
         }
 
-        // Spustit expanzi každých 60 sekund
-        setInterval(expandPolygon, 4000);
-
+        setInterval(expandPolygon, 3000);
     </script>
 </body>
 </html>
