@@ -66,7 +66,7 @@
 
             // Náhodně vyber jeden bod k posunutí
             let index = Math.floor(Math.random() * polygonPoints.length);
-            polygonPoints[index] = movePointAway(polygonPoints[index], center, 0.0027); // 300 metrů
+            polygonPoints[index] = movePointAway(polygonPoints[index], center, 0.0015); // 300 metrů
 
             // Zkontroluj délky stran a případně přidej bod
             for (let i = 0; i < polygonPoints.length; i++) {
@@ -74,7 +74,7 @@
                 let p2 = polygonPoints[(i + 1) % polygonPoints.length]; // Další bod v pořadí
                 
                 let distance = Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
-                if (distance > 0.009) { // 1 km v stupních zeměpisné šířky
+                if (distance > 0.005) { // 1 km v stupních zeměpisné šířky
                     let midPoint = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
                     polygonPoints.splice(i + 1, 0, midPoint); // Přidá nový bod mezi
                     break; // Po přidání jednoho bodu počkej na další iteraci
