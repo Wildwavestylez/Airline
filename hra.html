@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automatická expanze polygonu</title>
+    <title>Expanze polygonu s pravidly</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <style>
         body, html {
@@ -22,18 +22,13 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Inicializace mapy
-        let map = L.map('map').setView([49.1087766, 13.8617274], 13); // Praha jako výchozí bod
-
-        // Přidání mapových dlaždic
+        let map = L.map('map').setView([49.9884940, 17.4654454], 13); // Lčovice jako start
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap'
         }).addTo(map);
 
-        // Výchozí bod polygonu (startovací špendlík)
-        let center = [49.1087766, 13.8617274]; 
+        let center = [49.9884940, 17.4654454];
 
-        // Výchozí čtverec kolem startovacího bodu (počáteční území)
         let polygonPoints = [
             [center[0] + 0.002, center[1] - 0.002],
             [center[0] + 0.002, center[1] + 0.002],
@@ -41,17 +36,17 @@
             [center[0] - 0.002, center[1] - 0.002]
         ];
 
-        // Vytvoření polygonu
         let polygon = L.polygon(polygonPoints, { color: 'blue' }).addTo(map);
 
-        // Funkce pro získání středu polygonu
+        let blockedPoints = {};
+        let moveTracker = Array(polygonPoints.length).fill(0); // Počítadlo tahů pro každý bod
+
         function getCentroid(points) {
             let latSum = 0, lngSum = 0;
             points.forEach(p => { latSum += p[0]; lngSum += p[1]; });
             return [latSum / points.length, lngSum / points.length];
         }
 
-        // Posunutí bodu směrem od středu
         function movePointAway(point, center, distance) {
             let latDiff = point[0] - center[0];
             let lngDiff = point[1] - center[1];
@@ -60,34 +55,79 @@
             return [point[0] + latDiff * scale, point[1] + lngDiff * scale];
         }
 
-        // Hlavní funkce pro rozšíření polygonu
         function expandPolygon() {
             let center = getCentroid(polygonPoints);
+            let totalPoints = polygonPoints.length;
 
-            // Náhodně vyber jeden bod k posunutí
-            let index = Math.floor(Math.random() * polygonPoints.length);
-            polygonPoints[index] = movePointAway(polygonPoints[index], center, 0.0012); // 300 metrů
+            // Maximální povolený počet tahů pro každý bod před nuceným posunem
+            let maxWaitTurns = Math.floor(1.5 * totalPoints);
 
-            // Zkontroluj délky stran a případně přidej bod
+            // Seznam bodů, které mohou být posunuty (nejsou blokovány)
+            let availablePoints = polygonPoints
+                .map((point, index) => ({ point, index }))
+                .filter(({ index }) => !blockedPoints[index]);
+
+            if (availablePoints.length === 0) return;
+
+            // Najdeme bod, který se nejdéle neposunul
+            let forcedMoveIndex = moveTracker.indexOf(Math.max(...moveTracker));
+
+            // Podmínka pro nucený posun
+            let mustMove = moveTracker[forcedMoveIndex] >= maxWaitTurns;
+
+            let selectedIndex;
+            if (mustMove) {
+                selectedIndex = forcedMoveIndex; // Nucený pohyb
+            } else {
+                let randomPoint = availablePoints[Math.floor(Math.random() * availablePoints.length)];
+                selectedIndex = randomPoint.index;
+            }
+
+            // Posun bodu
+            polygonPoints[selectedIndex] = movePointAway(polygonPoints[selectedIndex], center, 0.0027);
+
+            // Resetujeme čítač pro tento bod
+            moveTracker[selectedIndex] = 0;
+
+            // Blokujeme bod na polovinu počtu bodů
+            blockedPoints[selectedIndex] = Date.now() + (totalPoints / 2) * 1000;
+
+            // Zvýšení čítače pro všechny ostatní body
+            for (let i = 0; i < moveTracker.length; i++) {
+                if (i !== selectedIndex) moveTracker[i]++;
+            }
+
+            // Kontrola, zda strany polygonu nepřesahují 1 km
             for (let i = 0; i < polygonPoints.length; i++) {
                 let p1 = polygonPoints[i];
-                let p2 = polygonPoints[(i + 1) % polygonPoints.length]; // Další bod v pořadí
-                
+                let p2 = polygonPoints[(i + 1) % polygonPoints.length];
+
                 let distance = Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
-                if (distance > 0.003) { // 1 km v stupních zeměpisné šířky
+                if (distance > 0.009) { // 1 km
                     let midPoint = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
-                    polygonPoints.splice(i + 1, 0, midPoint); // Přidá nový bod mezi
-                    break; // Po přidání jednoho bodu počkej na další iteraci
+                    polygonPoints.splice(i + 1, 0, midPoint);
+                    moveTracker.splice(i + 1, 0, 0); // Přidáme nový bod i do počítadla
+                    break;
                 }
             }
 
-            // Aktualizace polygonu na mapě
             polygon.setLatLngs(polygonPoints);
         }
 
-        // Spustit expanzi každých 60 sekund
-        setInterval(expandPolygon, 3000);
+        function unlockBlockedPoints() {
+            let currentTime = Date.now();
+            for (let index in blockedPoints) {
+                if (currentTime >= blockedPoints[index]) {
+                    delete blockedPoints[index];
+                }
+            }
+        }
+
+        setInterval(() => {
+            expandPolygon();
+            unlockBlockedPoints();
+        }, 1000);
 
     </script>
 </body>
-</html>
+</html>⁰
