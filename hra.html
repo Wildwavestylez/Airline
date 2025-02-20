@@ -108,7 +108,7 @@
                 selectedIndex = randomPoint.index;
             }
 
-            polygonPoints[selectedIndex] = movePointAway(polygonPoints[selectedIndex], center, 0.0027);
+            polygonPoints[selectedIndex] = movePointAway(polygonPoints[selectedIndex], center, 0.0012);
 
             moveTracker[selectedIndex] = 0;
             blockedPoints[selectedIndex] = Date.now() + (totalPoints / 2) * 1000;
