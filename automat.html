@@ -152,6 +152,54 @@
             expandPolygon();
             unlockBlockedPoints();
         }, 1000);
+
+
+    // Definujeme bounding box pro oblast kolem Lčovic
+    let bbox = [49.104, 13.861, 49.114, 13.872]; // [minLat, minLon, maxLat, maxLon]
+
+    // Definujeme Overpass API dotaz
+    let overpassQuery = `
+        [out:json];
+        (
+            way["highway"="primary"](${bbox.join(',')});
+            way["highway"="secondary"](${bbox.join(',')});
+            way["highway"="tertiary"](${bbox.join(',')});
+        );
+        out body;
+        >;
+        out skel qt;
+    `;
+
+    // Funkce pro načtení dat z Overpass API
+    async function fetchRoadData() {
+        let response = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: overpassQuery
+        });
+        let data = await response.json();
+        return data;
+    }
+
+    // Funkce pro přidání silnic na mapu
+    function addRoadsToMap(data) {
+        let roads = L.geoJSON(data, {
+            style: function (feature) {
+                switch (feature.properties.highway) {
+                    case 'primary': return { color: 'red' };
+                    case 'secondary': return { color: 'orange' };
+                    case 'tertiary': return { color: 'yellow' };
+                }
+            }
+        }).addTo(map);
+    }
+
+    // Načtení dat a přidání silnic na mapu
+    fetchRoadData().then(data => {
+        addRoadsToMap(data);
+    });
+
+    
+
     </script>
 </body>
 </html>
