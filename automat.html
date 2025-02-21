@@ -189,49 +189,44 @@
         }, 1000);
 
 
-    // Definujeme bounding box pro oblast kolem Lčovic
-    let bbox = [49.104, 13.861, 49.114, 13.872]; // [minLat, minLon, maxLat, maxLon]
+    let money = 5000; // Počáteční stav peněz
+    let tollBooths = []; // Seznam mýtných bran
 
-    // Definujeme Overpass API dotaz
-    let overpassQuery = `
-        [out:json];
-        (
-            way["highway"="primary"](${bbox.join(',')});
-            way["highway"="secondary"](${bbox.join(',')});
-            way["highway"="tertiary"](${bbox.join(',')});
-        );
-        out body;
-        >;
-        out skel qt;
-    `;
+    function updateMoneyDisplay() {
+        document.getElementById("money").textContent = money.toLocaleString();
+    }
 
-    // Funkce pro načtení dat z Overpass API
-    async function fetchRoadData() {
-        let response = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST',
-            body: overpassQuery
+    function placeTollBooth(latlng) {
+        if (money < 5000) {
+            alert("Nemáš dost peněz na mýtnou bránu!");
+            return;
+        }
+
+        money -= 5000; // Odečtení ceny za mýtnou bránu
+        updateMoneyDisplay();
+
+        let icon = L.icon({
+            iconUrl: "https://i.imgur.com/U2n0VLa.png",
+            iconSize: [32, 32]
         });
-        let data = await response.json();
-        return data;
+
+        let marker = L.marker(latlng, { icon }).addTo(map);
+        tollBooths.push(marker);
+
+        // Generování peněz každých 20 sekund
+        setInterval(() => {
+            money += 5;
+            updateMoneyDisplay();
+        }, 20000);
     }
 
-    // Funkce pro přidání silnic na mapu
-    function addRoadsToMap(data) {
-        let roads = L.geoJSON(data, {
-            style: function (feature) {
-                switch (feature.properties.highway) {
-                    case 'primary': return { color: 'red' };
-                    case 'secondary': return { color: 'orange' };
-                    case 'tertiary': return { color: 'yellow' };
-                }
-            }
-        }).addTo(map);
-    }
-
-    // Načtení dat a přidání silnic na mapu
-    fetchRoadData().then(data => {
-        addRoadsToMap(data);
+    // Přidání možnosti kliknutím na silnici umístit mýtnou bránu
+    map.on("click", function (e) {
+        let clickedLatLng = e.latlng;
+        placeTollBooth(clickedLatLng);
     });
+
+    updateMoneyDisplay();
 
     
 
