@@ -57,11 +57,6 @@
 
         let populationDensity = 130; // Hustota zalidnění (obyvatel/km²) – může se upravit podle oblasti
 
-let garagePrice = 100;
-        let maintenanceCarPrice = 50;
-        let garages = [];
-        let maintenanceCars = [];
-nic
 
     let roadLayer = L.layerGroup().addTo(map);
 
@@ -204,8 +199,8 @@ nic
     let tollBooths = []; // Seznam mýtných bran
 
     function updateMoneyDisplay() {
-        document.getElementById("money").textContent = money.toLocaleString();
-    }
+            document.getElementById("money").textContent = money.toLocaleString();
+        }
 
     function placeTollBooth(latlng) {
         if (money < 5000) {
@@ -239,9 +234,13 @@ nic
 
     updateMoneyDisplay();
 
-function updateMoneyDisplay() {
-            document.getElementById("money").textContent = money.toLocaleString();
-        }
+let garagePrice = 100;
+        let maintenanceCarPrice = 50;
+        let garages = [];
+        let maintenanceCars = []
+
+
+
 
         function buildGarage() {
             if (money < garagePrice) {
