@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+mi<!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
@@ -236,7 +236,11 @@ map.on('moveend', () => {
         }, 1000);
 
 
-    let money = 20000; // Počáteční stav peněz
+    let garages = []; // Seznam garáží
+let maintenanceCars = []; // Seznam aut údržby
+let garagePrice = 100; // Cena první garáže
+let carPrice = 50; // Cena prvního auta
+let money = 20000; // Počáteční stav peněz hráče
     let tollBooths = []; // Seznam mýtných bran
 
     function updateMoneyDisplay() {
@@ -276,62 +280,115 @@ map.on('moveend', () => {
     updateMoneyDisplay();
 
 let garagePrice = 100;
-        let maintenanceCarPrice = 50;
         let garages = [];
-        let maintenanceCars = []
+        
+
+function placeGarage() {
+    if (money < garagePrice) {
+        alert("Nedostatek peněz!");
+        return;
+    }
+
+    money -= garagePrice;
+    garagePrice += 500; // Každá další garáž je dražší
+
+    map.once('click', function (event) {
+        let garage = {
+            location: event.latlng,
+            marker: L.marker(event.latlng, { icon: L.icon({ iconUrl: 'https://i.imgur.com/a/RHGJwkk.png', iconSize: [32, 32] }) })
+        };
+
+        garage.marker.addTo(map).bindPopup("Garáž údržby");
+        garages.push(garage);
+    });
+}
+
+// Tlačítko pro stavbu garáže
+document.getElementById('buildGarage').addEventListener('click', placeGarage);
 
 
+        let maintenanceVehicles = []; // Seznam údržbových aut
+let vehiclePrice = 50; // Cena prvního auta
 
+function buyMaintenanceVehicle() {
+    if (garages.length === 0) {
+        alert("Nemáte žádnou garáž!");
+        return;
+    }
+    if (money < vehiclePrice) {
+        alert("Nedostatek peněz!");
+        return;
+    }
 
-        function buildGarage() {
-            if (money < garagePrice) {
-                alert("Nemáš dost peněz na garáž!");
-                return;
-            }
+    money -= vehiclePrice;
+    vehiclePrice += 200; // Každé další auto je dražší
 
-            money -= garagePrice;
-            updateMoneyDisplay();
+    let garage = garages[0]; // První dostupná garáž
 
-            let icon = L.icon({
-                iconUrl: "https://i.imgur.com/RHGJwkk.png",
-                iconSize: [32, 32]
-            });
+    let vehicle = {
+        location: garage.location,
+        marker: L.marker(garage.location, { icon: L.icon({ iconUrl: 'https://imgur.com/a/ez5qByM.png', iconSize: [24, 24] }) }),
+        moving: false
+    };
 
-            let latlng = map.getCenter();
-            let marker = L.marker(latlng, { icon }).addTo(map);
-            garages.push(marker);
+    vehicle.marker.addTo(map).bindPopup("Údržbové auto");
+    maintenanceVehicles.push(vehicle);
+}
 
-            garagePrice += 500;
-            console.log("Garáž postavena na:", latlng);
+// Tlačítko pro nákup auta
+document.getElementById('buyVehicle').addEventListener('click', buyMaintenanceVehicle);
+
+function sendMaintenanceVehicle() {
+    maintenanceVehicles.forEach(vehicle => {
+        if (vehicle.moving) return; // Pokud je auto v pohybu, neřešíme další pohyb
+
+        let targetRoad = roads.find(road => road.status === "red" || road.status === "orange");
+        if (!targetRoad) {
+            alert("Žádné poškozené úseky k opravě!");
+            return;
         }
 
-        function buyMaintenanceCar() {
-            if (garages.length === 0) {
-                alert("Nejdřív musíš postavit garáž!");
+        let vehicleMarker = vehicle.marker;
+        let path = targetRoad.coordinates;
+        vehicle.moving = true;
+
+        let index = 0;
+        function moveVehicle() {
+            if (index >= path.length) {
+                vehicle.moving = false;
                 return;
             }
 
-            if (money < maintenanceCarPrice) {
-                alert("Nemáš dost peněz na údržbové auto!");
-                return;
-            }
+            vehicleMarker.setLatLng(path[index]);
+            index++;
 
-            money -= maintenanceCarPrice;
-            updateMoneyDisplay();
-
-            let icon = L.icon({
-                iconUrl: "https://i.imgur.com/ez5qByM.png",
-                iconSize: [32, 32]
-            });
-
-            let garage = garages[0].getLatLng();
-            let marker = L.marker(garage, { icon }).addTo(map);
-            maintenanceCars.push(marker);
-
-            maintenanceCarPrice += 200;
-            console.log("Údržbové auto koupeno a zaparkováno v garáži.");
+            setTimeout(moveVehicle, 1000 / (50 / 3.6)); // Přepočet rychlosti na interval
         }
 
+        moveVehicle();
+
+        // Po dojetí na místo opraví úsek
+        setTimeout(() => {
+            if (money >= 70) {
+                money -= 70;
+                if (targetRoad.status === "red") {
+                    targetRoad.status = "orange";
+                    targetRoad.polyline.setStyle({ color: "orange" });
+                } else if (targetRoad.status === "orange") {
+                    targetRoad.status = "green";
+                    targetRoad.polyline.setStyle({ color: "green" });
+                }
+            } else {
+                alert("Nedostatek peněz na opravu!");
+            }
+
+            vehicle.moving = false; // Auto je volné pro další opravy
+        }, 20000);
+    });
+}
+
+// Tlačítko pro vyslání údržby
+document.getElementById('sendMaintenance').addEventListener('click', sendMaintenanceVehicle);
     
 
     </script>
