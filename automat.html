@@ -389,6 +389,43 @@ function buyMaintenanceVehicle() {
     assignSegmentsToVehicles(); // Přerozdělíme úseky mezi auta
 }
 
+        function moveVehicleToSegment(segment) {
+        if (!segment) {
+            console.log("✅ Všechny silnice jsou opravené! Auto se vrací do garáže.");
+            vehicle.marker.setLatLng(garageLocation);
+            vehicle.moving = false;
+            return;
+        }
+
+        console.log(`🛠 Posílám údržbu na: ${segment.coordinates[0]}`);
+
+        vehicle.moving = true;
+        let route = [...segment.coordinates];
+        let speed = 50 / 3600; // 50 km/h v m/s
+        let currentIndex = 0; // Tady se definuje currentIndex
+
+        function moveVehicle() {
+            if (currentIndex < route.length) {
+                let nextPoint = L.latLng(route[currentIndex]);
+                vehicle.marker.setLatLng(nextPoint);
+                currentIndex++;
+                setTimeout(moveVehicle, 1000); // Pohyb auta každou sekundu
+            } else {
+                console.log("🚧 Oprava silnice zahájena...");
+                setTimeout(() => {
+                    repairSegment(segment);
+                    console.log("✅ Silnice opravena!");
+                    moveVehicleToSegment(findNextSegment()); // Hledá další úsek
+                }, 20000); // Oprava trvá 20 vteřin
+            }
+        }
+
+        moveVehicle(); // Spustí pohyb auta
+    }
+
+    moveVehicleToSegment(findNextSegment()); // Začíná pohyb na první úsek
+}
+
 function assignSegmentsToVehicles() {
     let repairableSegments = roadSegments.filter(s => s.status === "red" || s.status === "orange");
 
@@ -426,42 +463,7 @@ function sendMaintenanceVehicle(garageLocation) {
         );
     }
 
-    function moveVehicleToSegment(segment) {
-        if (!segment) {
-            console.log("✅ Všechny silnice jsou opravené! Auto se vrací do garáže.");
-            vehicle.marker.setLatLng(garageLocation);
-            vehicle.moving = false;
-            return;
-        }
-
-        console.log(`🛠 Posílám údržbu na: ${segment.coordinates[0]}`);
-
-        vehicle.moving = true;
-        let route = [...segment.coordinates];
-        let speed = 50 / 3600; // 50 km/h v m/s
-        let currentIndex = 0; // Tady se definuje currentIndex
-
-        function moveVehicle() {
-            if (currentIndex < route.length) {
-                let nextPoint = L.latLng(route[currentIndex]);
-                vehicle.marker.setLatLng(nextPoint);
-                currentIndex++;
-                setTimeout(moveVehicle, 1000); // Pohyb auta každou sekundu
-            } else {
-                console.log("🚧 Oprava silnice zahájena...");
-                setTimeout(() => {
-                    repairSegment(segment);
-                    console.log("✅ Silnice opravena!");
-                    moveVehicleToSegment(findNextSegment()); // Hledá další úsek
-                }, 20000); // Oprava trvá 20 vteřin
-            }
-        }
-
-        moveVehicle(); // Spustí pohyb auta
-    }
-
-    moveVehicleToSegment(findNextSegment()); // Začíná pohyb na první úsek
-}
+    
 
 // Funkce pro načítání stavu segmentů při načítání stránky
 function loadSegmentStatus() {  
