@@ -424,7 +424,7 @@ function buyMaintenanceVehicle() {
     }
 
     moveVehicleToSegment(findNextSegment()); // Začíná pohyb na první úsek
-}
+
 
 function assignSegmentsToVehicles() {
     let repairableSegments = roadSegments.filter(s => s.status === "red" || s.status === "orange");
